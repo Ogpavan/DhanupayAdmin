@@ -17,6 +17,29 @@ export default function ForgotPasswordPage() {
   const [step, setStep] = useState(1); // Step 1 = Enter Email, Step 2 = OTP, Step 3 = Reset Password
   const [resendCount, setResendCount] = useState(0); // To track OTP resend attempts
 
+
+
+  //password 
+
+  // At the top, below useState imports
+const passwordRules = {
+    length: (pwd) => pwd.length >= 8,
+    uppercase: (pwd) => /[A-Z]/.test(pwd),
+    lowercase: (pwd) => /[a-z]/.test(pwd),
+    number: (pwd) => /[0-9]/.test(pwd),
+    specialChar: (pwd) => /[!@#$%^&*(),.?":{}|<>]/.test(pwd),
+  };
+  
+  const validatePasswordStrength = (pwd) => {
+    return {
+      length: passwordRules.length(pwd),
+      uppercase: passwordRules.uppercase(pwd),
+      lowercase: passwordRules.lowercase(pwd),
+      number: passwordRules.number(pwd),
+      specialChar: passwordRules.specialChar(pwd),
+    };
+  };
+  
   // Create refs for OTP inputs
   const otpRefs = useRef([]);
 
@@ -63,32 +86,37 @@ export default function ForgotPasswordPage() {
     setStep(3); // Move to Reset Password step
     setError("");
   };
-
   const handlePasswordReset = (e) => {
     e.preventDefault();
-
+  
+    const strength = validatePasswordStrength(newPassword);
+  
     if (!newPassword) {
       setError("Please enter a new password.");
       return;
     }
-
+  
+    if (Object.values(strength).includes(false)) {
+      setError("Password does not meet all requirements.");
+      return;
+    }
+  
     if (newPassword !== confirmPassword) {
       setError("Passwords do not match.");
       return;
     }
-
-    // Simulate password reset
+  
     console.log("Password reset successfully for:", email);
     swal.fire({
-        title: "Success",
-        text: "Password reset successfully",
-        icon: "success",
-        button: "OK",
-      }).then(() => {
-        window.location.href = "/login";
-      });
-    
+      title: "Success",
+      text: "Password reset successfully",
+      icon: "success",
+      confirmButtonText: "OK",
+    }).then(() => {
+      window.location.href = "/login";
+    });
   };
+  
 
   const handleResendOtp = () => {
     setResendCount(resendCount + 1);
@@ -194,7 +222,7 @@ export default function ForgotPasswordPage() {
               </div>
 
               <div className="relative">
-                <Lock className="absolute left-3 top-3.5 text-gray-400" size={20} />
+                <Lock className="absolute left-3  top-2.5 text-gray-400" size={20} />
                 <input
                   type={showNewPassword ? "text" : "password"}
                   placeholder="New Password"
@@ -211,8 +239,12 @@ export default function ForgotPasswordPage() {
                 </button>
               </div>
 
+              {/* Password strength info */}
+
+
+
               <div className="relative">
-                <Lock className="absolute left-3 top-3.5 text-gray-400" size={20} />
+                <Lock className="absolute left-3  top-2.5 text-gray-400" size={20} />
                 <input
                   type={showConfirmPassword ? "text" : "password"}
                   placeholder="Confirm Password"
@@ -228,6 +260,19 @@ export default function ForgotPasswordPage() {
                   {showConfirmPassword ? <EyeSlash size={20} /> : <Eye size={20} />}
                 </button>
               </div>
+
+              <div className="text-sm mt-2 ml-4 text-gray-600 space-y-1">
+  {Object.entries(validatePasswordStrength(newPassword)).map(([key, valid]) => (
+    <div key={key} className={`flex items-center gap-2 ${valid ? 'text-green-600' : 'text-red-500'}`}>
+      <span>•</span>
+      {key === "length" && "At least 8 characters"}
+      {key === "uppercase" && "At least 1 uppercase letter"}
+      {key === "lowercase" && "At least 1 lowercase letter"}
+      {key === "number" && "At least 1 number"}
+      {key === "specialChar" && "At least 1 special character (!@#$...)"}
+    </div>
+  ))}
+</div>
 
               <button
                 // type="submit"
