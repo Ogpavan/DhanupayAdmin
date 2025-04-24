@@ -37,6 +37,8 @@ function App() {
           <Route path="settings" element={<BasicSettings />} />
           <Route path="profile" element={<Profile />} />
           <Route path="commission" element={<Commision/>} />
+          <Route path="retailer" element={<RetailerRegistration />} />
+          <Route path="distributor" element={<DistributorRegistration />} />
         </Route>
       </Routes>
     </BrowserRouter>
