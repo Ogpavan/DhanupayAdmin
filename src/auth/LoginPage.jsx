@@ -1,12 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   EnvelopeSimple,
   Lock,
   Eye,
   EyeSlash,
 } from "phosphor-react";
-
-// login page image
 import loginpageimage from "/LoginPageImage.png";
 
 export default function LoginPage() {
@@ -15,6 +13,17 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+
+  // Prefill data if remember me was used
+  useEffect(() => {
+    const remembered = localStorage.getItem("rememberMe") === "true";
+    const rememberedUser = localStorage.getItem("rememberedUsername");
+    if (remembered && rememberedUser) {
+      setUsername(rememberedUser);
+      setRememberMe(true);
+    }
+  }, []);
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -31,6 +40,15 @@ export default function LoginPage() {
       if (username === "admin" && password === "password123") {
         localStorage.setItem("token", "fake-token-123");
         localStorage.setItem("user", JSON.stringify({ username }));
+
+        if (rememberMe) {
+          localStorage.setItem("rememberMe", "true");
+          localStorage.setItem("rememberedUsername", username);
+        } else {
+          localStorage.removeItem("rememberMe");
+          localStorage.removeItem("rememberedUsername");
+        }
+
         window.location.href = "/";
       } else {
         setError("Incorrect username or password.");
@@ -39,32 +57,23 @@ export default function LoginPage() {
     }, 800);
   };
 
-  // Determine if there is an error for username or password
   const usernameError = error && error.includes("username");
   const passwordError = error && error.includes("password");
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row">
-      {/* Left: Illustration */}
+      {/* Left Illustration */}
       <div className="w-full md:w-1/2 flex items-center justify-center p-8 bg-gray-100">
-        <img
-          src={loginpageimage} // Replace with actual path
-          alt="Login Illustration"
-          className="max-w-md w-full"
-        />
+        <img src={loginpageimage} alt="Login Illustration" className="max-w-md w-full" />
       </div>
 
-      {/* Right: Login Form */}
+      {/* Right Login Form */}
       <div className="w-full md:w-1/2 flex items-center justify-center p-8">
         <div className="bg-white rounded-2xl p-8 w-full max-w-md">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-1">
-            Welcome to
-          </h2>
+          <h2 className="text-2xl font-semibold text-gray-800 mb-1">Welcome to</h2>
           <h1 className="text-4xl font-bold text-indigo-600 mb-6">Dhanupay</h1>
 
-          {error && (
-            <div className="text-red-500 text-sm mb-4 text-center">{error}</div>
-          )}
+          {error && <div className="text-red-500 text-sm mb-4 text-center">{error}</div>}
 
           <form onSubmit={handleLogin} className="space-y-5">
             {/* Username */}
@@ -102,10 +111,15 @@ export default function LoginPage() {
               </button>
             </div>
 
-            {/* Remember me + Forgot password */}
+            {/* Remember Me and Forgot Password */}
             <div className="flex items-center justify-between text-sm text-gray-600">
               <label className="flex items-center space-x-2">
-                <input type="checkbox" className="accent-indigo-600" />
+                <input
+                  type="checkbox"
+                  className="accent-indigo-600"
+                  checked={rememberMe}
+                  onChange={() => setRememberMe(!rememberMe)}
+                />
                 <span>Remember me</span>
               </label>
               <a href="/forgot-password" className="text-indigo-600 hover:underline">
