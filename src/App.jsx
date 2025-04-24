@@ -8,6 +8,8 @@ import PrivateRoute from "./components/PrivateRoute";
 import ForgotPasswordPage from "./auth/ForgotPasswordPage";
 import BasicSettings from "./pages/BasicSettings";
 import Profile from "./pages/Profile";
+import RetailerRegistration from "./pages/Retailer";
+import DistributorRegistration from "./pages/Distributor";
 
 function App() {
   return (
@@ -33,6 +35,9 @@ function App() {
           <Route path="transactions" element={<Transactions />} />
           <Route path="settings" element={<BasicSettings />} />
           <Route path="profile" element={<Profile />} />
+
+          <Route path="retailer" element={<RetailerRegistration />} />
+          <Route path="distributor" element={<DistributorRegistration />} />
         </Route>
       </Routes>
     </BrowserRouter>
