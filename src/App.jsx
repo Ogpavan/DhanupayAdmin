@@ -6,6 +6,8 @@ import Transactions from "./pages/Transactions";
 import LoginPage from "./auth/LoginPage";
 import PrivateRoute from "./components/PrivateRoute";
 import ForgotPasswordPage from "./auth/ForgotPasswordPage";
+import BasicSettings from "./pages/BasicSettings";
+import Profile from "./pages/Profile";
 
 function App() {
   return (
@@ -29,6 +31,8 @@ function App() {
           <Route index element={<Dashboard />} />
           <Route path="users" element={<Users />} />
           <Route path="transactions" element={<Transactions />} />
+          <Route path="settings" element={<BasicSettings />} />
+          <Route path="profile" element={<Profile />} />
         </Route>
       </Routes>
     </BrowserRouter>
