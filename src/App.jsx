@@ -9,6 +9,8 @@ import ForgotPasswordPage from "./auth/ForgotPasswordPage";
 import BasicSettings from "./pages/BasicSettings";
 import Profile from "./pages/Profile";
 import Commision from "./pages/Commision";
+import RetailerRegistration from "./pages/Retailer";
+import DistributorRegistration from "./pages/Distributor";
 
 function App() {
   return (

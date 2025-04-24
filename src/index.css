@@ -5,4 +5,20 @@
 /* Optional: Global font setup */
 body {
   @apply font-sans;
+
+
+  .btn {
+    @apply px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700;
+  }
+  
+  .btn-primary {
+    @apply bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700;
+  }
+  .btn-outline {
+    @apply border border-gray-400 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-100;
+  }
+  .btn-success {
+    @apply bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700;
+  }
+  
 }
