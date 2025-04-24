@@ -16,7 +16,7 @@ export default function MainLayout() {
         <Sidebar />
 
         {/* Dynamic page content */}
-        <main className="flex-1 p-6 bg-gray-50 overflow-auto">
+        <main className="flex-1 px-6 py-3 bg-gray-50 overflow-auto">
           <Outlet />
         </main>
       </div>

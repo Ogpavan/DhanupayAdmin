@@ -8,6 +8,7 @@ import PrivateRoute from "./components/PrivateRoute";
 import ForgotPasswordPage from "./auth/ForgotPasswordPage";
 import BasicSettings from "./pages/BasicSettings";
 import Profile from "./pages/Profile";
+import Commision from "./pages/Commision";
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
           <Route path="transactions" element={<Transactions />} />
           <Route path="settings" element={<BasicSettings />} />
           <Route path="profile" element={<Profile />} />
+          <Route path="commission" element={<Commision/>} />
         </Route>
       </Routes>
     </BrowserRouter>

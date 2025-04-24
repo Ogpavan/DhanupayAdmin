@@ -9,6 +9,7 @@ export default function Sidebar() {
     { to: "/users", label: "Users & Account", icon: <Users size={24} weight="fill" /> },
     { to: "/transactions", label: "Transactions", icon: <Wallet size={24} weight="fill" /> },
     { to: "/settings", label: "Basic Settings", icon: <Gear size={24} weight="fill" /> },
+    { to: "/commission", label: "Commission", icon: <Gear size={24} weight="fill" /> },
   ];
 
   return (

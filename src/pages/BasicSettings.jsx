@@ -3,7 +3,8 @@ import React from 'react'
 function BasicSettings() {
   return (
     <div>
-      <h1>Basic Settings</h1>
+      
+      <h2 className="text-2xl font-semibold">Basic Settings</h2>
     </div>
   )
 }
