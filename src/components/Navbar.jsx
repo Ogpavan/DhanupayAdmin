@@ -98,7 +98,7 @@ export default function Navbar() {
     <nav className="bg-indigo-700  text-white px-8 py-4 flex items-center justify-between shadow-md">
       <h1 className="text-2xl font-semibold">Dhanupay Admin</h1>
       <div className="flex items-center gap-6">
-        {data.map((item, index) => (
+        {/* {data.map((item, index) => (
           <div
             key={index}
             className="flex flex-col items-center justify-center text-center text-white cursor-pointer hover:text-blue-300 transition-all duration-200"
@@ -109,7 +109,7 @@ export default function Navbar() {
             </div>
             <span className="text-xs">{item.label}</span>
           </div>
-        ))}
+        ))} */}
         <span className="text-sm text-white">Hi, {user?.username || "Admin"}</span>
         <button
           onClick={handleLogout}
