@@ -4,7 +4,7 @@ import { CurrencyDollar, ChartBar, Users } from 'phosphor-react';
 export default function UserDashboard() {
   return (
     <div>
-      <h2 className="text-2xl font-semibold">Welcome to Dhanupay Admin!</h2>
+      <h2 className="text-2xl font-semibold">Welcome to Dhanupay </h2>
       <p className="mt-2 text-gray-600">Here’s a summary of your key data</p>
 
       {/* Cards with icons */}

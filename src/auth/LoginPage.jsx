@@ -38,9 +38,15 @@ export default function LoginPage() {
 
     setTimeout(() => {
       if (username === "admin" && password === "password123") {
+        // Store username and user type in localStorage
+        localStorage.setItem("username", username);
+        localStorage.setItem("userType", "admin");
         // After successful login, set step to OTP
         setStep("otp");
       } else if (username === "user" && password === "user123") {
+         // Store username and user type in localStorage
+         localStorage.setItem("username", username);
+         localStorage.setItem("userType", "user");
         setStep("otp");
       } else {
         setError("Incorrect username or password.");
