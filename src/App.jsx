@@ -9,8 +9,8 @@ import ForgotPasswordPage from "./auth/ForgotPasswordPage";
 import BasicSettings from "./AdminPages/BasicSettings";
 import Profile from "./AdminPages/Profile";
 import Commision from "./AdminPages/Commision";
-import RetailerRegistration from "./AdminPages/Retailer";
-import DistributorRegistration from "./AdminPages/Distributor";
+
+import Registration from "./AdminPages/Registration";
 
 function App() {
   return (
@@ -37,9 +37,8 @@ function App() {
           <Route path="settings" element={<BasicSettings />} />
           <Route path="profile" element={<Profile />} />
           <Route path="commission" element={<Commision/>} />
-          <Route path="retailer" element={<RetailerRegistration />} />
-          <Route path="distributor" element={<DistributorRegistration />} />
-        </Route>
+          <Route path="registration" element={<Registration />} />
+                  </Route>
       </Routes>
     </BrowserRouter>
   );

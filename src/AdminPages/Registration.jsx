@@ -9,7 +9,7 @@ const steps = [
     "Video KYC", // New Step
   ];
   
-  export default function DistributorRegistration() {
+  export default function Registration() {
     const [currentStep, setCurrentStep] = useState(0);
     const [formData, setFormData] = useState({
       firstName: "",
@@ -46,7 +46,7 @@ const steps = [
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-5 bg-white rounded-xl border border-gray-200">
-      <h1 className="text-2xl font-semibold mb-6 text-center pb-5">Distributor Registration</h1>
+      <h1 className="text-2xl font-semibold mb-6 text-center pb-5">Registration</h1>
 
       {/* Stepper */}
       <div className="flex items-center justify-between mb-10 relative">
