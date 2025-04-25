@@ -40,6 +40,7 @@ export default function Sidebar() {
           <NavLink
             key={index}
             to={link.to}
+            end={link.to === "/admin" || link.to === "/user"}
             className={({ isActive }) =>
               `flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
                 isActive ? "bg-indigo-700 text-white" : "text-gray-900 hover:text-indigo-700"
