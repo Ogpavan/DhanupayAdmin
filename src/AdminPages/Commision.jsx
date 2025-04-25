@@ -1,27 +1,32 @@
 import React, { useState, useEffect, useRef } from "react";
 import Swal from "sweetalert2";
-
 const initialData = [
-  { operator: "Airtel", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
-  { operator: "Airtel Digital TV", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
-  { operator: "Big TV", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
-  { operator: "BSNL Recharge", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
-  { operator: "BSNL Topup", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
-  { operator: "Dish TV", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
-  { operator: "Idea", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
-  { operator: "Independent TV", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
-  { operator: "JIO", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },  { operator: "Airtel", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
-  { operator: "Airtel Digital TV", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
-  { operator: "Big TV", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
-  { operator: "BSNL Recharge", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
-  { operator: "BSNL Topup", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
-  { operator: "Dish TV", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
-  { operator: "Idea", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
-  { operator: "Independent TV", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
-  { operator: "JIO", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] }
-  
+  { operator: "Prepaid Mobile", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
+  { operator: "Postpaid Mobile", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
+  { operator: "AEPS 1", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
+  { operator: "AEPS 2", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
+  { operator: "CMS", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
+  { operator: "M-ATM", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
+  { operator: "DMT 1", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
+  { operator: "DMT 2", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
+  { operator: "Flight Booking", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },  { operator: "Airtel", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
+  { operator: "Aadhaar Pay", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
+  { operator: "Cash Deposit", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
+  { operator: "Move to Bank", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
+  { operator: "Insurance", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
+  { operator: "Loan", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
+  { operator: "Credit Card", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
+  { operator: "Account Opening", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
+  { operator: "IRCTC", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
+  { operator: "Motor Insurance", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
+  { operator: "Personal Loan", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
+  { operator: "Loan Repayment", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
+  { operator: "Education Fee", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
+  { operator: "Insurance Premium", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
+  { operator: "Fastag", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
+  { operator: "BroadBand", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
+  { operator: "DTH", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
 ];
-
 const Commission = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [tableData, setTableData] = useState(initialData);
