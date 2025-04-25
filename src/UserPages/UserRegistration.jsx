@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
 
 // Steps array
 const steps = [
@@ -11,6 +13,7 @@ const steps = [
 ];
 
 export default function UserRegistration() {
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState({
     firstName: "",
@@ -26,6 +29,8 @@ export default function UserRegistration() {
     state: "",
     businessName: "",
     firmName: "",
+    latitude: "", // New field
+    longitude: "", // New field
     aadhaar: "",
     aadhaarFront: null,
     aadhaarBack: null,
@@ -35,9 +40,18 @@ export default function UserRegistration() {
     shopPhoto: null,     // New
     video: null,         // New
     userType: "",        // Added userType here
+    // Shop Address State
+    shopHouseNo: "",
+    shopArea: "",
+    shopLandmark: "",
+    shopPincode: "",
+    shopCity: "",
+    shopState: "",
   });
 
   const [isAdmin, setIsAdmin] = useState(false);
+  const [states, setStates] = useState([]);
+  const [cities, setCities] = useState([]);
 
   useEffect(() => {
     // Check the user type in localStorage
@@ -45,19 +59,55 @@ export default function UserRegistration() {
     if (storedUserType === "Admin") {
       setIsAdmin(true);
     }
+
+    // Fetch states (simulated API call)
+    fetchStates();
   }, []);
 
-  const userTypeOptions = isAdmin
-  ? ["Master Distributor", "Distributor", "Retailer", "White Label"]
-  : ["Master Distributor", "Retailer"];
+  const fetchStates = async () => {
+    // Simulate fetching states from an API
+    const fetchedStates = ["Uttar Pradesh", "Maharashtra", "Bihar", "Delhi", "Karnataka", "Tamil Nadu", "West Bengal", "Other"];
+    setStates(fetchedStates);
+  };
+
+  const fetchCities = async (state) => {
+    // Simulate fetching cities from an API based on the selected state
+    let fetchedCities = [];
+    if (state === "Uttar Pradesh") {
+      fetchedCities = ["Lucknow", "Kanpur", "Varanasi"];
+    } else if (state === "Maharashtra") {
+      fetchedCities = ["Mumbai", "Pune", "Nagpur"];
+    } else if (state === "Bihar") {
+      fetchedCities = ["Patna", "Gaya", "Bhagalpur"];
+    } else {
+      fetchedCities = ["Delhi", "Bangalore", "Chennai"];
+    }
+    setCities(fetchedCities);
+  };
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     setFormData({ ...formData, [name]: files ? files[0] : value });
   };
 
+  const handleCopyResidentialAddress = () => {
+    setFormData({
+      ...formData,
+      shopHouseNo: formData.houseNo,
+      shopArea: formData.area,
+      shopLandmark: formData.landmark,
+      shopPincode: formData.pincode,
+      shopCity: formData.city,
+      shopState: formData.state,
+    });
+  };
+
   const nextStep = () => setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1));
   const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 0));
+
+  const userTypeOptions = isAdmin
+    ? ["Master Distributor", "Distributor", "Retailer", "White Label"]
+    : ["Master Distributor", "Retailer"];
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-5 bg-white rounded-xl border border-gray-200">
@@ -100,7 +150,6 @@ export default function UserRegistration() {
         {currentStep === 0 && (
           <>
             <div className="flex gap-4">
-              {/* New Select for User Type */}
               <Select
                 label="User Type"
                 name="userType"
@@ -130,33 +179,18 @@ export default function UserRegistration() {
                 label="State"
                 name="state"
                 value={formData.state}
-                onChange={handleChange}
-                options={[
-                  "Uttar Pradesh",
-                  "Maharashtra",
-                  "Bihar",
-                  "Delhi",
-                  "Karnataka",
-                  "Tamil Nadu",
-                  "West Bengal",
-                  "Other",
-                ]}
+                onChange={(e) => {
+                  handleChange(e);
+                  fetchCities(e.target.value);
+                }}
+                options={states}
               />
               <Select
                 label="City"
                 name="city"
                 value={formData.city}
                 onChange={handleChange}
-                options={[
-                  "Lucknow",
-                  "Mumbai",
-                  "Patna",
-                  "Bangalore",
-                  "Chennai",
-                  "Delhi",
-                  "Kolkata",
-                  "Other",
-                ]}
+                options={cities}
               />
             </div>
           </>
@@ -167,56 +201,46 @@ export default function UserRegistration() {
             <div className="flex gap-4">
               <Input label="Business Name" name="businessName" value={formData.businessName} onChange={handleChange} className="w-1/2" />
               <Input label="Firm or Shop Name" name="firmName" value={formData.firmName} onChange={handleChange} className="w-1/2" />
+
             </div>
             <div className="w-full">
               <button
                 type="button"
                 className=" bg-blue-500 text-white px-4 py-2 rounded-md "
+                onClick={handleCopyResidentialAddress}
               >
                 Same as Residential Address
               </button>
             </div>
-            <Input label="Landmark" name="landmark" value={formData.landmark} onChange={handleChange} />
-            <Input label="Pincode" name="pincode" value={formData.pincode} onChange={handleChange} />
+            <div className="flex gap-4">            
+              <Input label="Latitude" name="latitude" value={formData.latitude} onChange={handleChange} className="w-1/2" />
+              <Input label="Longitude" name="longitude" value={formData.longitude} onChange={handleChange} className="w-1/2" />
+            </div>
+
+            <Input label="Landmark" name="shopLandmark" value={formData.shopLandmark} onChange={handleChange} />
+            <Input label="Pincode" name="shopPincode" value={formData.shopPincode} onChange={handleChange} />
             <div className="flex gap-4 w-full">
               <Select
                 label="State"
-                name="state"
-                value={formData.state}
+                name="shopState"
+                value={formData.shopState}
                 onChange={handleChange}
-                options={[
-                  "Uttar Pradesh",
-                  "Maharashtra",
-                  "Bihar",
-                  "Delhi",
-                  "Karnataka",
-                  "Tamil Nadu",
-                  "West Bengal",
-                  "Other",
-                ]}
+                options={states}
                 className="w-1/2"
               />
               <Select
                 label="City"
-                name="city"
-                value={formData.city}
+                name="shopCity"
+                value={formData.shopCity}
                 onChange={handleChange}
-                options={[
-                  "Lucknow",
-                  "Mumbai",
-                  "Patna",
-                  "Bangalore",
-                  "Chennai",
-                  "Delhi",
-                  "Kolkata",
-                  "Other",
-                ]}
+                options={cities}
                 className="w-1/2"
               />
             </div>
           </>
         )}
 
+        {/* Remaining Steps */}
         {currentStep === 3 && (
           <>
             <Input label="Aadhaar Number" name="aadhaar" value={formData.aadhaar} onChange={handleChange} />
@@ -251,7 +275,68 @@ export default function UserRegistration() {
             Next
           </button>
         ) : (
-          <button onClick={() => console.log(formData)} className="btn-success">
+          <button
+            onClick={() => {
+              // Grouped Data for each category
+              const structuredData = {
+                "Basic Details": {
+                  firstName: formData.firstName,
+                  lastName: formData.lastName,
+                  mobile: formData.mobile,
+                  altMobile: formData.altMobile,
+                  email: formData.email,
+                  userType: formData.userType,
+                },
+                "Residential Details": {
+                  houseNo: formData.houseNo,
+                  area: formData.area,
+                  landmark: formData.landmark,
+                  pincode: formData.pincode,
+                  city: formData.city,
+                  state: formData.state,
+                },
+                "Business Details": {
+                  businessName: formData.businessName,
+                  firmName: formData.firmName,
+                  shopHouseNo: formData.shopHouseNo,
+                  shopArea: formData.shopArea,
+                  shopLandmark: formData.shopLandmark,
+                  shopPincode: formData.shopPincode,
+                  shopCity: formData.shopCity,
+                  shopState: formData.shopState,
+                  latitude: formData.latitude, // New field
+                  longitude: formData.longitude, // New field
+                },
+                "Aadhaar Details": {
+                  aadhaar: formData.aadhaar,
+                  aadhaarFront: formData.aadhaarFront,
+                  aadhaarBack: formData.aadhaarBack,
+                },
+                "PAN Details": {
+                  pan: formData.pan,
+                  PAN: formData.PAN,
+                },
+                "Video KYC": {
+                  profilePhoto: formData.profilePhoto,
+                  shopPhoto: formData.shopPhoto,
+                  video: formData.video,
+                },
+              };
+
+              // Log the structured data
+              console.log(JSON.stringify(structuredData, null, 2));
+              Swal.fire({
+                title: "Success!",
+                text: "Your registration was successful.",
+                icon: "success",
+                confirmButtonText: "Okay",
+              }).then(() => {
+                // After the user clicks "Okay", navigate to the dashboard
+                navigate("/user");
+              });
+            }}
+            className="btn-success"
+          >
             Submit
           </button>
         )}
