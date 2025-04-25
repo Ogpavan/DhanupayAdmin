@@ -1,109 +1,187 @@
 import React, { useState } from 'react';
-import { AgGridReact } from 'ag-grid-react';
-import transactions from '../API_data/transactions'; // Your original data import
-import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community';
-
-ModuleRegistry.registerModules([AllCommunityModule]);
-
-// Custom cell renderer for the status toggle button
-const ToggleButtonRenderer = (props) => {
-  const [isOn, setIsOn] = useState(props.value);
-
-  const toggleStatus = () => {
-    const newStatus = !isOn;
-    setIsOn(newStatus);
-    props.node.setDataValue('status', newStatus);
-  };
-
-  return (
-    <button
-      onClick={toggleStatus}
-      style={{
-        backgroundColor: isOn ? 'green' : 'red',
-        color: 'white',
-        border: 'none',
-        // padding: '5px 18px',
-        width: '40px',
-        cursor: 'pointer',
-      }}
-    >
-      {isOn ? 'ON' : 'OFF'}
-    </button>
-  );
-};
+import transactions from '../API_data/transactions';
 
 export default function Transactions() {
-  const [editedRows, setEditedRows] = useState({}); // Store edited rows dynamically
+  const itemsPerPage = 10;
 
-  const columnDefs = [
-    { headerName: 'Role', field: 'role', editable: true, sortable: true, filter: true },
-    { headerName: 'Firm Name', field: 'firmName', editable: true, sortable: true, filter: true },
-    { headerName: 'Transaction Description', field: 'transactionDescription', editable: true, sortable: true, filter: true },
-    { headerName: 'CR/DR Amount', field: 'crDrAmount', editable: true, sortable: true, filter: true, valueFormatter: (params) => `${params.value.toFixed(2)}` },
-    { headerName: 'Updated Balance', field: 'updatedBalance', editable: true, sortable: true, filter: true, valueFormatter: (params) => `${params.value.toFixed(2)}` },
-    { headerName: 'Transaction Date', field: 'transactionDate', editable: true, sortable: true, filter: true },
-    {
-      headerName: 'Status',
-      field: 'status',
-      cellRenderer: ToggleButtonRenderer, // Use `cellRenderer` for custom renderer
-      editable: true, // Editable column for the status
-      sortable: false,
-      filter: false,
-    },
-  ];
+  const [searchTerm, setSearchTerm] = useState({
+    role: '',
+    firmName: '',
+    transactionDescription: '',
+    crDrAmount: '',
+    updatedBalance: '',
+    transactionDate: '',
+    status: '',
+  });
 
-  const defaultColDef = {
-    flex: 1,
-    minWidth: 150,
-    resizable: true,
-  };
+  const [currentPage, setCurrentPage] = useState(1);
+  const [filteredData, setFilteredData] = useState(transactions);
 
-  // Event handler to capture cell value changes
-  const onCellValueChanged = (event) => {
-    const updatedData = event.data;
-    const { transactionId } = updatedData;
+  const handleSearch = (event, column) => {
+    const value = event.target.value.toLowerCase();
+    setSearchTerm({
+      ...searchTerm,
+      [column]: value,
+    });
 
-    // Add or update the edited row in the state
-    setEditedRows((prevEditedRows) => ({
-      ...prevEditedRows,
-      [transactionId]: updatedData,
-    }));
-  };
-
-  // Event handler to display all edited rows in the console when the button is clicked
-  const showEditedRows = () => {
-    if (Object.keys(editedRows).length > 0) {
-      alert('Edited Rows Data: ' + JSON.stringify(editedRows, null, 2));
+    // If all search inputs are empty, reset to show all transactions
+    if (Object.values(searchTerm).every((val) => val === '')) {
+      setFilteredData(transactions);
     } else {
-      console.log('No rows have been edited.');
+      setFilteredData(
+        transactions.filter((transaction) => {
+          return Object.keys(searchTerm).every((key) => {
+            if (key === 'status') {
+              return (
+                transaction[key] === (value === 'success' ? true : value === 'failed' ? false : transaction[key])
+              );
+            }
+            return transaction[key].toString().toLowerCase().includes(searchTerm[key]);
+          });
+        })
+      );
     }
   };
-  
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
+
+  const pageCount = Math.ceil(filteredData.length / itemsPerPage);
 
   return (
     <div>
-      <div className='flex justify-between items-center  pb-5'>
-      <h2 className="text-2xl font-semibold">Transactions</h2>
-      <button
-        onClick={showEditedRows}
-        style={{ marginTop: '0px', padding: '10px', backgroundColor: 'blue', color: 'white', border: 'none' }}
-      >
-        Show Edited Rows
-      </button>
+      <div className="flex justify-between items-center pb-5">
+        <h2 className="text-2xl font-semibold">Transactions</h2>
       </div>
-      <div className='w-[100%] h-[69vh]'>
-        <AgGridReact
-          rowData={transactions} // Ensure this contains all rows
-          columnDefs={columnDefs} // Pass column definitions
-          defaultColDef={defaultColDef} // Default column options like resizing, sorting
-          pagination={true} // Enable pagination
-          onCellValueChanged={onCellValueChanged} // Attach event handler for value changes
-        />
+
+      <div className="overflow-hidden"> {/* Remove horizontal scroll bar */}
+        <table className="min-w-full table-auto border-collapse">
+          <thead>
+            <tr>
+              <th className="border  px-1 py-2">
+                <input
+                  type="text"
+                  placeholder="Role"
+                  value={searchTerm.role}
+                  onChange={(e) => handleSearch(e, 'role')}
+                  className="border-none text-xs w-10  p-1 rounded-none underline focus:outline-none"
+                />
+              </th>
+              <th className="border px-1 py-1">
+                <input
+                  type="text"
+                  placeholder="Firm Name"
+                  value={searchTerm.firmName}
+                  onChange={(e) => handleSearch(e, 'firmName')}
+                  className="border-none text-xs w-30 p-1 rounded-none underline focus:outline-none"
+                />
+              </th>
+              <th className="border  px-1 py-2">
+                <input
+                  type="text"
+                  placeholder="Description"
+                  value={searchTerm.transactionDescription}
+                  onChange={(e) => handleSearch(e, 'transactionDescription')}
+                  className="border-none text-xs w-30 p-1 rounded-none underline focus:outline-none"
+                />
+              </th>
+              <th className="border px-4 py-2">
+                <input
+                  type="text"
+                  placeholder="Search CR/DR Amount"
+                  value={searchTerm.crDrAmount}
+                  onChange={(e) => handleSearch(e, 'crDrAmount')}
+                  className="border-none text-xs w-12 p-1 rounded-none underline focus:outline-none"
+                />
+              </th>
+              <th className="border px-4 py-2">
+                <input
+                  type="text"
+                  placeholder="Balance"
+                  value={searchTerm.updatedBalance}
+                  onChange={(e) => handleSearch(e, 'updatedBalance')}
+                  className="border-none text-xs w-16 p-1 rounded-none underline focus:outline-none"
+                />
+              </th>
+              <th className="border px-4 py-2">
+                <input
+                  type="text"
+                  placeholder="Date"
+                  value={searchTerm.transactionDate}
+                  onChange={(e) => handleSearch(e, 'transactionDate')}
+                  className="border-none text-xs w-20 p-1 rounded-none underline focus:outline-none"
+                />
+              </th>
+              <th className="border px-4 py-2">
+                <input
+                  type="text"
+                  placeholder="Status"
+                  value={searchTerm.status}
+                  onChange={(e) => handleSearch(e, 'status')}
+                  className="border-none text-xs w-14 p-1 rounded-none underline focus:outline-none"
+                />
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {currentItems.map((transaction, index) => (
+              <tr key={transaction.transactionId} className={index % 2 !== 0 ? 'bg-gray-200' : ''}>
+                <td className="border text-center text-sm py-2">{transaction.role}</td>
+                <td className="border text-center text-sm py-2">{transaction.firmName}</td>
+                <td className="border text-center text-sm py-2">{transaction.transactionDescription}</td>
+                <td className="border text-center text-sm py-2">{transaction.crDrAmount.toFixed(2)}</td>
+                <td className="border text-center text-sm py-2">{transaction.updatedBalance.toFixed(2)}</td>
+                <td className="border text-center text-sm py-2">{transaction.transactionDate}</td>
+                <td className="border text-center text-sm py-2">
+                  <button
+                    className={`status-button ${transaction.status ? 'on' : 'off'}`}
+                    style={{
+                      backgroundColor: transaction.status ? 'green' : 'red',
+                      color: 'white',
+                      padding: '5px 10px',
+                      border: 'none',
+                      borderRadius: '5px',
+                    }}
+                  >
+                    {transaction.status ? 'Success' : 'Failed'}
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
-      
+
+      <div className="flex justify-center py-4">
+        <button
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          className="px-4 py-2 mx-2 bg-gray-300 text-gray-600 rounded-md disabled:opacity-50"
+        >
+          Previous
+        </button>
+        {[...Array(pageCount)].map((_, index) => (
+          <button
+            key={index}
+            onClick={() => handlePageChange(index + 1)}
+            className={`px-4 py-2 mx-2 rounded-md ${currentPage === index + 1 ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-600'}`}
+          >
+            {index + 1}
+          </button>
+        ))}
+        <button
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === pageCount}
+          className="px-4 py-2 mx-2 bg-gray-300 text-gray-600 rounded-md disabled:opacity-50"
+        >
+          Next
+        </button>
+      </div>
     </div>
   );
 }
-
-
-
