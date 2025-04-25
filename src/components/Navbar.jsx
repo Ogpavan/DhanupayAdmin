@@ -116,7 +116,7 @@ export default function Navbar() {
 
   return (
     <nav className="bg-indigo-700 text-white px-8 py-4 flex items-center justify-between shadow-md">
-      <h1 className="text-2xl font-semibold">Dhanupay Admin</h1>
+      <h1 className="text-2xl font-semibold">Dhanupay {user?.username || "Admin"}</h1>
       <div className="flex items-center gap-6">
         {/* Role-based options */}
         {roleBasedData.map((item, index) => (
