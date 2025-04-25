@@ -1,11 +1,7 @@
 import { useState, useEffect, useRef } from "react";
-import {
-  EnvelopeSimple,
-  Lock,
-  Eye,
-  EyeSlash,
-} from "phosphor-react";
+import { EnvelopeSimple, Lock, Eye, EyeSlash } from "phosphor-react";
 import loginpageimage from "/LoginPageImage.png";
+import { useNavigate } from "react-router-dom";
 
 export default function LoginPage() {
   const [step, setStep] = useState("login"); // 'login' or 'otp'
@@ -18,6 +14,7 @@ export default function LoginPage() {
   const [otp, setOtp] = useState(Array(6).fill(""));
 
   const inputRefs = useRef([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const remembered = localStorage.getItem("rememberMe") === "true";
@@ -30,6 +27,7 @@ export default function LoginPage() {
 
   const handleLogin = (e) => {
     e.preventDefault();
+
     if (!username || !password) {
       setError("Please enter both username and password.");
       return;
@@ -40,12 +38,15 @@ export default function LoginPage() {
 
     setTimeout(() => {
       if (username === "admin" && password === "password123") {
+        // After successful login, set step to OTP
+        setStep("otp");
+      } else if (username === "user" && password === "user123") {
         setStep("otp");
       } else {
         setError("Incorrect username or password.");
       }
       setLoading(false);
-    }, 800);
+    }, 1800);
   };
 
   const handleOtpChange = (e, index) => {
@@ -80,6 +81,7 @@ export default function LoginPage() {
 
     setTimeout(() => {
       if (otp.join("") === "123456") {
+        // Set user token and remember settings in local storage
         localStorage.setItem("token", "fake-token-123");
         localStorage.setItem("user", JSON.stringify({ username }));
 
@@ -91,16 +93,18 @@ export default function LoginPage() {
           localStorage.removeItem("rememberedUsername");
         }
 
-        window.location.href = "/";
-      }else {
+        // Redirect user to the appropriate route after OTP verification
+        if (username === "admin") {
+          navigate("/admin"); // Redirect to /admin for admin users
+        } else {
+          navigate("/user"); // Redirect to /user for regular users
+        }
+      } else {
         setError("Invalid OTP.");
       }
       setLoading(false);
     }, 800);
   };
-
-  const usernameError = error && error.includes("username");
-  const passwordError = error && error.includes("password");
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row">
@@ -126,7 +130,7 @@ export default function LoginPage() {
                   type="text"
                   placeholder="Username"
                   className={`w-full pl-10 pr-4 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500 outline-none ${
-                    usernameError ? "border-red-500" : "border-gray-300"
+                    error && error.includes("username") ? "border-red-500" : "border-gray-300"
                   }`}
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
@@ -140,7 +144,7 @@ export default function LoginPage() {
                   type={showPassword ? "text" : "password"}
                   placeholder="Password"
                   className={`w-full pl-10 pr-10 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500 outline-none ${
-                    passwordError ? "border-red-500" : "border-gray-300"
+                    error && error.includes("password") ? "border-red-500" : "border-gray-300"
                   }`}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}

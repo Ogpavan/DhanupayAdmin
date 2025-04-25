@@ -8,7 +8,7 @@ import { themeQuartz } from 'ag-grid-community'; // Import themeQuartz
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 
-const UserCommision = () => {
+const UserCommission = () => {
   const columnDefs = [
     { headerName: 'Operator Name', field: 'operator', editable: true, width: 180 },
     {
@@ -99,4 +99,4 @@ const UserCommision = () => {
   );
 };
 
-export default UserCommision;
+export default UserCommission;
