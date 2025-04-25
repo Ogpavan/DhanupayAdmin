@@ -92,11 +92,8 @@ export default function LoginPage() {
         }
 
         window.location.href = "/";
-      } else {
+      }else {
         setError("Invalid OTP.");
-      }
-      else {
-        setError("Incorrect username or password.");
       }
       setLoading(false);
     }, 800);
