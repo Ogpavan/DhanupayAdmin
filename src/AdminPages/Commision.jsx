@@ -30,7 +30,7 @@ const CommissionComponent = () => {
       <AgGridReact
         rowData={rowData}
         columnDefs={columnDefs}
-        gridOptions={myTheme.config}
+        // gridOptions={myTheme.config}
         defaultColDef={{
           resizable: true,
           sortable: true,
@@ -39,6 +39,7 @@ const CommissionComponent = () => {
           editable: true,
           cellStyle: { borderRight: "1px solid #e0e0e0" },
         }}
+        gridOptions={myTheme.themeQuartz}
       />
     </div>
   );
