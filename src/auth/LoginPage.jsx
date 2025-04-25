@@ -13,6 +13,38 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [otp, setOtp] = useState(Array(6).fill(""));
 
+  const [resendTimer, setResendTimer] = useState(30);
+const [canResend, setCanResend] = useState(false);
+
+// Start resend timer when OTP step is shown
+useEffect(() => {
+  if (step === "otp") {
+    setResendTimer(30);
+    setCanResend(false);
+  }
+}, [step]);
+
+// Countdown effect
+useEffect(() => {
+  if (!canResend && resendTimer > 0) {
+    const timer = setTimeout(() => {
+      setResendTimer((prev) => prev - 1);
+    }, 1000);
+    return () => clearTimeout(timer);
+  } else {
+    setCanResend(true);
+  }
+}, [resendTimer, canResend]);
+
+const handleResendOtp = () => {
+  setOtp(Array(6).fill(""));
+  inputRefs.current[0]?.focus();
+  setResendTimer(30);
+  setCanResend(false);
+  // You can add actual resend logic here (e.g., API call)
+};
+
+
   const inputRefs = useRef([]);
   const navigate = useNavigate();
 
@@ -193,36 +225,51 @@ export default function LoginPage() {
 
           {/* OTP Step */}
           {step === "otp" && (
-            <form onSubmit={handleOtpVerify} className="space-y-5">
-              <div className="text-center text-gray-600 text-sm mb-4">
-                Please enter the 6-digit OTP sent to your registered mobile.
-              </div>
+  <form onSubmit={handleOtpVerify} className="space-y-5">
+    <div className="text-center text-gray-600 text-sm mb-4">
+      Please enter the 6-digit OTP sent to your registered mobile.
+    </div>
 
-              <div className="flex justify-between gap-2">
-                {Array.from({ length: 6 }).map((_, index) => (
-                  <input
-                    key={index}
-                    type="text"
-                    inputMode="numeric"
-                    maxLength="1"
-                    className="w-12 h-12 text-center border rounded-md text-lg outline-none focus:ring-2 focus:ring-indigo-500"
-                    value={otp[index]}
-                    onChange={(e) => handleOtpChange(e, index)}
-                    onKeyDown={(e) => handleOtpKeyDown(e, index)}
-                    ref={(el) => (inputRefs.current[index] = el)}
-                  />
-                ))}
-              </div>
+    <div className="flex justify-between gap-2">
+      {Array.from({ length: 6 }).map((_, index) => (
+        <input
+          key={index}
+          type="text"
+          inputMode="numeric"
+          maxLength="1"
+          className="w-12 h-12 text-center border rounded-md text-lg outline-none focus:ring-2 focus:ring-indigo-500"
+          value={otp[index]}
+          onChange={(e) => handleOtpChange(e, index)}
+          onKeyDown={(e) => handleOtpKeyDown(e, index)}
+          ref={(el) => (inputRefs.current[index] = el)}
+        />
+      ))}
+    </div>
 
-              <button
-                type="submit"
-                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-md font-semibold transition"
-                disabled={loading}
-              >
-                {loading ? "Verifying OTP..." : "Verify OTP"}
-              </button>
-            </form>
-          )}
+    <div className="flex justify-between items-center text-sm text-gray-600">
+      <span>
+        Didn’t receive OTP?{" "}
+        <button
+          type="button"
+          className={`text-indigo-600 font-medium hover:underline disabled:opacity-50`}
+          onClick={handleResendOtp}
+          disabled={!canResend}
+        >
+          {canResend ? "Resend OTP" : `Resend in ${resendTimer}s`}
+        </button>
+      </span>
+    </div>
+
+    <button
+      type="submit"
+      className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-md font-semibold transition"
+      disabled={loading}
+    >
+      {loading ? "Verifying OTP..." : "Verify OTP"}
+    </button>
+  </form>
+)}
+
         </div>
       </div>
     </div>
