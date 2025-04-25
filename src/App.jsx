@@ -1,16 +1,16 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import MainLayout from "./layouts/MainLayout";
-import Dashboard from "./pages/Dashboard";
-import Users from "./pages/Users";
-import Transactions from "./pages/Transactions";
+import Dashboard from "./AdminPages/Dashboard";
+import Users from "./AdminPages/Users";
+import Transactions from "./AdminPages/Transactions";
 import LoginPage from "./auth/LoginPage";
 import PrivateRoute from "./components/PrivateRoute";
 import ForgotPasswordPage from "./auth/ForgotPasswordPage";
-import BasicSettings from "./pages/BasicSettings";
-import Profile from "./pages/Profile";
-import Commision from "./pages/Commision";
-import RetailerRegistration from "./pages/Retailer";
-import DistributorRegistration from "./pages/Distributor";
+import BasicSettings from "./AdminPages/BasicSettings";
+import Profile from "./AdminPages/Profile";
+import Commision from "./AdminPages/Commision";
+import RetailerRegistration from "./AdminPages/Retailer";
+import DistributorRegistration from "./AdminPages/Distributor";
 
 function App() {
   return (
