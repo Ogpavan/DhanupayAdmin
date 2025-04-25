@@ -22,3 +22,20 @@ body {
   }
   
 }
+
+.grid-bordered {
+  border: 1px solid #ccc !important;
+  font-size: 12px !important; /* You can adjust font size here too */
+}
+
+.ag-theme-quartz .ag-header-cell,
+.ag-theme-quartz .ag-cell {
+  border-right: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
+}
+
+/* Optional: remove right border on the last column for clean edges */
+.ag-theme-quartz .ag-cell-last-left-pinned,
+.ag-theme-quartz .ag-header-cell-last-left-pinned {
+  border-right: none !important;
+}

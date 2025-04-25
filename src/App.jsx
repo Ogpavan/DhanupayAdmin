@@ -21,6 +21,7 @@ import UserDashboard from "./UserPages/UserDashboard";
 import UserTransaction from "./UserPages/UserTransactions";
 import UserUsers from "./UserPages/UserUsers";
 import UserRegistration from "./UserPages/UserRegistration";
+import Financial from "./AdminPages/Financial";
 
 
 function App() {
@@ -54,6 +55,7 @@ function App() {
           <Route path="registration" element={<Registration />} />
                   
           <Route path="commission" element={<Commision />} />
+          <Route path="financial" element={<Financial />} />
           
         </Route>
 
