@@ -199,21 +199,6 @@ const Commission = () => {
         </div>
        
       </div>
-    <div className="ag-theme-quartz" style={{ height: "500px", width: "100%" }}>
-      <AgGridReact
-        rowData={rowData}
-        columnDefs={columnDefs}
-        // gridOptions={myTheme.config}
-        defaultColDef={{
-          resizable: true,
-          sortable: true,
-          filter: true,
-          
-          editable: true,
-          cellStyle: { borderRight: "1px solid #e0e0e0" },
-        }}
-        gridOptions={myTheme.themeQuartz}
-      />
     </div>
   );
 };
