@@ -5,12 +5,15 @@ import {
   Bell,
   MagnifyingGlass,
   WarningCircle,
-  Plug // Replacing Wifi with Plug icon
+  Plug, // Replacing Wifi with Plug icon
+  Users, // Added Users icon for user-specific options
 } from "phosphor-react";
 
 // Navbar.jsx
 export default function Navbar() {
   const user = JSON.parse(localStorage.getItem("user"));
+  const token = localStorage.getItem("token");
+  const userType = localStorage.getItem("userType");  // Fetching user type (admin or user)
   const [data, setData] = useState([]);
 
   // Fetch data from JSON (or later from API)
@@ -94,14 +97,32 @@ export default function Navbar() {
     }
   };
 
+  // Conditional rendering for admin and user options
+  const adminData = [
+    { icon: "settings", label: "More Options", action: "moreOptionsAction" },
+    { icon: "warning", label: "VQ Alerts", action: "vqAlertsAction" },
+    { icon: "search", label: "Search", action: "searchAction" },
+    { icon: "bell", label: "Bell", action: "bellAction" },
+    { icon: "api", label: "API Balance", action: "apiDashboardAction" },
+  ];
+
+  const userData = [
+    { icon: "bell", label: "Notifications", action: "bellAction" },
+    { icon: "settings", label: "Account Settings", action: "accountSettingsAction" },
+  ];
+
+  // Sidebar options based on role
+  const roleBasedData = userType === "admin" ? adminData : userData;
+
   return (
-    <nav className="bg-indigo-700  text-white px-8 py-4 flex items-center justify-between shadow-md">
+    <nav className="bg-indigo-700 text-white px-8 py-4 flex items-center justify-between shadow-md">
       <h1 className="text-2xl font-semibold">Dhanupay Admin</h1>
       <div className="flex items-center gap-6">
-        {/* {data.map((item, index) => (
+        {/* Role-based options */}
+        {roleBasedData.map((item, index) => (
           <div
             key={index}
-            className="flex flex-col items-center justify-center text-center text-white cursor-pointer hover:text-blue-300 transition-all duration-200"
+            className="flex flex-col items-center cursor-pointer hover:text-blue-300 transition-all duration-200"
             onClick={() => alert(item.action)} // Placeholder for the action
           >
             <div className="bg-white text-blue-600 rounded-full p-3 mb-2">
@@ -109,7 +130,8 @@ export default function Navbar() {
             </div>
             <span className="text-xs">{item.label}</span>
           </div>
-        ))} */}
+        ))}
+
         <span className="text-sm text-white">Hi, {user?.username || "Admin"}</span>
         <button
           onClick={handleLogout}
