@@ -1,6 +1,6 @@
 // Users page for admin to manage user data
 
-export default function Users() {
+export default function UserUsers() {
     return (
       <div>
         <h2 className="text-2xl font-semibold">Manage Users</h2>

@@ -32,7 +32,7 @@ const ToggleButtonRenderer = (props) => {
   );
 };
 
-export default function Transactions() {
+export default function UserTransactions() {
   const [editedRows, setEditedRows] = useState({}); // Store edited rows dynamically
 
   const columnDefs = [

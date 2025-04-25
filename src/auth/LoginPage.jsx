@@ -50,7 +50,8 @@ export default function LoginPage() {
         }
 
         window.location.href = "/";
-      } else {
+      }
+      else {
         setError("Incorrect username or password.");
       }
       setLoading(false);

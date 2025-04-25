@@ -1,6 +1,6 @@
 import React from 'react'
 
-function BasicSettings() {
+function UserBasicSettings() {
   return (
     <div>
       
@@ -9,4 +9,4 @@ function BasicSettings() {
   )
 }
 
-export default BasicSettings
+export default UserBasicSettings;

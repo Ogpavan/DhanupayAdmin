@@ -12,7 +12,12 @@ import Commision from "./AdminPages/Commision";
 import RetailerRegistration from "./AdminPages/Retailer";
 import UserDistributor from "./UserPages/UserDistributor";
 import UserRetailer from "./UserPages/UserRetailer";
-import 
+import UserProfile from "./UserPages/UserProfile";
+import UserBasicSettings from "./UserPages/UserBasicSettings";
+import UserCommission from "./UserPages/UserCommission";
+import UserDashboard from "./UserPages/UserDashboard";
+import UserTransaction from "./UserPages/UserTransaction";
+import UserUsers from "./UserPages/UserUsers";
 import DistributorRegistration from "./AdminPages/Distributor";
 
 function App() {
@@ -53,13 +58,13 @@ function App() {
             </PrivateRoute>
           }
         >
-          <Route index element={<Dashboard />} />
-          <Route path="users" element={<Users />} />
-          <Route path="transactions" element={<Transactions />} />
-          <Route path="settings" element={<BasicSettings />} />
-          <Route path="profile" element={<Profile />} />
-          <Route path="commission" element={<Commision />} />
-          <Route path="retailer" element={<RetailerRegistration />} />
+          <Route index element={<UserDashboard />} />
+          <Route path="users" element={<UserUsers />} />
+          <Route path="transactions" element={<UserTransaction />} />
+          <Route path="settings" element={<UserBasicSettings />} />
+          <Route path="profile" element={<UserProfile />} />
+          <Route path="commission" element={<UserCommission />} />
+          <Route path="retailer" element={<UserRetailer />} />
           <Route path="distributor" element={<UserDistributor />} />
         </Route>
       </Routes>
