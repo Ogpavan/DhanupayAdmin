@@ -5,25 +5,25 @@ import { House, Users, Wallet, Gear, UserCircleGear } from "phosphor-react";
 export default function Sidebar() {
   // Define the sidebar links for admin and user
   const AdminsidebarLinks = [
-    { to: "/", label: "Dashboard", icon: <House size={24} weight="fill" /> },
-    { to: "/profile", label: "My Profile", icon: <UserCircleGear size={24} weight="fill" /> },
-    { to: "/users", label: "Users & Account", icon: <Users size={24} weight="fill" /> },
-    { to: "/transactions", label: "Transactions", icon: <Wallet size={24} weight="fill" /> },
-    { to: "/retailer", label: "Retailer Registration", icon: <Users size={24} weight="fill" /> },
-    { to: "/distributor", label: "Distributor Registration", icon: <Users size={24} weight="fill" /> },
-    { to: "/settings", label: "Basic Settings", icon: <Gear size={24} weight="fill" /> },
-    { to: "/commission", label: "Commission", icon: <Gear size={24} weight="fill" /> },
+    { to: "/admin", label: "Dashboard", icon: <House size={24} weight="fill" /> },
+    { to: "/admin/profile", label: "My Profile", icon: <UserCircleGear size={24} weight="fill" /> },
+    { to: "/admin/users", label: "Users & Account", icon: <Users size={24} weight="fill" /> },
+    { to: "/admin/transactions", label: "Transactions", icon: <Wallet size={24} weight="fill" /> },
+    { to: "/admin/registration", label: "Registration", icon: <Users size={24} weight="fill" /> },
+    
+    { to: "/admin/settings", label: "Basic Settings", icon: <Gear size={24} weight="fill" /> },
+    { to: "/admin/commission", label: "Commission", icon: <Gear size={24} weight="fill" /> },
   ];
 
   const usersidebarLinks = [
-    { to: "/", label: "Dashboard", icon: <House size={24} weight="fill" /> },
-    { to: "/profile", label: "My Profile", icon: <UserCircleGear size={24} weight="fill" /> },
-    { to: "/users", label: "Users & Account", icon: <Users size={24} weight="fill" /> },
-    { to: "/transactions", label: "Transactions", icon: <Wallet size={24} weight="fill" /> },
-    { to: "/retailer", label: "Retailer Registration", icon: <Users size={24} weight="fill" /> },
+    { to: "/user", label: "Dashboard", icon: <House size={24} weight="fill" /> },
+    { to: "/user/profile", label: "My Profile", icon: <UserCircleGear size={24} weight="fill" /> },
+    { to: "/user/users", label: "Users & Account", icon: <Users size={24} weight="fill" /> },
+    { to: "/user/transactions", label: "Transactions", icon: <Wallet size={24} weight="fill" /> },
+    // { to: "/user/registration", label: "Registration", icon: <Users size={24} weight="fill" /> },
     // { to: "/distributor", label: "Distributor Registration", icon: <Users size={24} weight="fill" /> },
-    { to: "/settings", label: "Basic Settings", icon: <Gear size={24} weight="fill" /> },
-    { to: "/commission", label: "Commission", icon: <Gear size={24} weight="fill" /> },
+    { to: "/user/settings", label: "Basic Settings", icon: <Gear size={24} weight="fill" /> },
+    { to: "/user/commission", label: "Commission", icon: <Gear size={24} weight="fill" /> },
   ];
 
   // Fetch user type from localStorage (either 'admin' or 'user')

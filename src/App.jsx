@@ -9,11 +9,9 @@ import ForgotPasswordPage from "./auth/ForgotPasswordPage";
 import BasicSettings from "./AdminPages/BasicSettings";
 import Profile from "./AdminPages/Profile";
 import Commision from "./AdminPages/Commision";
-<<<<<<< HEAD
 
 import Registration from "./AdminPages/Registration";
-=======
-import RetailerRegistration from "./AdminPages/Retailer";
+ 
 import UserDistributor from "./UserPages/UserDistributor";
 import UserRetailer from "./UserPages/UserRetailer";
 import UserProfile from "./UserPages/UserProfile";
@@ -22,8 +20,7 @@ import UserCommission from "./UserPages/UserCommision";
 import UserDashboard from "./UserPages/UserDashboard";
 import UserTransaction from "./UserPages/UserTransactions";
 import UserUsers from "./UserPages/UserUsers";
-import DistributorRegistration from "./AdminPages/Distributor";
->>>>>>> 907f26cfed927312c7d165c6950374c4a07e881b
+
 
 function App() {
   return (
@@ -52,14 +49,11 @@ function App() {
           <Route path="transactions" element={<Transactions />} />
           <Route path="settings" element={<BasicSettings />} />
           <Route path="profile" element={<Profile />} />
-<<<<<<< HEAD
           <Route path="commission" element={<Commision/>} />
           <Route path="registration" element={<Registration />} />
-                  </Route>
-=======
+                  
           <Route path="commission" element={<Commision />} />
-          <Route path="retailer" element={<RetailerRegistration />} />
-          <Route path="distributor" element={<DistributorRegistration />} />
+          
         </Route>
 
         {/* Private/User Routes */}
@@ -80,7 +74,6 @@ function App() {
           <Route path="retailer" element={<UserRetailer />} />
           <Route path="distributor" element={<UserDistributor />} />
         </Route>
->>>>>>> 907f26cfed927312c7d165c6950374c4a07e881b
       </Routes>
     </BrowserRouter>
   );
