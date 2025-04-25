@@ -20,7 +20,7 @@ export default function Sidebar() {
     { to: "/user/profile", label: "My Profile", icon: <UserCircleGear size={24} weight="fill" /> },
     { to: "/user/users", label: "Users & Account", icon: <Users size={24} weight="fill" /> },
     { to: "/user/transactions", label: "Transactions", icon: <Wallet size={24} weight="fill" /> },
-    // { to: "/user/registration", label: "Registration", icon: <Users size={24} weight="fill" /> },
+    { to: "/user/registration", label: "Registration", icon: <Users size={24} weight="fill" /> },
     // { to: "/distributor", label: "Distributor Registration", icon: <Users size={24} weight="fill" /> },
     { to: "/user/settings", label: "Basic Settings", icon: <Gear size={24} weight="fill" /> },
     { to: "/user/commission", label: "Commission", icon: <Gear size={24} weight="fill" /> },

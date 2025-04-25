@@ -20,6 +20,7 @@ import UserCommission from "./UserPages/UserCommision";
 import UserDashboard from "./UserPages/UserDashboard";
 import UserTransaction from "./UserPages/UserTransactions";
 import UserUsers from "./UserPages/UserUsers";
+import UserRegistration from "./UserPages/UserRegistration";
 
 
 function App() {
@@ -71,8 +72,7 @@ function App() {
           <Route path="settings" element={<UserBasicSettings />} />
           <Route path="profile" element={<UserProfile />} />
           <Route path="commission" element={<UserCommission />} />
-          <Route path="retailer" element={<UserRetailer />} />
-          <Route path="distributor" element={<UserDistributor />} />
+          <Route path="registration" element={<UserRegistration />} />
         </Route>
       </Routes>
     </BrowserRouter>
