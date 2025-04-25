@@ -10,6 +10,9 @@ import BasicSettings from "./AdminPages/BasicSettings";
 import Profile from "./AdminPages/Profile";
 import Commision from "./AdminPages/Commision";
 import RetailerRegistration from "./AdminPages/Retailer";
+import UserDistributor from "./UserPages/UserDistributor";
+import UserRetailer from "./UserPages/UserRetailer";
+import 
 import DistributorRegistration from "./AdminPages/Distributor";
 
 function App() {
@@ -24,7 +27,7 @@ function App() {
 
         {/* Private/Admin Routes */}
         <Route
-          path="/"
+          path="/admin"
           element={
             <PrivateRoute>
               <MainLayout />
@@ -36,9 +39,28 @@ function App() {
           <Route path="transactions" element={<Transactions />} />
           <Route path="settings" element={<BasicSettings />} />
           <Route path="profile" element={<Profile />} />
-          <Route path="commission" element={<Commision/>} />
+          <Route path="commission" element={<Commision />} />
           <Route path="retailer" element={<RetailerRegistration />} />
           <Route path="distributor" element={<DistributorRegistration />} />
+        </Route>
+
+        {/* Private/User Routes (Same as Admin) */}
+        <Route
+          path="/user"
+          element={
+            <PrivateRoute>
+              <MainLayout />
+            </PrivateRoute>
+          }
+        >
+          <Route index element={<Dashboard />} />
+          <Route path="users" element={<Users />} />
+          <Route path="transactions" element={<Transactions />} />
+          <Route path="settings" element={<BasicSettings />} />
+          <Route path="profile" element={<Profile />} />
+          <Route path="commission" element={<Commision />} />
+          <Route path="retailer" element={<RetailerRegistration />} />
+          <Route path="distributor" element={<UserDistributor />} />
         </Route>
       </Routes>
     </BrowserRouter>
