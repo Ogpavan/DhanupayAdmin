@@ -12,8 +12,6 @@ import Commision from "./AdminPages/Commision";
 
 import Registration from "./AdminPages/Registration";
  
-import UserDistributor from "./UserPages/UserDistributor";
-import UserRetailer from "./UserPages/UserRetailer";
 import UserProfile from "./UserPages/UserProfile";
 import UserBasicSettings from "./UserPages/UserBasicSettings";
 import UserCommission from "./UserPages/UserCommision";
