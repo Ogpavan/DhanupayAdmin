@@ -1,53 +1,70 @@
-import { CurrencyDollar, ChartBar, Users } from 'phosphor-react';
-import { useLoader } from '../context/LoaderContext.jsx'
-import { useEffect } from 'react';
+import { useState } from "react";
+import {  Television, Lightning, GasPump, Shield, Drop, WifiHigh, Bank, Car,  DeviceMobile, TelevisionSimple } from "phosphor-react";
 
+const services = [
+  { id: "mobile", label: "Mobile", icon: <DeviceMobile size={24} /> },
+  { id: "dth", label: "DTH", icon: <Television size={24} /> },
+  { id: "electricity", label: "Electricity", icon: <Lightning size={24} /> },
+  { id: "gas", label: "Gas Book", icon: <GasPump size={24} /> },
+  { id: "insurance", label: "Insurance", icon: <Shield size={24} /> },
+  { id: "water", label: "Water", icon: <Drop size={24} /> },
+  { id: "broadband", label: "Broadband", icon: <WifiHigh size={24} /> },
+  { id: "loan", label: "Loan EMI", icon: <Bank size={24} /> },
+  { id: "fastag", label: "FASTag", icon: <Car size={24} /> },
+  { id: "cable", label: "Cable TV", icon: <TelevisionSimple size={24} /> },
+];
 
-export default function UserDashboard() {
+export default function UserDashboard()  {
+  const [activeService, setActiveService] = useState("mobile");
 
-  const { showLoader, hideLoader } = useLoader();
-
-  useEffect(() => {
-    showLoader(); // Show loader immediately
-
-    const timer = setTimeout(() => {
-      hideLoader(); // Hide after 3 seconds
-    }, 1000);
-
-    // Cleanup function to clear timer if component unmounts
-    return () => clearTimeout(timer);
-  }, []); // Empty dependency array ensures this only runs once
-  
   return (
-    <div>
-      <h2 className="text-2xl font-semibold">Welcome to Dhanupay </h2>
-      <p className="mt-2 text-gray-600">Here’s a summary of your key data</p>
+    <div className="p-4">
+      <div className="grid grid-cols-5 gap-2 mb-4">
+        {services.map((service) => (
+          <button
+            key={service.id}
+            onClick={() => setActiveService(service.id)}
+            className={`flex flex-col items-center justify-center p-2 border rounded-lg transition ${activeService === service.id ? "bg-blue-500 text-white" : "bg-white text-gray-700"}`}
+          >
+            {service.icon}
+            <span className="text-xs mt-1">{service.label}</span>
+          </button>
+        ))}
+      </div>
 
-      {/* Cards with icons */}
-      <div className="grid grid-cols-3 gap-4 mt-6">
-        <div className="bg-white p-6 shadow rounded-lg flex items-center space-x-4">
-          <ChartBar size={32} color="#4A90E2" />
-          <div>
-            <h3 className="text-lg font-semibold">Sales Overview</h3>
-            <p className="text-sm text-gray-600">Track your sales performance</p>
+      <div className="bg-white shadow-md rounded-lg p-6">
+        <h2 className="text-xl font-semibold mb-4">{services.find(s => s.id === activeService)?.label} Recharge & Bill Payment</h2>
+        <form className="space-y-4">
+          <input
+            type="text"
+            placeholder="Enter Mobile Number"
+            className="w-full p-2 border rounded"
+          />
+          <div className="flex gap-4">
+            <button type="button" className="flex-1 p-2 border rounded bg-gray-100">Prepaid</button>
+            <button type="button" className="flex-1 p-2 border rounded bg-gray-100">Postpaid</button>
           </div>
-        </div>
-
-        <div className="bg-white p-6 shadow rounded-lg flex items-center space-x-4">
-          <CurrencyDollar size={32} color="#4A90E2" />
-          <div>
-            <h3 className="text-lg font-semibold">Revenue</h3>
-            <p className="text-sm text-gray-600">Total revenue generated</p>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 shadow rounded-lg flex items-center space-x-4">
-          <Users size={32} color="#4A90E2" />
-          <div>
-            <h3 className="text-lg font-semibold">Users</h3>
-            <p className="text-sm text-gray-600">Manage user accounts</p>
-          </div>
-        </div>
+          <select className="w-full p-2 border rounded">
+            <option>Select Operator</option>
+            <option>Airtel</option>
+            <option>Vi</option>
+            <option>Jio</option>
+          </select>
+          <select className="w-full p-2 border rounded">
+            <option>Select Circle</option>
+            <option>Delhi</option>
+            <option>Mumbai</option>
+            <option>Bangalore</option>
+          </select>
+          <input
+            type="number"
+            placeholder="Enter Amount"
+            className="w-full p-2 border rounded"
+          />
+          <button type="submit" className="w-full bg-blue-500 text-white p-2 rounded">
+            Continue
+          </button>
+        </form>
       </div>
     </div>
   );
