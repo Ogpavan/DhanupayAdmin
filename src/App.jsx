@@ -22,6 +22,7 @@ import UserRegistration from "./UserPages/UserRegistration";
 import Financial from "./AdminPages/Financial";
 import { LoaderProvider  } from "./context/LoaderContext.jsx";
 import GlobalLoader from "./components/GlobalLoader";
+import UserReports from "./UserPages/UserReports";
 
 function App() {
   return (
@@ -66,6 +67,7 @@ function App() {
             <Route path="profile" element={<UserProfile />} />
             <Route path="commission" element={<UserCommission />} />
             <Route path="registration" element={<UserRegistration />} />
+            <Route path="reports" element={<UserReports />} />
           </Route>
         </Routes>
       </BrowserRouter>

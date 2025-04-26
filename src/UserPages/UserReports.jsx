@@ -1,28 +1,54 @@
 import React, { useEffect, useState } from 'react';
 import { useLoader } from '../context/LoaderContext.jsx';
-import { ChartBar, CurrencyDollar, Users } from 'phosphor-react';
+import { ChartBar, CurrencyDollar, DeviceMobile, Money, Users } from 'phosphor-react';
 import Swal from 'sweetalert2'; // SweetAlert library for alerts
 
-function BasicSettings() {
+function UserReports() {
   const { showLoader, hideLoader } = useLoader();
   
   // Dummy data to simulate API response
   const dummyData = [
     {
-      title: 'Add State',
-      description: 'Add a new state',
-      icon: ChartBar,
-    },
-    {
-      title: 'Add City',
-      description: 'Add a new city',
-      icon: CurrencyDollar,
-    },
-    {
-      title: 'Users',
-      description: 'Manage user accounts',
-      icon: Users,
-    },
+        title: 'AEPS Report',
+        description: 'Aadhaar Enabled Payment System transaction details',
+        icon: ChartBar,
+      },
+      {
+        title: 'MATM Report',
+        description: 'Merchant ATM withdrawal details',
+        icon: Money, // Phosphor icon for ATM transactions
+      },
+      {
+        title: 'DMT Report',
+        description: 'Domestic Money Transfer transactions',
+        icon: Money, // Relevant Phosphor icon for money transfers
+      },
+      {
+        title: 'Cash Deposit Report',
+        description: 'Cash deposit details in bank accounts',
+        icon: Money, // Icon for cash deposit
+      },
+      {
+        title: 'Mobile Recharge Report',
+        description: 'Details of mobile recharge transactions',
+        icon: DeviceMobile, // Phosphor icon for mobile recharge
+      },
+      {
+        title: 'Bill Payment Report',
+        description: 'Utility bill payment transaction details',
+        icon: DeviceMobile, // Phosphor icon for bill payments
+      },
+      {
+        title: 'Move To Bank Report',
+        description: 'Funds transferred to bank account details',
+        icon: DeviceMobile, // Icon for move-to-bank transactions
+      },
+      {
+        title: 'Ledger Report',
+        description: 'Detailed account ledger report',
+        icon: DeviceMobile, // Icon representing ledger details
+      }
+      
   ];
 
   const [settingsData, setSettingsData] = useState([]);
@@ -69,8 +95,8 @@ function BasicSettings() {
 
   return (
     <div>
-      <h2 className="text-2xl font-semibold">Basic Settings</h2>
-      <p className="mt-2 text-gray-600">Manage your settings here</p>
+      <h2 className="text-2xl font-semibold">Reports</h2>
+      <p className="mt-2 text-gray-600">View Your All Reports Here</p>
 
       {/* Cards with icons */}
       <div className="grid grid-cols-3 gap-4 mt-6">
@@ -211,66 +237,6 @@ function BasicSettings() {
 
 
 
-{/* Conditionally render modal for each setting */}
-{modalVisible !== null && settingsData[modalVisible].title !== 'Change Password' && (
-        <div className="fixed inset-0 flex justify-center items-center z-50 bg-gray-500 bg-opacity-75">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-           <h2 className="text-xl font-semibold">{settingsData[modalVisible].title}</h2>
-            {/* <h2 className="text-xl font-semibold">Change Your Password</h2> */}
-            {/* <div className="mt-4">
-              <label className="block text-sm font-medium text-gray-600">Old Password</label>
-              <input
-                type="password"
-                value={oldPassword}
-                onChange={(e) => setOldPassword(e.target.value)}
-                className="mt-1 w-full p-2 border border-gray-300 rounded-md"
-                placeholder="Enter your old password"
-              />
-            </div>
-            <div className="mt-4">
-              <label className="block text-sm font-medium text-gray-600">New Password</label>
-              <input
-                type="password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                className="mt-1 w-full p-2 border border-gray-300 rounded-md"
-                placeholder="Enter your new password"
-              />
-            </div>
-            <div className="mt-4">
-              <label className="block text-sm font-medium text-gray-600">Confirm New Password</label>
-              <input
-                type="password"
-                value={confirmNewPassword}
-                onChange={(e) => setConfirmNewPassword(e.target.value)}
-                className="mt-1 w-full p-2 border border-gray-300 rounded-md"
-                placeholder="Confirm your new password"
-              />
-            </div> */}
-            <div className="mt-6 flex justify-end space-x-4">
-              <button
-                onClick={closeModal} // Close modal if Cancel is clicked
-                className="text-gray-500 hover:text-gray-700"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handlePasswordChange}
-                disabled={loading}
-                className={`${
-                  loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500'
-                } text-white py-2 px-4 rounded-lg hover:bg-blue-600`}
-              >
-                {loading ? 'Updating...' : 'Submit'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-
-
-
 
 
 
@@ -279,4 +245,4 @@ function BasicSettings() {
   );
 }
 
-export default BasicSettings;
+export default UserReports;

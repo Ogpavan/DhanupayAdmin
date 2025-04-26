@@ -203,8 +203,6 @@ const UserCommission = () => {
             ))}
           </tbody>
         </table>
-        
-       
       </div>
 
       <div className="flex justify-between items-center mt-4">
