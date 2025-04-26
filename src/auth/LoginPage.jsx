@@ -57,6 +57,8 @@ const handleResendOtp = () => {
     }
   }, []);
 
+
+  //this is handle login
   const handleLogin = (e) => {
     e.preventDefault();
 
@@ -84,7 +86,7 @@ const handleResendOtp = () => {
         setError("Incorrect username or password.");
       }
       setLoading(false);
-    }, 1800);
+    }, 800);
   };
 
   const handleOtpChange = (e, index) => {
@@ -105,7 +107,7 @@ const handleResendOtp = () => {
       inputRefs.current[index - 1]?.focus();
     }
   };
-
+ //handle otp verify
   const handleOtpVerify = (e) => {
     e.preventDefault();
 

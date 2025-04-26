@@ -11,7 +11,7 @@ import Profile from "./AdminPages/Profile";
 import Commision from "./AdminPages/Commision";
 
 import Registration from "./AdminPages/Registration";
- 
+
 import UserProfile from "./UserPages/UserProfile";
 import UserBasicSettings from "./UserPages/UserBasicSettings";
 import UserCommission from "./UserPages/UserCommision";
@@ -20,62 +20,56 @@ import UserTransaction from "./UserPages/UserTransactions";
 import UserUsers from "./UserPages/UserUsers";
 import UserRegistration from "./UserPages/UserRegistration";
 import Financial from "./AdminPages/Financial";
-
+import { LoaderProvider  } from "./context/LoaderContext.jsx";
+import GlobalLoader from "./components/GlobalLoader";
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* Redirect / to /login */}
-        <Route path="/" element={<Navigate to="/login" />} />
+    <LoaderProvider >
+      <GlobalLoader />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Navigate to="/login" />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
-        {/* Public Login Route */}
-        <Route path="/login" element={<LoginPage />} />
+          <Route
+            path="/admin"
+            element={
+              <PrivateRoute>
+                <MainLayout />
+              </PrivateRoute>
+            }
+          >
+            <Route index element={<Dashboard />} />
+            <Route path="users" element={<Users />} />
+            <Route path="transactions" element={<Transactions />} />
+            <Route path="settings" element={<BasicSettings />} />
+            <Route path="profile" element={<Profile />} />
+            <Route path="commission" element={<Commision />} />
+            <Route path="registration" element={<Registration />} />
+            <Route path="financial" element={<Financial />} />
+          </Route>
 
-        {/* Public/Forgot Password Route */}
-        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-
-        {/* Private/Admin Routes */}
-        <Route
-          path="/admin"
-          element={
-            <PrivateRoute>
-              <MainLayout />
-            </PrivateRoute>
-          }
-        >
-          <Route index element={<Dashboard />} />
-          <Route path="users" element={<Users />} />
-          <Route path="transactions" element={<Transactions />} />
-          <Route path="settings" element={<BasicSettings />} />
-          <Route path="profile" element={<Profile />} />
-          <Route path="commission" element={<Commision/>} />
-          <Route path="registration" element={<Registration />} />
-                  
-          <Route path="commission" element={<Commision />} />
-          <Route path="financial" element={<Financial />} />
-          
-        </Route>
-
-        {/* Private/User Routes */}
-        <Route
-          path="/user"
-          element={
-            <PrivateRoute>
-              <MainLayout />
-            </PrivateRoute>
-          }
-        >
-          <Route index element={<UserDashboard />} />
-          <Route path="users" element={<UserUsers />} />
-          <Route path="transactions" element={<UserTransaction />} />
-          <Route path="settings" element={<UserBasicSettings />} />
-          <Route path="profile" element={<UserProfile />} />
-          <Route path="commission" element={<UserCommission />} />
-          <Route path="registration" element={<UserRegistration />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+          <Route
+            path="/user"
+            element={
+              <PrivateRoute>
+                <MainLayout />
+              </PrivateRoute>
+            }
+          >
+            <Route index element={<UserDashboard />} />
+            <Route path="users" element={<UserUsers />} />
+            <Route path="transactions" element={<UserTransaction />} />
+            <Route path="settings" element={<UserBasicSettings />} />
+            <Route path="profile" element={<UserProfile />} />
+            <Route path="commission" element={<UserCommission />} />
+            <Route path="registration" element={<UserRegistration />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </LoaderProvider >
   );
 }
 

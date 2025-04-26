@@ -86,6 +86,7 @@ const UserCommission = () => {
         },
         body: JSON.stringify(tableData)
       });
+      
 
       if (!response.ok) throw new Error("Failed to save data");
 
