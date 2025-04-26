@@ -1,113 +1,213 @@
-// import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community';
+import React, { useState, useEffect, useRef } from "react";
+import Swal from "sweetalert2";
 
-// ModuleRegistry.registerModules([AllCommunityModule]);
+const initialData = [
+  { operator: "Prepaid Mobile", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
+  { operator: "Postpaid Mobile", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
+  { operator: "AEPS 1", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
+  { operator: "AEPS 2", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
+  { operator: "CMS", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
+  { operator: "M-ATM", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
+  { operator: "DMT 1", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
+  { operator: "DMT 2", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
+  { operator: "Flight Booking", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },  { operator: "Airtel", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
+  { operator: "Aadhaar Pay", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
+  { operator: "Cash Deposit", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
+  { operator: "Move to Bank", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
+  { operator: "Insurance", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
+  { operator: "Loan", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
+  { operator: "Credit Card", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
+  { operator: "Account Opening", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
+  { operator: "IRCTC", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
+  { operator: "Motor Insurance", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
+  { operator: "Personal Loan", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
+  { operator: "Loan Repayment", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
+  { operator: "Education Fee", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
+  { operator: "Insurance Premium", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
+  { operator: "Fastag", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
+  { operator: "BroadBand", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
+  { operator: "DTH", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
+];
 
-// import React, { useState, useMemo } from 'react';
-// import { AgGridReact } from 'ag-grid-react';
-// import { themeQuartz } from 'ag-grid-community'; // Import themeQuartz
-// import 'ag-grid-community/styles/ag-grid.css';
-// import 'ag-grid-community/styles/ag-theme-alpine.css';
+const UserCommission = () => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [tableData, setTableData] = useState(initialData);
+  const [editingCell, setEditingCell] = useState(null);
+  const [isEditingAll, setIsEditingAll] = useState(false);
+  const [filter, setFilter] = useState("");
+  const inputRef = useRef(null);
 
-// const UserCommission = () => {
-//   const columnDefs = [
-//     { headerName: 'Operator Name', field: 'operator', editable: true, width: 180 },
-//     {
-//       headerName: 'Master Distributor (M/D) %',
-//       children: [
-//         { headerName: '1-100', field: 'md1_100', editable: true, width: 120 },
-//         { headerName: '101-200', field: 'md101_200', editable: true, width: 120 },
-//         { headerName: '201-ABOVE', field: 'md201_above', editable: true, width: 120 },
-//       ],
-//     },
-//     {
-//       headerName: 'Distributor %',
-//       children: [
-//         { headerName: '1-100', field: 'dist1_100', editable: true, width: 120 },
-//         { headerName: '101-200', field: 'dist101_200', editable: true, width: 120 },
-//         { headerName: '201-ABOVE', field: 'dist201_above', editable: true, width: 120 },
-//       ],
-//     },
-//     {
-//       headerName: 'Retailer %',
-//       children: [
-//         { headerName: '1-100', field: 'ret1_100', editable: true, width: 120 },
-//         { headerName: '101-200', field: 'ret101_200', editable: true, width: 120 },
-//         { headerName: '201-ABOVE', field: 'ret201_above', editable: true, width: 120 },
-//       ],
-//     },
-//     {
-//       headerName: 'API %',
-//       children: [
-//         { headerName: '1-100', field: 'api1_100', editable: true, width: 120 },
-//         { headerName: '101-200', field: 'api101_200', editable: true, width: 120 },
-//         { headerName: '201-ABOVE', field: 'api201_above', editable: true, width: 120 },
-//       ],
-//     },
-//     {
-//       headerName: 'WhiteLabel %',
-//       children: [
-//         { headerName: '1-100', field: 'wl1_100', editable: true, width: 120 },
-//         { headerName: '101-200', field: 'wl101_200', editable: true, width: 120 },
-//         { headerName: '201-ABOVE', field: 'wl201_above', editable: true, width: 120 },
-//       ],
-//     },
-//   ];
+  const rowsPerPage = 10;
 
-//   const [rowData, setRowData] = useState([
-//     { operator: 'Airtel', md1_100: 0.25, md101_200: 0.25, md201_above: 0.25, dist1_100: 0.50, dist101_200: 0.50, dist201_above: 0.50, ret1_100: 2.00, ret101_200: 2.00, ret201_above: 2.00, api1_100: 0.00, api101_200: 0.00, api201_above: 0.00, wl1_100: 0.00, wl101_200: 0.00, wl201_above: 0.00 },
-//     { operator: 'Airtel Digital TV', md1_100: 0.25, md101_200: 0.25, md201_above: 0.25, dist1_100: 0.50, dist101_200: 0.50, dist201_above: 0.50, ret1_100: 2.00, ret101_200: 2.00, ret201_above: 2.00, api1_100: 0.00, api101_200: 0.00, api201_above: 0.00, wl1_100: 0.00, wl101_200: 0.00, wl201_above: 0.00 },
-//     { operator: 'Big TV', md1_100: 0.25, md101_200: 0.25, md201_above: 0.25, dist1_100: 0.50, dist101_200: 0.50, dist201_above: 0.50, ret1_100: 2.00, ret101_200: 2.00, ret201_above: 2.00, api1_100: 0.00, api101_200: 0.00, api201_above: 0.00, wl1_100: 0.00, wl101_200: 0.00, wl201_above: 0.00 },
-//     // Add more rows as needed
-//   ]);
+  const filteredData = tableData.filter((row) =>
+    row.operator.toLowerCase().includes(filter.toLowerCase())
+  );
+  const totalPages = Math.ceil(filteredData.length / rowsPerPage);
 
-//   // Customizing theme with borders using themeQuartz
-//   const myTheme = themeQuartz.withParams({
-//     borderColor: "#9696C8", 
-//     wrapperBorder: false, // Disable wrapper border
-//     headerRowBorder: false, // Disable header row border
-//     rowBorder: { style: "dotted", width: 3, color: "#9696C8" }, // Dotted row borders
-//     columnBorder: { style: "dashed",width: 3,  color: "#9696C8" }, // Dashed column borders
-//   });
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [editingCell]);
 
-//   // Inline style for grid container
-//   const gridStyle = useMemo(() => ({ height: "600px", width: "100%" }), []);
+  const handleChangePage = (direction) => {
+    setCurrentPage((prev) => {
+      if (direction === "next" && prev < totalPages) return prev + 1;
+      if (direction === "prev" && prev > 1) return prev - 1;
+      return prev;
+    });
+  };
 
-//   return (
-//     <div className="ag-theme-alpine w-full h-full p-4" style={{ border: "1px solid #ccc" }}>
-//       <div className="flex justify-between items-center mb-4">
-//         <h1 className="text-xl font-semibold">Operator Commission Table</h1>
-//         <button className="bg-blue-500 text-white px-4 py-2 rounded">Save</button>
-//       </div>
-//       <div style={gridStyle} className="ag-theme-quartz">
-//         <AgGridReact
-//           columnDefs={columnDefs}
-//           rowData={rowData}
-//           domLayout="autoHeight"
-//           pagination={true}
-//           editType="fullRow"
-//           gridOptions={{
-//             getRowStyle: () => ({
-//               ...myTheme.rowBorder, // Apply row border inline
-//             }),
-//             getColStyle: () => ({
-//               ...myTheme.columnBorder, // Apply column border inline
-//             }),
-//           }}
-//         />
-//       </div>
-//     </div>
-//   );
-// };
+  const handleCellDoubleClick = (rowIdx, category, valIdx) => {
+    setEditingCell({ rowIdx, category, valIdx });
+  };
 
-// export default UserCommission;
-import React from 'react'
+  const handleCellChange = (e, rowIdx, category, valIdx) => {
+    const updatedData = [...tableData];
+    updatedData[rowIdx][category][valIdx] = parseFloat(e.target.value);
+    setTableData(updatedData);
+  };
 
-function UserCommision() {
+  const handleBlur = () => {
+    setEditingCell(null);
+  };
+
+  const toggleEditAll = () => {
+    setIsEditingAll((prev) => !prev);
+    setEditingCell(null);
+  };
+
+  const saveDataToServer = async () => {
+    try {
+      const response = await fetch("/api/save-commission", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(tableData)
+      });
+
+      if (!response.ok) throw new Error("Failed to save data");
+
+      const result = await response.json();
+      Swal.fire("Success", "Data saved successfully!", "success");
+    } catch (error) {
+      console.error("Save failed:", error);
+      Swal.fire("Error", "Failed to save data.", "error");
+    }
+  };
+
+  const paginatedData = filteredData.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
+
   return (
-    <div>
-      
-    </div>
-  )
-}
+    <div className="overflow-x-auto p-4 text-sm ">
+      <div className="flex justify-between items-center">
+      <div className="mb-4">
+        <input
+          type="text"
+          placeholder="Search by Operator Name..."
+          value={filter}
+          onChange={(e) => {
+            setFilter(e.target.value);
+            setCurrentPage(1);
+          }}
+          className="p-2 border rounded  max-w-xs outline-none  w-64"
+        />
+      </div>
 
-export default UserCommision
+
+      <div className="flex justify-end gap-2 ">
+          <button
+            onClick={toggleEditAll}
+            className="px-6 py-2 bg-yellow-500 text-white rounded shadow-md hover:bg-yellow-600"
+          >
+            {isEditingAll ? "Cancel Edit All" : "Edit All"}
+          </button>
+          <button
+            onClick={saveDataToServer}
+            className="px-6 py-2 bg-green-600 text-white rounded shadow-md hover:bg-green-700"
+          >
+            Save Changes
+          </button>
+        </div>
+
+        </div>
+      <div className="h-full overflow-y-auto">
+        <table className="min-w-full table-auto border-collapse border border-gray-300">
+          <thead>
+            <tr className="bg-gray-200 ">
+              <th className="border border-gray-300 p-2" rowSpan="2">Operator Name</th>
+              <th className="border border-gray-300 p-2" colSpan="3">Master Distributor (M/D) %<br /><span className="text-sm">Including GST (Goods and Service Tax) if commission agent</span></th>
+              <th className="border border-gray-300 p-2" colSpan="3">Distributor %<br /><span className="text-sm">Including GST (Goods and Service Tax) if commission agent</span></th>
+              <th className="border border-gray-300 p-2" colSpan="3">Retailer %<br /><span className="text-sm">Including GST (Goods and Service Tax)</span></th>
+              <th className="border border-gray-300 p-2" colSpan="3">API %<br /><span className="text-sm">Including GST (Goods and Service Tax)</span></th>
+            </tr>
+            <tr className="bg-gray-100">
+              {Array.from({ length: 4 }, () => ["1-100", "101-200", "201-ABOVE"]).flat().map((label, i) => (
+                <th key={i} className="border border-gray-300 p-2 text-xs bg-gray-100">{label}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {paginatedData.map((row, rowIndex) => (
+              <tr key={rowIndex}>
+                <td className="border border-gray-300 p-2 whitespace-nowrap">{row.operator}</td>
+                {["md", "distributor", "retailer", "api"].flatMap((category) => (
+                  row[category].map((val, valIdx) => {
+                    const globalRowIdx = tableData.findIndex(item => item.operator === row.operator);
+                    const isEditing =
+                      isEditingAll ||
+                      (editingCell?.rowIdx === globalRowIdx &&
+                      editingCell?.category === category &&
+                      editingCell?.valIdx === valIdx);
+                    return (
+                      <td
+                        key={`${category}-${valIdx}-${rowIndex}`}
+                        className="border border-gray-300 p-2 text-center cursor-pointer"
+                        onDoubleClick={() => handleCellDoubleClick(globalRowIdx, category, valIdx)}
+                      >
+                        {isEditing ? (
+                          <input
+                            ref={inputRef}
+                            type="number"
+                            step="0.01"
+                            value={val}
+                            onChange={(e) => handleCellChange(e, globalRowIdx, category, valIdx)}
+                            onBlur={handleBlur}
+                            className="w-full text-center border rounded p-1"
+                          />
+                        ) : (
+                          val.toFixed(2)
+                        )}
+                      </td>
+                    );
+                  })
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <div className="flex justify-between items-center mt-4">
+          <button
+            onClick={() => handleChangePage("prev")}
+            disabled={currentPage === 1}
+            className="px-4 py-2 bg-blue-500 text-white rounded disabled:opacity-50"
+          >
+            Previous
+          </button>
+          <span className="text-sm">Page {currentPage} of {totalPages}</span>
+          <button
+            onClick={() => handleChangePage("next")}
+            disabled={currentPage === totalPages}
+            className="px-4 py-2 bg-blue-500 text-white rounded disabled:opacity-50"
+          >
+            Next
+          </button>
+        </div>
+       
+      </div>
+    </div>
+  );
+};
+
+export default UserCommission;
