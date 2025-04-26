@@ -124,7 +124,8 @@ export default function UserRegistration() {
     : ["Master Distributor", "Retailer"];
 
   return (
-    <div className="max-w-3xl mx-auto px-6 py-5 bg-white rounded-xl border border-gray-200">
+    <div className="max-h-[calc(100vh-40vh)]">  
+        <div className="max-w-3xl mx-auto px-6 py-5  bg-white rounded-xl border border-gray-200">
       <h1 className="text-2xl font-semibold mb-6 text-center pb-5">Registration</h1>
 
       {/* Stepper */}
@@ -356,6 +357,8 @@ export default function UserRegistration() {
         )}
       </div>
     </div>
+    </div>
+
   );
 }
 
@@ -372,6 +375,8 @@ function Input({ label, type = "text", name, value, onChange, className = "" }) 
         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
       />
     </div>
+   
+
   );
 }
 
@@ -394,5 +399,7 @@ function Select({ label, name, value, onChange, options = [], className = "" }) 
         ))}
       </select>
     </div>
+   
+
   );
 }

@@ -14,8 +14,10 @@ import { useLoader } from '../context/LoaderContext.jsx'
 
 export default function TransactionList() {
 
+  const [itemsPerPage, setItemsPerPage] = useState(10);  // Add state for items per page
+
  
-  const itemsPerPage = 10;
+  // const itemsPerPage = 10;
 
   const [searchTerm, setSearchTerm] = useState({
     transactionId: '',
@@ -121,7 +123,7 @@ export default function TransactionList() {
         </div>
       </div>
 
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto max-h-[calc(100vh-40vh)]">
         <table className="w-full table-auto border-collapse border border-gray-200">
           <thead>
             {/* Header row */}
@@ -300,15 +302,22 @@ export default function TransactionList() {
             >
               Next
             </button>
-          </div>
-          
-          <div className="text-sm">
-            Page {currentPage} of {pageCount}
-          </div>
-        </div>
-      )}
-      
-      {/* Clear filters button */}
+
+
+            {/* Dropdown to select items per page */}
+            <select
+              value={itemsPerPage}
+              onChange={(e) => setItemsPerPage(parseInt(e.target.value))}
+              className="px-4 py-2 bg-gray-100 text-gray-600 rounded-md"
+            >
+              <option value={10}>10</option>
+              <option value={20}>20</option>
+              <option value={50}>50</option>
+              <option value={100}>100</option>
+            </select>
+
+
+            {/* Clear filters button */}
       {Object.values(searchTerm).some(term => term !== '') && (
         <div className="flex justify-end mt-2">
           <button
@@ -325,12 +334,23 @@ export default function TransactionList() {
               });
               setCurrentPage(1);
             }}
-            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
+            className="px-4 py-2 mx-4 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
           >
             Clear Filters
           </button>
         </div>
       )}
+
+
+          </div>
+          
+          <div className="text-sm">
+            Page {currentPage} of {pageCount}
+          </div>
+        </div>
+      )}
+      
+      
     </div>
   );
 }

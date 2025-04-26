@@ -4,8 +4,9 @@ import users from '../API_data/users';
 import { useLoader } from '../context/LoaderContext.jsx'
 
 export default function UserUsers() {
+  const [itemsPerPage, setItemsPerPage] = useState(10);  // Add state for items per page
 
-  const itemsPerPage = 10;
+  // const itemsPerPage = 10;
 
   const [searchTerm, setSearchTerm] = useState({
     srNo: '',
@@ -42,36 +43,36 @@ export default function UserUsers() {
     const userInfoMatch = user.userInfo?.toString().toLowerCase().includes(searchTerm.userInfo.toLowerCase());
     const distributorIdMatch = user.distributorId?.toString().toLowerCase().includes(searchTerm.distributorId.toLowerCase());
     const userMobileMatch = user.userMobile?.toString().toLowerCase().includes(searchTerm.userMobile.toLowerCase());
-    
+
     // Verification fields - checking nested objects
-    const aadharMatch = searchTerm.aadharStatus === '' || 
+    const aadharMatch = searchTerm.aadharStatus === '' ||
       (searchTerm.aadharStatus === 'true' && user.verification?.aadharStatus) ||
       (searchTerm.aadharStatus === 'false' && !user.verification?.aadharStatus);
-    
-    const panMatch = searchTerm.panStatus === '' || 
+
+    const panMatch = searchTerm.panStatus === '' ||
       (searchTerm.panStatus === 'true' && user.verification?.panStatus) ||
       (searchTerm.panStatus === 'false' && !user.verification?.panStatus);
-    
-    const emailMatch = searchTerm.emailStatus === '' || 
+
+    const emailMatch = searchTerm.emailStatus === '' ||
       (searchTerm.emailStatus === 'true' && user.verification?.emailStatus) ||
       (searchTerm.emailStatus === 'false' && !user.verification?.emailStatus);
-    
+
     // Permission fields - checking nested objects
-    const financeMatch = searchTerm.financePermission === '' || 
+    const financeMatch = searchTerm.financePermission === '' ||
       (searchTerm.financePermission === 'true' && user.permissions?.finance) ||
       (searchTerm.financePermission === 'false' && !user.permissions?.finance);
-    
-    const travelMatch = searchTerm.travelPermission === '' || 
+
+    const travelMatch = searchTerm.travelPermission === '' ||
       (searchTerm.travelPermission === 'true' && user.permissions?.travel) ||
       (searchTerm.travelPermission === 'false' && !user.permissions?.travel);
-    
-    const otherMatch = searchTerm.otherPermission === '' || 
+
+    const otherMatch = searchTerm.otherPermission === '' ||
       (searchTerm.otherPermission === 'true' && user.permissions?.other) ||
       (searchTerm.otherPermission === 'false' && !user.permissions?.other);
-    
+
     return srNoMatch && userInfoMatch && distributorIdMatch && userMobileMatch &&
-           aadharMatch && panMatch && emailMatch &&
-           financeMatch && travelMatch && otherMatch;
+      aadharMatch && panMatch && emailMatch &&
+      financeMatch && travelMatch && otherMatch;
   });
 
   const handleSearch = (event, column) => {
@@ -111,7 +112,7 @@ export default function UserUsers() {
         </div>
       </div>
 
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto max-h-[calc(100vh-40vh)]">
         <table className="w-full table-auto border-collapse border border-gray-200  ">
           <thead>
             {/* First row with main headers and spanning headers */}
@@ -123,7 +124,7 @@ export default function UserUsers() {
               <th colSpan="3" className="border border-gray-200  px-4 py-2 text-center bg-gray-100">Verification</th>
               <th colSpan="3" className="border border-gray-200  px-4 py-2 text-center bg-gray-100">Permission</th>
             </tr>
-            
+
             {/* Second row with sub-headers for verification and permission */}
             <tr>
               {/* Empty cells for the first 4 columns */}
@@ -163,18 +164,18 @@ export default function UserUsers() {
                   className="w-full border-none text-xs p-1 focus:outline-none"
                 />
               </th>
-              
+
               {/* Verification sub-headers */}
               <th className="border border-gray-200  px-4 py-2 text-center bg-gray-50">Aadhar</th>
               <th className="border border-gray-200  px-4 py-2 text-center bg-gray-50">PAN</th>
               <th className="border border-gray-200  px-4 py-2 text-center bg-gray-50">Email</th>
-              
+
               {/* Permission sub-headers */}
               <th className="border border-gray-200  px-4 py-2 text-center bg-gray-50">Finance</th>
               <th className="border border-gray-200  px-4 py-2 text-center bg-gray-50">Travel</th>
               <th className="border border-gray-200  px-4 py-2 text-center bg-gray-50">Other</th>
             </tr>
-            
+
             {/* Third row with search inputs for verification and permission */}
             <tr>
               {/* Empty cells for the first 4 columns */}
@@ -182,10 +183,10 @@ export default function UserUsers() {
               <th className="border border-gray-200  px-4 py-2"></th>
               <th className="border border-gray-200  px-4 py-2"></th>
               <th className="border border-gray-200  px-4 py-2"></th>
-              
+
               {/* Verification search fields */}
               <th className="border border-gray-200  px-4 py-2 text-center">
-                <select 
+                <select
                   value={searchTerm.aadharStatus}
                   onChange={(e) => handleBooleanSearch('aadharStatus', e.target.value)}
                   className="w-full border-none text-xs p-1 focus:outline-none"
@@ -196,7 +197,7 @@ export default function UserUsers() {
                 </select>
               </th>
               <th className="border border-gray-200  px-4 py-2 text-center">
-                <select 
+                <select
                   value={searchTerm.panStatus}
                   onChange={(e) => handleBooleanSearch('panStatus', e.target.value)}
                   className="w-full border-none text-xs p-1 focus:outline-none"
@@ -207,7 +208,7 @@ export default function UserUsers() {
                 </select>
               </th>
               <th className="border border-gray-200  px-4 py-2 text-center">
-                <select 
+                <select
                   value={searchTerm.emailStatus}
                   onChange={(e) => handleBooleanSearch('emailStatus', e.target.value)}
                   className="w-full border-none text-xs p-1 focus:outline-none"
@@ -217,10 +218,10 @@ export default function UserUsers() {
                   <option value="false">Not Verified</option>
                 </select>
               </th>
-              
+
               {/* Permission search fields */}
               <th className="border border-gray-200  px-4 py-2 text-center">
-                <select 
+                <select
                   value={searchTerm.financePermission}
                   onChange={(e) => handleBooleanSearch('financePermission', e.target.value)}
                   className="w-full border-none text-xs p-1 focus:outline-none"
@@ -231,7 +232,7 @@ export default function UserUsers() {
                 </select>
               </th>
               <th className="border border-gray-200  px-4 py-2 text-center">
-                <select 
+                <select
                   value={searchTerm.travelPermission}
                   onChange={(e) => handleBooleanSearch('travelPermission', e.target.value)}
                   className="w-full border-none text-xs p-1 focus:outline-none"
@@ -242,7 +243,7 @@ export default function UserUsers() {
                 </select>
               </th>
               <th className="border border-gray-200  px-4 py-2 text-center">
-                <select 
+                <select
                   value={searchTerm.otherPermission}
                   onChange={(e) => handleBooleanSearch('otherPermission', e.target.value)}
                   className="w-full border-none text-xs p-1 focus:outline-none"
@@ -254,7 +255,7 @@ export default function UserUsers() {
               </th>
             </tr>
           </thead>
-          
+
           <tbody>
             {currentItems.map((user, index) => (
               <tr key={user.srNo} className={index % 2 !== 0 ? 'bg-white' : 'bg-white'}>
@@ -262,7 +263,7 @@ export default function UserUsers() {
                 <td className="border text-xs border-gray-200  text-center ">{user.userInfo}</td>
                 <td className="border text-xs border-gray-200  text-center ">{user.distributorId}</td>
                 <td className="border text-xs border-gray-200  text-center">{user.userMobile}</td>
-                
+
                 {/* Verification status cells with icons */}
                 <td className="border border-gray-200  text-center py-2">
                   {user.verification?.aadharStatus ? (
@@ -285,7 +286,7 @@ export default function UserUsers() {
                     <X size={20} className="mx-auto text-red-600" />
                   )}
                 </td>
-                
+
                 {/* Permission status cells with icons */}
                 <td className="border border-gray-200  text-center py-2">
                   {user.permissions?.finance ? (
@@ -326,7 +327,7 @@ export default function UserUsers() {
           <div className="text-sm text-gray-500">
             Showing {indexOfFirstItem + 1}-{Math.min(indexOfLastItem, filteredData.length)} of {filteredData.length} users
           </div>
-          
+
           <div className="flex">
             <button
               onClick={() => handlePageChange(currentPage - 1)}
@@ -335,7 +336,7 @@ export default function UserUsers() {
             >
               Previous
             </button>
-            
+
             {/* Dynamic pagination buttons */}
             {Array.from({ length: Math.min(pageCount, 5) }, (_, i) => {
               // Show pages around the current page
@@ -353,7 +354,7 @@ export default function UserUsers() {
                 // Otherwise show current page and 2 pages on each side
                 pageNum = currentPage - 2 + i;
               }
-              
+
               return (
                 <button
                   key={i}
@@ -364,7 +365,7 @@ export default function UserUsers() {
                 </button>
               );
             })}
-            
+
             <button
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === pageCount}
@@ -372,15 +373,21 @@ export default function UserUsers() {
             >
               Next
             </button>
-          </div>
-          
-          <div className="text-sm">
-            Page {currentPage} of {pageCount}
-          </div>
-        </div>
-      )}
-      
-      {/* Clear filters button */}
+            {/* Dropdown to select items per page */}
+            <select
+              value={itemsPerPage}
+              onChange={(e) => setItemsPerPage(parseInt(e.target.value))}
+              className="px-4 py-2 bg-gray-100 text-gray-600 rounded-md"
+            >
+              <option value={10}>10</option>
+              <option value={20}>20</option>
+              <option value={50}>50</option>
+              <option value={100}>100</option>
+            </select>
+
+
+
+            {/* Clear filters button */}
       {Object.values(searchTerm).some(term => term !== '') && (
         <div className="flex justify-end mt-2">
           <button
@@ -399,12 +406,23 @@ export default function UserUsers() {
               });
               setCurrentPage(1);
             }}
-            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
+            className="px-4 py-2 mx-4 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
           >
             Clear Filters
           </button>
         </div>
       )}
+          </div>
+
+          <div className="text-sm">
+            Page {currentPage} of {pageCount}
+          </div>
+
+          
+        </div>
+      )}
+
+      
     </div>
   );
 }

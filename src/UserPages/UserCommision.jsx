@@ -148,7 +148,7 @@ const UserCommission = () => {
         </div>
 
         </div>
-      <div className="h-full overflow-y-auto">
+      <div className="h-full overflow-y-auto overflow-x-auto max-h-[calc(100vh-42vh)]">
         <table className="min-w-full table-auto border-collapse border border-gray-300">
           <thead>
             <tr className="bg-gray-200 ">
@@ -203,7 +203,11 @@ const UserCommission = () => {
             ))}
           </tbody>
         </table>
-        <div className="flex justify-between items-center mt-4">
+        
+       
+      </div>
+
+      <div className="flex justify-between items-center mt-4">
           <button
             onClick={() => handleChangePage("prev")}
             disabled={currentPage === 1}
@@ -220,8 +224,6 @@ const UserCommission = () => {
             Next
           </button>
         </div>
-       
-      </div>
     </div>
   );
 };
