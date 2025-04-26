@@ -36,6 +36,11 @@ useEffect(() => {
   }
 }, [resendTimer, canResend]);
 
+/**
+ * Resets the OTP input fields and restarts the resend timer.
+ * Additionally, focus is set to the first OTP input field.
+ * You can add actual resend logic here (e.g., API call) if needed.
+ */
 const handleResendOtp = () => {
   setOtp(Array(6).fill(""));
   inputRefs.current[0]?.focus();
@@ -59,36 +64,55 @@ const handleResendOtp = () => {
 
 
   //this is handle login
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-
+  
     if (!username || !password) {
       setError("Please enter both username and password.");
       return;
     }
-
+  
     setLoading(true);
     setError("");
-
-    setTimeout(() => {
-      if (username === "admin" && password === "password123") {
-        // Store username and user type in localStorage
+  
+    try {
+      const response = await fetch("http://gateway.dhanushop.com/api/users/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, password }),
+      });
+  
+      const data = await response.json();
+  
+      if (response.ok && data?.Token) {
+        // Save token and userid
+        localStorage.setItem("token", data.Token);
+        localStorage.setItem("userId", data.UserId);
         localStorage.setItem("username", username);
-        localStorage.setItem("userType", "admin");
-        // After successful login, set step to OTP
-        setStep("otp");
-      } else if (username === "user" && password === "user123") {
-         // Store username and user type in localStorage
-         localStorage.setItem("username", username);
-         localStorage.setItem("userType", "user");
+  
+        if (rememberMe) {
+          localStorage.setItem("rememberMe", "true");
+          localStorage.setItem("rememberedUsername", username);
+        } else {
+          localStorage.removeItem("rememberMe");
+          localStorage.removeItem("rememberedUsername");
+        }
+  
+        // Go to OTP step
         setStep("otp");
       } else {
-        setError("Incorrect username or password.");
+        setError("Invalid username or password.");
       }
+    } catch (error) {
+      setError("Something went wrong. Please try again.");
+      console.error("Login error:", error);
+    } finally {
       setLoading(false);
-    }, 800);
+    }
   };
-
+  
   const handleOtpChange = (e, index) => {
     const val = e.target.value;
     if (!/^\d*$/.test(val)) return;
