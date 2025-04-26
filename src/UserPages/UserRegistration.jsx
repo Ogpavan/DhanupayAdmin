@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
+import { useLoader } from '../context/LoaderContext.jsx'
 
 // Steps array
 const steps = [
@@ -13,6 +14,19 @@ const steps = [
 ];
 
 export default function UserRegistration() {
+  const { showLoader, hideLoader } = useLoader();
+
+  useEffect(() => {
+    showLoader(); // Show loader immediately
+
+    const timer = setTimeout(() => {
+      hideLoader(); // Hide after 3 seconds
+    }, 1000);
+
+    // Cleanup function to clear timer if component unmounts
+    return () => clearTimeout(timer);
+  }, []); // Empty dependency array ensures this only runs once
+  
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState({

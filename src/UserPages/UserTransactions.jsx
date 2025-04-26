@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Check, X } from 'lucide-react';
 import transactions from '../API_data/transactions';
+import { useLoader } from '../context/LoaderContext.jsx'
 
 // // Sample transaction data (replace this with your actual data source)
 // const transactions = [
@@ -12,6 +13,8 @@ import transactions from '../API_data/transactions';
 // ];
 
 export default function TransactionList() {
+
+ 
   const itemsPerPage = 10;
 
   const [searchTerm, setSearchTerm] = useState({
@@ -42,6 +45,19 @@ export default function TransactionList() {
     const statusMatch = searchTerm.status === '' || 
       (searchTerm.status === 'true' && transaction.status) ||
       (searchTerm.status === 'false' && !transaction.status);
+      const { showLoader, hideLoader } = useLoader();
+
+      useEffect(() => {
+        showLoader(); // Show loader immediately
+    
+        const timer = setTimeout(() => {
+          hideLoader(); // Hide after 3 seconds
+        }, 1000);
+    
+        // Cleanup function to clear timer if component unmounts
+        return () => clearTimeout(timer);
+      }, []); // Empty dependency array ensures this only runs once
+      
     
     return transactionIdMatch && roleMatch && firmNameMatch && transactionDescriptionMatch && 
            crDrAmountMatch && updatedBalanceMatch && transactionDateMatch && statusMatch;

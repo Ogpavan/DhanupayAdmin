@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useLoader } from '../context/LoaderContext.jsx'
 
 const steps = [
     "Basic Details",
@@ -42,6 +43,20 @@ const steps = [
   
     const nextStep = () => setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1));
     const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 0));
+  
+
+    const { showLoader, hideLoader } = useLoader();
+
+  useEffect(() => {
+    showLoader(); // Show loader immediately
+
+    const timer = setTimeout(() => {
+      hideLoader(); // Hide after 3 seconds
+    }, 1000);
+
+    // Cleanup function to clear timer if component unmounts
+    return () => clearTimeout(timer);
+  }, []); // Empty dependency array ensures this only runs once
   
 
   return (

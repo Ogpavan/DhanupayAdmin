@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import Swal from "sweetalert2";
+import { useLoader } from '../context/LoaderContext.jsx'
 
 const initialData = [
   { operator: "Prepaid Mobile", md: [0.25, 0.25, 0.25], distributor: [0.5, 0.5, 0.5], retailer: [2.0, 2.0, 2.0], api: [0.0, 0.0, 0.0] },
@@ -30,6 +31,20 @@ const initialData = [
 ];
 
 const UserCommission = () => {
+
+  const { showLoader, hideLoader } = useLoader();
+
+  useEffect(() => {
+    showLoader(); // Show loader immediately
+
+    const timer = setTimeout(() => {
+      hideLoader(); // Hide after 3 seconds
+    }, 1000);
+
+    // Cleanup function to clear timer if component unmounts
+    return () => clearTimeout(timer);
+  }, []); // Empty dependency array ensures this only runs once
+  
   const [currentPage, setCurrentPage] = useState(1);
   const [tableData, setTableData] = useState(initialData);
   const [editingCell, setEditingCell] = useState(null);

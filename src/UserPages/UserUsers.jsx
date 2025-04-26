@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Check, X } from 'lucide-react';
 import users from '../API_data/users';
+import { useLoader } from '../context/LoaderContext.jsx'
 
 export default function UserUsers() {
+
   const itemsPerPage = 10;
 
   const [searchTerm, setSearchTerm] = useState({
@@ -17,6 +19,19 @@ export default function UserUsers() {
     travelPermission: '',
     otherPermission: '',
   });
+
+  const { showLoader, hideLoader } = useLoader();
+
+  useEffect(() => {
+    showLoader(); // Show loader immediately
+
+    const timer = setTimeout(() => {
+      hideLoader(); // Hide after 3 seconds
+    }, 1000);
+
+    // Cleanup function to clear timer if component unmounts
+    return () => clearTimeout(timer);
+  }, []); // Empty dependency array ensures this only runs once
 
   const [currentPage, setCurrentPage] = useState(1);
 

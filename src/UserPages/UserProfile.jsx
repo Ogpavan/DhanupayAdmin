@@ -24,7 +24,7 @@ function UserProfile() {
 
     const timer = setTimeout(() => {
       hideLoader(); // Hide after 3 seconds
-    }, 3000);
+    }, 1000);
 
     // Cleanup function to clear timer if component unmounts
     return () => clearTimeout(timer);
