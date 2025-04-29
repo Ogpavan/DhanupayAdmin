@@ -6,7 +6,6 @@ const CityTable = ({ cities, handleCityEdit, handlecityDelete }) => {
   const handleDeleteCity = (cityId) => {
     Swal.fire({
       title: 'Are you sure?',
-      title: 'Are you sure?',
       text: "This action cannot be undone.",
       icon: 'warning',
       showCancelButton: true,

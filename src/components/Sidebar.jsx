@@ -13,7 +13,8 @@ export default function Sidebar() {
     
     { to: "/admin/settings", label: "Basic Settings", icon: <Gear size={24} weight="fill" /> },
     { to: "/admin/commission", label: "Commission", icon: <Gear size={24} weight="fill" /> },
-    {to: "/admin/financial",label: "Financial", icon: <Gear size={24} weight="fill" />}
+    {to: "/admin/financial",label: "Financial", icon: <Gear size={24} weight="fill" />},
+    {to: "/admin/employeemaster",label: "Employee Master", icon: <Gear size={24} weight="fill" />}
   ];
 
   const usersidebarLinks = [
@@ -28,7 +29,7 @@ export default function Sidebar() {
   ];
 
   // Fetch user type from localStorage (either 'admin' or 'user')
-  const userType = localStorage.getItem("user");
+  const userType = localStorage.getItem("userType");
 
   // Conditional rendering of sidebar links based on user type
   const sidebarLinks = userType === "admin" ? AdminsidebarLinks : usersidebarLinks;

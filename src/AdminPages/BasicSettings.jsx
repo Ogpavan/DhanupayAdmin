@@ -36,8 +36,8 @@ function BasicSettings() {
         icon: Users ,
       },
       {
-        title: 'Desingnation',
-        description: 'Manage Desingnation',
+        title: 'Designation',
+        description: 'Manage Designation',
         icon: Users,
       },
     ];
@@ -71,7 +71,7 @@ function BasicSettings() {
     const timer = setTimeout(() => {
       setSettingsData(dummyData);
       hideLoader();
-    }, 1000);
+    }, 500);
 
     return () => clearTimeout(timer);
   }, []);
@@ -79,28 +79,29 @@ function BasicSettings() {
 
   //for fetching cities list
   useEffect(() => {
-    if (modalVisible !== null && settingsData[modalVisible].title === 'Add City') {
-      // console.log(selectedState);
-
+    const shouldFetchCities =
+      modalVisible !== null &&
+      settingsData?.[modalVisible]?.title === 'Cities' &&
+      selectedState;
+  
+    if (shouldFetchCities) {
       const getCities = async () => {
-
         try {
+          setLoading(true);
           const cityData = await fetchCitiesByState(selectedState);
           setCities(cityData);
-          setLoading(false);
         } catch (error) {
-          // setError("Failed to fetch cities");
+          console.error("Failed to fetch cities", error);
+          // Optionally set error state
+        } finally {
           setLoading(false);
         }
       };
-
-      if (selectedState) {
-
-        getCities();
-      }
+  
+      getCities();
     }
-  }, [selectedState]);
-
+  }, [modalVisible, selectedState, settingsData]);
+  
 
   // for fething states list for city creation api
   useEffect(() => {
@@ -865,75 +866,79 @@ function BasicSettings() {
 
 
       {/* city Section */}
-      {modalVisible !== null && settingsData[modalVisible].title == 'Cities' && (
-        <div className="fixed inset-0 flex justify-center items-center z-50 bg-gray-500 bg-opacity-75">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-full sm:w-[80vw] md:w-[60vw] lg:w-[50vw] max-w-4xl">
+      {modalVisible !== null && settingsData[modalVisible].title === 'Cities' && (
+  <div className="fixed inset-0 flex justify-center items-center z-50 bg-gray-500 bg-opacity-75">
+    <div className="bg-white p-6 rounded-lg shadow-lg w-full sm:w-[80vw] md:w-[60vw] lg:w-[50vw] max-w-4xl">
 
-            <div className="flex flex-col lg:flex-row space-y-4 lg:space-x-8 lg:space-y-0">
+      <div className="flex flex-col lg:flex-row space-y-4 lg:space-x-8 lg:space-y-0">
 
-              {/* Left Side: Form */}
-              <div className="w-full lg:w-1/2">
-                <h2 className="text-xl font-semibold">{settingsData[modalVisible].title}</h2>
+        {/* Left Side: Form */}
+        <div className="w-full lg:w-1/2">
+          <h2 className="text-xl font-semibold">{settingsData[modalVisible].title}</h2>
 
-                {/* State Dropdown */}
-                <div className="mt-4">
-                  <label className="block text-sm font-medium text-gray-600">State Name</label>
-                  <select
-                    value={selectedState}
-                    onChange={(e) => setSelectedState(e.target.value)}
-                    className="mt-1 w-full p-2 border border-gray-300 rounded-md"
-                  >
-                    <option value="">Select a State</option>
-                    {states.map((state) => (
-                      <option key={state.StateId} value={state.StateId}>
-                        {state.StateName}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+          {/* State Dropdown */}
+          <div className="mt-4">
+            <label className="block text-sm font-medium text-gray-600">State Name</label>
+            <select
+              value={selectedState}
+              onChange={(e) => setSelectedState(Number(e.target.value))}
+              className="mt-1 w-full p-2 border border-gray-300 rounded-md"
+            >
+              <option value="">Select a State</option>
+              {states.map((state) => (
+                <option key={state.StateId} value={state.StateId}>
+                  {state.StateName}
+                </option>
+              ))}
+            </select>
+          </div>
 
-                {/* City Name Input */}
-                <div className="mt-4">
-                  <label className="block text-sm font-medium text-gray-600">City Name</label>
-                  <input
-                    type="text"
-                    value={addCity}
-                    onChange={(e) => setaddCity(e.target.value)}
-                    className="mt-1 w-full p-2 border border-gray-300 rounded-md"
-                    placeholder="Enter City Name"
-                  />
-                </div>
+          {/* City Name Input */}
+          <div className="mt-4">
+            <label className="block text-sm font-medium text-gray-600">City Name</label>
+            <input
+              type="text"
+              value={addCity}
+              onChange={(e) => setaddCity(e.target.value)}
+              className="mt-1 w-full p-2 border border-gray-300 rounded-md"
+              placeholder="Enter City Name"
+            />
+          </div>
 
-                {/* Action Buttons */}
-                <div className="mt-6 flex justify-end space-x-4">
-                  <button
-                    onClick={closeModal}
-                    className="text-gray-500 hover:text-gray-700"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleCityCreate}
-                    disabled={loading}
-                    className={`${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500'
-                      } text-white py-2 px-4 rounded-lg hover:bg-blue-600`}
-                  >
-                    {loading ? 'Updating...' : 'Add city'}
-                  </button>
-                </div>
-              </div>
-
-              {/* Right Side: Table of States */}
-              <div className="w-full lg:w-1/2 p-4 overflow-auto">
-                <h2 className="text-xl font-semibold mb-4">List of Cities</h2>
-                <CityTable cities={cities} handleCityEdit={handleCityEdit} handlecityDelete={handlecityDelete} />
-              </div>
-
-            </div>
-
+          {/* Action Buttons */}
+          <div className="mt-6 flex justify-end space-x-4">
+            <button
+              onClick={closeModal}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleCityCreate}
+              disabled={loading}
+              className={`${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500'
+                } text-white py-2 px-4 rounded-lg hover:bg-blue-600`}
+            >
+              {loading ? 'Updating...' : 'Add city'}
+            </button>
           </div>
         </div>
-      )}
+
+        {/* Right Side: Table of Cities */}
+        <div className="w-full lg:w-1/2 p-4 overflow-auto">
+          <h2 className="text-xl font-semibold mb-4">List of Cities</h2>
+          <CityTable
+            cities={cities}
+            handleCityEdit={handleCityEdit}
+            handlecityDelete={handlecityDelete}
+          />
+        </div>
+
+      </div>
+    </div>
+  </div>
+)}
+
 
       {/*  state  Section */}
       {modalVisible !== null && settingsData[modalVisible].title == 'States' && (
@@ -1086,7 +1091,7 @@ function BasicSettings() {
 
       {/* //desingnation Section */}
 
-      {modalVisible !== null && settingsData[modalVisible].title == 'Desingnation' && (
+      {modalVisible !== null && settingsData[modalVisible].title == 'Designation' && (
         <div className="fixed inset-0 flex justify-center items-center z-50 bg-gray-500 bg-opacity-75">
           <div className="bg-white p-6 rounded-lg shadow-lg w-full sm:w-[90vw] md:w-[70vw] lg:w-[80vw] max-w-4xl">
 
@@ -1096,7 +1101,7 @@ function BasicSettings() {
               <div className="w-full lg:w-1/2">
                 <h2 className="text-xl font-semibold">{settingsData[modalVisible].title}</h2>
                 <div className="mt-4">
-                  <label className="block text-sm font-medium text-gray-600">desingnation Name</label>
+                  <label className="block text-sm font-medium text-gray-600">Designation Name</label>
                   <input
                     type="text"
                     value={desingnation}
@@ -1105,7 +1110,7 @@ function BasicSettings() {
                     placeholder="Enter desingnation Name"
                   />
 
-                  <label className="block text-sm font-medium text-gray-600">desingnation Description</label>
+                  <label className="block text-sm font-medium text-gray-600">Designation Description</label>
                   <input
                     type="text"
                     value={desingnationDesc}
@@ -1129,7 +1134,7 @@ function BasicSettings() {
                     className={`${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500'
                       } text-white py-2 px-4 rounded-lg hover:bg-blue-600`}
                   >
-                    {loading ? 'Updating...' : 'Add desingnation'}
+                    {loading ? 'Updating...' : 'Add Designation'}
                   </button>
 
                 </div>
@@ -1137,11 +1142,11 @@ function BasicSettings() {
 
               {/* Right Side: Table of States */}
               <div className="w-full lg:w-[70%] p-4 overflow-auto">
-                <h2 className="text-xl font-semibold mb-4">List of desingnation</h2>
+                <h2 className="text-xl font-semibold mb-4">List of designation</h2>
                 <div style={{ maxHeight: '60vh', overflowY: 'auto' }}>
                   {loading ? (
                     <div className="text-center text-xl font-semibold text-gray-500">
-                      Please wait, desingnation are loading...
+                      Please wait, designation are loading...
                     </div>
                   ) : (
                     <DesingnationTable
