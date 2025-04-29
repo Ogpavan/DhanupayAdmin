@@ -92,7 +92,8 @@ const handleResendOtp = () => {
         localStorage.setItem("userId", data.UserId);
         localStorage.setItem("username", username);
         if(username === "admin@DhanuPay.com"){
-          localStorage.setItem("userType", "admin");}
+          localStorage.setItem("userType", "admin");
+        }
         
 
   
