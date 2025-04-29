@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { fetchStatesList } from "../api/stateListApi"
+import { fetchCitiesByState } from "../api/CityListApi"
 
 // Steps array
 const steps = [
@@ -10,9 +12,12 @@ const steps = [
   "Video KYC", // New Step
 ];
 
- 
+
 
 export default function Registration() {
+  const [states, setStates] = useState([]); // To store the fetched states
+  const [cities, setCities] = useState([]); 
+  const [loading, setLoading] = useState(true);
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState({
     firstName: "",
@@ -41,6 +46,57 @@ export default function Registration() {
 
   const [isAdmin, setIsAdmin] = useState(false);
 
+
+
+  useEffect(() => {
+    // Check if state is not empty before calling the API
+    if (formData.state) {
+      const fetchCitiesForState = async () => {
+        setLoading(true); // Set loading state to true while fetching
+        try {
+          const response = await fetchCitiesByState(formData.state); // Call API with the selected state
+          const cityOptions = response.map((city) => ({
+            label: city.CityName,  // Assuming each city object has CityName and CityId
+            value: city.CityId,    // Assuming each city object has CityId
+          }));
+          
+          console.log(cityOptions);
+          setCities(cityOptions); // Assuming the API returns an array of cities
+        } catch (error) {
+          console.error("Error fetching cities:", error);
+        } finally {
+          setLoading(false); // Set loading state to false once the API call is done
+        }
+      };
+
+      fetchCitiesForState();
+    }
+  }, [formData.state]); // This effect runs whenever `formData.state` changes
+
+
+  // Fetch the list of states from API
+  useEffect(() => {
+    const getStates = async () => {
+      try {
+        const response = await fetchStatesList(); // Assuming API response is an array
+        // Mapping the response to create the expected options format
+        const stateOptions = response.map((state) => ({
+          label: state.StateName,  // Assuming the state object has StateName and StateId
+          value: state.StateId,
+        }));
+        setStates(stateOptions);  // Set the formatted state options
+        setLoading(false); // Set loading to false once data is fetched
+      } catch (error) {
+        console.error("Error fetching states:", error);
+        setLoading(false);
+      }
+    };
+  
+    getStates();
+  }, []);
+   
+
+
   useEffect(() => {
     // Check the user type in localStorage
     const storedUserType = localStorage.getItem("userType");
@@ -50,8 +106,8 @@ export default function Registration() {
   }, []);
 
   const userTypeOptions = isAdmin
-  ? ["Master Distributor", "Distributor", "Retailer", "White Label"]
-  : ["Master Distributor", "Retailer"];
+    ? ["Master Distributor", "Distributor", "Retailer", "White Label"]
+    : ["Master Distributor", "Retailer"];
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -122,45 +178,54 @@ export default function Registration() {
         {currentStep === 1 && (
           <>
             <div className="flex gap-4">
-              <Input label="House No." name="houseNo" value={formData.houseNo} onChange={handleChange} className="w-1/4" />
-              <Input label="Residential Area" name="area" value={formData.area} onChange={handleChange} className="w-full" />
+              <Input
+                label="House No."
+                name="houseNo"
+                value={formData.houseNo}
+                onChange={handleChange}
+                className="w-1/4"
+              />
+              <Input
+                label="Residential Area"
+                name="area"
+                value={formData.area}
+                onChange={handleChange}
+                className="w-full"
+              />
             </div>
-            <Input label="Landmark" name="landmark" value={formData.landmark} onChange={handleChange} />
-            <Input label="Pincode" name="pincode" value={formData.pincode} onChange={handleChange} />
+
+            <Input
+              label="Landmark"
+              name="landmark"
+              value={formData.landmark}
+              onChange={handleChange}
+            />
+
+            <Input
+              label="Pincode"
+              name="pincode"
+              value={formData.pincode}
+              onChange={handleChange}
+            />
+
             <div className="flex gap-4">
-              <Select
-                label="State"
+              <Selectlistbyapi
+                label="state"
                 name="state"
                 value={formData.state}
                 onChange={handleChange}
-                options={[
-                  "Uttar Pradesh",
-                  "Maharashtra",
-                  "Bihar",
-                  "Delhi",
-                  "Karnataka",
-                  "Tamil Nadu",
-                  "West Bengal",
-                  "Other",
-                ]}
+                options={states}
               />
-              <Select
+
+              <Selectlistbyapi
                 label="City"
                 name="city"
                 value={formData.city}
                 onChange={handleChange}
-                options={[
-                  "Lucknow",
-                  "Mumbai",
-                  "Patna",
-                  "Bangalore",
-                  "Chennai",
-                  "Delhi",
-                  "Kolkata",
-                  "Other",
-                ]}
+                options={cities}
               />
             </div>
+
           </>
         )}
 
@@ -181,38 +246,20 @@ export default function Registration() {
             <Input label="Landmark" name="landmark" value={formData.landmark} onChange={handleChange} />
             <Input label="Pincode" name="pincode" value={formData.pincode} onChange={handleChange} />
             <div className="flex gap-4 w-full">
-              <Select
+              <Selectlistbyapi
                 label="State"
                 name="state"
                 value={formData.state}
                 onChange={handleChange}
-                options={[
-                  "Uttar Pradesh",
-                  "Maharashtra",
-                  "Bihar",
-                  "Delhi",
-                  "Karnataka",
-                  "Tamil Nadu",
-                  "West Bengal",
-                  "Other",
-                ]}
+                options={states}
                 className="w-1/2"
               />
-              <Select
+              <Selectlistbyapi
                 label="City"
                 name="city"
                 value={formData.city}
                 onChange={handleChange}
-                options={[
-                  "Lucknow",
-                  "Mumbai",
-                  "Patna",
-                  "Bangalore",
-                  "Chennai",
-                  "Delhi",
-                  "Kolkata",
-                  "Other",
-                ]}
+                options={cities}
                 className="w-1/2"
               />
             </div>
@@ -290,9 +337,36 @@ function Select({ label, name, value, onChange, options = [], className = "" }) 
         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
       >
         <option value="">Select {label}</option>
+        {options.map((opt, idx) => {
+          const optionLabel = typeof opt === "string" ? opt : opt.label;
+          const optionValue = typeof opt === "string" ? opt : opt.value;
+
+          return (
+            <option key={optionValue || idx} value={optionValue}>
+              {optionLabel}
+            </option>
+          );
+        })}
+      </select>
+    </div>
+  );
+}
+
+// Reusable Select component
+function Selectlistbyapi({ label, name, value, onChange, options = [], className = "" }) {
+  return (
+    <div className={`w-full ${className}`}>
+      <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+      <select
+        name={name}
+        value={value}
+        onChange={onChange}
+        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+      >
+        <option value="">Select {label}</option>
         {options.map((opt) => (
-          <option key={opt} value={opt}>
-            {opt}
+          <option key={opt.value} value={opt.value}>
+            {opt.label}
           </option>
         ))}
       </select>

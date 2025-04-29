@@ -91,6 +91,10 @@ const handleResendOtp = () => {
         localStorage.setItem("token", data.Token);
         localStorage.setItem("userId", data.UserId);
         localStorage.setItem("username", username);
+        if(username === "admin@DhanuPay.com"){
+          localStorage.setItem("userType", "admin");}
+        
+
   
         if (rememberMe) {
           localStorage.setItem("rememberMe", "true");
@@ -146,8 +150,9 @@ const handleResendOtp = () => {
     setTimeout(() => {
       if (otp.join("") === "123456") {
         // Set user token and remember settings in local storage
-        localStorage.setItem("token", "fake-token-123");
-        localStorage.setItem("user", JSON.stringify({ username }));
+        // localStorage.setItem("token", "fake-token-123");
+        // localStorage.setItem("user", JSON.stringify({ username }));
+        const userType = localStorage.getItem("userType");
 
         if (rememberMe) {
           localStorage.setItem("rememberMe", "true");
@@ -158,9 +163,12 @@ const handleResendOtp = () => {
         }
 
         // Redirect user to the appropriate route after OTP verification
-        if (username === "admin") {
+        if (userType === "admin") {
+          console.log("admin:", username);
+
           navigate("/admin"); // Redirect to /admin for admin users
         } else {
+          console.log("User:", username);
           navigate("/user"); // Redirect to /user for regular users
         }
       } else {

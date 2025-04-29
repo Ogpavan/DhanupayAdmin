@@ -1,0 +1,25 @@
+{
+    "sidebar": [
+      {
+        "title": "Basic Settings",
+        "icon": "settings",
+        "permissions": {
+          "seeStates": true,
+          "seecities": true
+         
+        },
+        "sections": [
+          {
+            "title": "State",
+            "permissions": {
+              "seeStates": true,
+              "addState": true,
+              "updateState": false,
+              "deleteState": true
+            }
+          }
+        ]
+      }
+    ]
+  }
+  
