@@ -28,7 +28,7 @@ export default function Sidebar() {
   ];
 
   // Fetch user type from localStorage (either 'admin' or 'user')
-  const userType = localStorage.getItem("userType");
+  const userType = localStorage.getItem("user");
 
   // Conditional rendering of sidebar links based on user type
   const sidebarLinks = userType === "admin" ? AdminsidebarLinks : usersidebarLinks;
