@@ -126,33 +126,40 @@ export default function LoginPage() {
     setError("");
 
     try {
+      // Validation
+      if (!username || mpin.length !== 6) {
+        setError("Please enter a valid 6-digit MPIN.");
+        return;
+      }
+    
       // Temporary hardcoded login
       if (username === "admin@DhanuPay.com" && mpin === "123456") {
         localStorage.setItem("token", "fake-token-123");
         localStorage.setItem("userId", "1");
         localStorage.setItem("username", username);
-
-        if (username === "admin@DhanuPay.com") {
-          localStorage.setItem("userType", "admin");
-        }
-        if (!username || mpin.length !== 6) {
-          setError("Please enter a valid 6-digit MPIN.");
-          return;
-        }
-
-        if (rememberMe) {
-          localStorage.setItem("rememberMe", "true");
-          localStorage.setItem("rememberedUsername", username);
-        } else {
-          localStorage.removeItem("rememberMe");
-          localStorage.removeItem("rememberedUsername");
-        }
-
-        setStep("otp");
+        localStorage.setItem("userType", "admin");
+      } else if (username === "user@DhanuPay.com" && mpin === "123456") {
+        localStorage.setItem("token", "fake-token-123");
+        localStorage.setItem("userId", "2");
+        localStorage.setItem("username", username);
+        localStorage.setItem("userType", "user");
       } else {
         setError("Invalid username or MPIN.");
+        return;
       }
-    } catch (error) {
+    
+      // Remember me
+      if (rememberMe) {
+        localStorage.setItem("rememberMe", "true");
+        localStorage.setItem("rememberedUsername", username);
+      } else {
+        localStorage.removeItem("rememberMe");
+        localStorage.removeItem("rememberedUsername");
+      }
+    
+      setStep("otp");
+    } 
+     catch (error) {
       setError("Something went wrong. Please try again.");
       console.error("Login error:", error);
     } finally {
