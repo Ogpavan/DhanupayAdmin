@@ -17,7 +17,7 @@ const DMTTransactions = () => {
   };
 
   return (
-    <div className="flex gap-4 w-full p-4">
+    <div className="flex gap-2 w-full pt-3">
       {/* Left section for DMT services */}
       <div className="min-w-[360px] bg-white p-4 border rounded-lg shadow-md">
         <h2 className="text-xl font-bold mb-4">Perform DMT</h2>
@@ -103,7 +103,7 @@ const DMTTransactions = () => {
       </div>
 
       {/* Right section for DMT transactions */}
-      <div className="w-full bg-white p-4 border rounded-lg shadow-md">
+      <div className="w-full bg-white p-2 border rounded-lg shadow-md">
         <h2 className="text-xl font-bold mb-4">Domestic Money Transfer Transactions</h2>
         <table className="w-full text-sm text-left border border-gray-300">
           <thead className="bg-gray-200">

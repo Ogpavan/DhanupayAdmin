@@ -28,7 +28,7 @@ const Financials = () => {
   const selectedComponent = services.find(service => service.id === selectedService)?.component;
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen ">
       {/* Top Service Bar */}
       <div className="bg-indigo-700 p-4 rounded-md">
         <div className="flex gap-4">
