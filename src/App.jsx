@@ -25,6 +25,7 @@ import GlobalLoader from "./components/GlobalLoader";
 import UserReports from "./UserPages/UserReports";
 import EmployeeMaster from "./AdminPages/EmployeeMaster.jsx";
 import Financials from "./UserPages/Financial/Financials.jsx";
+import Wallet from "./UserPages/Wallet.jsx";
 
 function App() {
   return (
@@ -71,6 +72,8 @@ function App() {
             <Route path="registration" element={<UserRegistration />} />
             <Route path="reports" element={<UserReports />} />
             <Route path="financials" element={<Financials />} />
+            <Route path="wallet" element={<Wallet />} />
+
           </Route>
         </Routes>
       </BrowserRouter>
