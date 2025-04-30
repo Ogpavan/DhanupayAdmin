@@ -31,17 +31,18 @@ export default function DTHRecharge({ activeLabel }) {
         <h2 className="text-xl font-semibold mb-4">{activeLabel} Recharge & Bill Payment</h2>
 
         <form className="space-y-4 mb-8">
-          <input
-            type="text"
-            placeholder="Enter DTH Number"
-            className="w-full p-2 border rounded"
-          />
           <select className="w-full p-2 border rounded">
             <option>Select DTH Operator</option>
             <option>DishTV</option>
             <option>Tata Sky</option>
             <option>Airtel DTH</option>
           </select>
+          <input
+            type="text"
+            placeholder="Enter DTH Number"
+            className="w-full p-2 border rounded"
+          />
+
           <div className="flex gap-4">
             <input
               type="number"
