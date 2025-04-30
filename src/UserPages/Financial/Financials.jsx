@@ -50,7 +50,7 @@ const Financials = () => {
       </div>
 
       {/* Render selected service component */}
-      <div className="flex-1 flex  bg-gray-100 text-gray-500 text-lg">
+      <div className="flex-1 flex  bg-gray-100    text-lg">
         {selectedComponent || "Select a service to view transactions"}
       </div>
     </div>
