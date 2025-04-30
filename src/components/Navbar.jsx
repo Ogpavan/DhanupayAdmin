@@ -161,7 +161,7 @@ import {
 
 // Navbar.jsx
 export default function Navbar() {
-  const user = JSON.parse(localStorage.getItem("user"));
+  const user = (localStorage.getItem("username"));
   const token = localStorage.getItem("token");
   const userType = localStorage.getItem("userType");  // Fetching user type (admin or user)
   const [data, setData] = useState([]);
@@ -227,7 +227,7 @@ export default function Navbar() {
 
   const handleLogout = async () => {
     // Clear localStorage before the confirmation
-    localStorage.clear();
+    
 
     // Show the confirmation dialog
     const result = await Swal.fire({
@@ -242,6 +242,7 @@ export default function Navbar() {
 
     // If the user confirms, proceed with logout and redirection
     if (result.isConfirmed) {
+      localStorage.clear();
       await Swal.fire({
         title: "Successful",
         text: "Logged out successfully",
@@ -270,6 +271,7 @@ export default function Navbar() {
   // Sidebar options based on role
   const roleBasedData = userType === "admin" ? adminData : userData;
 
+
   const toggleModal = () => setIsModalOpen(!isModalOpen);
 
   const clearNotifications = () => {
@@ -282,7 +284,7 @@ export default function Navbar() {
 
   return (
     <nav className="bg-indigo-700 text-white px-8 py-4 flex items-center justify-between shadow-md">
-      <h1 className="text-2xl font-semibold">Dhanupay {user?.username || "Admin"}</h1>
+      <h1 className="text-2xl font-semibold">Dhanupay {userType}</h1>
       <div className="flex items-center gap-6">
         {/* Role-based options */}
         {roleBasedData.map((item, index) => (
@@ -298,7 +300,7 @@ export default function Navbar() {
           </div>
         ))}
 
-        <span className="text-sm text-white">Hi, {user?.username || "Admin"}</span>
+        <span className="text-sm text-white">Hi, {userType}</span>
         <button
           onClick={handleLogout}
           className="text-sm bg-white text-indigo-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-all duration-200"
@@ -309,7 +311,7 @@ export default function Navbar() {
 
       {/* Modal for Notifications */}
       {isModalOpen && (
-        <div className="fixed  top-14 right-[26vw]  bg-opacity-50 flex items-center text-black justify-center z-50">
+        <div className="fixed  top-14 right-[24vw]  bg-opacity-50 flex items-center text-black justify-center z-50">
           <div className="bg-white p-6 rounded-lg w-96 max-w-md shadow-lg">
             <h3 className="text-xl font-semibold mb-4">Notifications</h3>
             <ul className="space-y-2">
