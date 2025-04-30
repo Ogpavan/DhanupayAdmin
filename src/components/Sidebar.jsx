@@ -26,6 +26,7 @@ export default function Sidebar() {
     { to: "/user/reports", label: "Reports", icon: <Notepad size={24} weight="fill" /> },
     { to: "/user/settings", label: "Basic Settings", icon: <Gear size={24} weight="fill" /> },
     { to: "/user/commission", label: "Commission", icon: <Gear size={24} weight="fill" /> },
+    {to: "/user/financials",label: "Financial", icon: <Gear size={24} weight="fill" />},
   ];
 
   // Fetch user type from localStorage (either 'admin' or 'user')

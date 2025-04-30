@@ -24,6 +24,7 @@ import { LoaderProvider  } from "./context/LoaderContext.jsx";
 import GlobalLoader from "./components/GlobalLoader";
 import UserReports from "./UserPages/UserReports";
 import EmployeeMaster from "./AdminPages/EmployeeMaster.jsx";
+import Financials from "./UserPages/Financial/Financials.jsx";
 
 function App() {
   return (
@@ -69,6 +70,7 @@ function App() {
             <Route path="commission" element={<UserCommission />} />
             <Route path="registration" element={<UserRegistration />} />
             <Route path="reports" element={<UserReports />} />
+            <Route path="financials" element={<Financials />} />
           </Route>
         </Routes>
       </BrowserRouter>
