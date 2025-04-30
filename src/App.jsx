@@ -23,6 +23,7 @@ import Financial from "./AdminPages/Financial";
 import { LoaderProvider  } from "./context/LoaderContext.jsx";
 import GlobalLoader from "./components/GlobalLoader";
 import UserReports from "./UserPages/UserReports";
+import EmployeeMaster from "./AdminPages/EmployeeMaster.jsx";
 
 function App() {
   return (
@@ -49,6 +50,7 @@ function App() {
             <Route path="commission" element={<Commision />} />
             <Route path="registration" element={<Registration />} />
             <Route path="financial" element={<Financial />} />
+            <Route path="employeemaster" element={<EmployeeMaster />} />
           </Route>
 
           <Route
