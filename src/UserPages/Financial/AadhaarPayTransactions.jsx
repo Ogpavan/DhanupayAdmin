@@ -45,7 +45,7 @@ const AadhaarPayTransactions = () => {
   };
 
   return (
-    <div className="flex gap-4 w-full p-4">
+    <div className="flex gap-4 w-full pt-3">
       {/* Popup for Fingerprint Capture */}
       {showPopup && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
@@ -150,7 +150,7 @@ const AadhaarPayTransactions = () => {
       </div>
 
       {/* Right Section for Transaction Details */}
-      <div className="w-full bg-white p-4 border rounded-lg shadow-md">
+      <div className="w-full bg-white p-2 border rounded-lg shadow-md">
         <h2 className="text-xl font-bold mb-4">Transaction Details</h2>
         {transactionDetails ? (
           <table className="table-auto w-full border-collapse border border-gray-300">

@@ -41,7 +41,7 @@ const MicroATMTransactions = () => {
   };
 
   return (
-    <div className="flex gap-4 w-full p-4">
+    <div className="flex gap-2 w-full pt-3">
       {/* Popup for Card Insertion */}
       {showPopup && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
