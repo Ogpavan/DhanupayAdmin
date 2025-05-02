@@ -3,6 +3,7 @@ import { EnvelopeSimple, Lock } from "phosphor-react";
 import loginpageimage from "/LoginPageImage.png";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeSlash } from "phosphor-react";
+import Bowser from "bowser";
 
 export default function LoginPage() {
   const [step, setStep] = useState("login"); // 'login' or 'otp'
@@ -13,15 +14,17 @@ export default function LoginPage() {
   const [mpin, setMpin] = useState("");
   const [showMpin, setShowMpin] = useState(false);
 
+  const [showPassword, setShowPassword] = useState(false);
+  const [password, setPassword] = useState("");
   const [showNewMpin, setShowNewMpin] = useState(false);
   const [showConfirmMpin, setShowConfirmMpin] = useState(false);
 
-  const [smsOtp, setSmsOtp] = useState(Array(3).fill(""));
-  const [emailOtp, setEmailOtp] = useState(Array(3).fill(""));
+  // const [smsOtp, setSmsOtp] = useState(Array(3).fill(""));
+  // const [emailOtp, setEmailOtp] = useState(Array(3).fill(""));
   const [newMpin, setNewMpin] = useState("");
   const [confirmMpin, setConfirmMpin] = useState("");
-  const smsOtpRefs = useRef([]);
-  const emailOtpRefs = useRef([]);
+  // const smsOtpRefs = useRef([]);
+  // const emailOtpRefs = useRef([]);
 
   const [otp, setOtp] = useState(Array(6).fill(""));
   const [resendTimer, setResendTimer] = useState(30);
@@ -56,125 +59,92 @@ export default function LoginPage() {
     }
   }, []);
 
-  // const handleLogin = async (e) => {
-  //   e.preventDefault();
-  //   if (!username) {
-  //     setError("Please enter your username.");
-  //     return;
-  //   }
-
-  //   setLoading(true);
-  //   setError("");
-
-  //   try {
-  //     const response = await fetch("http://gateway.dhanushop.com/api/users/login", {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify({ username }),
-  //     });
-
-  //     const data = await response.json();
-
-  //     if (response.ok && data?.Token) {
-  //       localStorage.setItem("token", data.Token);
-  //       localStorage.setItem("userId", data.UserId);
-  //       localStorage.setItem("username", username);
-
-  //       if (username === "admin@DhanuPay.com") {
-  //         localStorage.setItem("userType", "admin");
-  //       }
-
-  //       if (rememberMe) {
-  //         localStorage.setItem("rememberMe", "true");
-  //         localStorage.setItem("rememberedUsername", username);
-  //       } else {
-  //         localStorage.removeItem("rememberMe");
-  //         localStorage.removeItem("rememberedUsername");
-  //       }
-
-  //       setStep("otp");
-  //     } else {
-  //       setError("Invalid username.");
-  //     }
-  //   } catch (error) {
-  //     setError("Something went wrong. Please try again.");
-  //     console.error("Login error:", error);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
-  /*************  ✨ Windsurf Command ⭐  *************/
-  /**
-   * Handles the login form submission.
-   * @param {Event} e The form submission event.
-   * @returns {Promise<void>}
-   * @throws {Error} If there is an error with the login request.
-   */
-  /*******  53f58be3-d17b-48f9-a0c4-7f6383ddb29c  *******/
   const handleLogin = async (e) => {
     e.preventDefault();
-
-    if (!username || !mpin) {
-      setError("Please enter both username and MPIN.");
+    
+    // Validation for username and password
+    if (!username || !password) {
+      setError("Please enter both username and password.");
       return;
     }
-
+  
     setLoading(true);
-    setError("");
-
+    setError(""); // Clear any previous errors
+  
     try {
-      // Validation
-      if (!username || mpin.length !== 6) {
-        setError("Please enter a valid 6-digit MPIN.");
-        return;
-      }
-    
-      // Temporary hardcoded login
-      if (username === "admin@DhanuPay.com" && mpin === "123456") {
-        localStorage.setItem("token", "fake-token-123");
-        localStorage.setItem("userId", "1");
+      // Fetch additional details
+      const ip = await fetch('https://api.ipify.org?format=json')
+        .then(response => response.json())
+        .then(data => data.ip);
+      
+        const browser = Bowser.getParser(window.navigator.userAgent);
+        const browserName = browser.getBrowserName(); // Get browser user agent
+      const device = navigator.platform; // Get device platform (e.g., 'Win32', 'MacIntel', 'Linux')
+      const os = navigator.platform; // Fallback to platform for OS info if `navigator.oscpu` doesn't work
+  
+      // Make the API call to login
+      const response = await fetch("http://gateway.dhanushop.com/api/users/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          Username: username,
+          Password: password, // Now the password entered by the user is included in the request
+          IP: ip,
+          OS: os,
+          Browser: browserName,
+          Device: device,
+        }),
+      });
+  
+      const data = await response.json();
+  
+      console.log(data); // Log the response to the console for debugging
+  
+      // Handle response
+      if (response.ok && data?.Token) {
+        // Store the necessary information in local storage
+        localStorage.setItem("token", data.Token);
+        localStorage.setItem("userId", data.UserId);
         localStorage.setItem("username", username);
-        localStorage.setItem("userType", "admin");
-      } else if (username === "user@DhanuPay.com" && mpin === "123456") {
-        localStorage.setItem("token", "fake-token-123");
-        localStorage.setItem("userId", "2");
-        localStorage.setItem("username", username);
-        localStorage.setItem("userType", "user");
+        localStorage.setItem("userTypeId", data.UserTypeId);
+        localStorage.setItem("userTypeName", data.UserTypeName);
+  
+        // Special check for admin user
+        if (username === "admin@DhanuPay.com") {
+          localStorage.setItem("userType", "admin");
+        } else {
+          // Assuming the UserTypeId is '1' for "Employee" and '2' for "Admin"
+          localStorage.setItem("userType", data.UserTypeName); // Save the user type (e.g., "Employee")
+        }
+  
+        // Handle the "remember me" functionality
+        if (rememberMe) {
+          localStorage.setItem("rememberMe", "true");
+          localStorage.setItem("rememberedUsername", username);
+        } else {
+          localStorage.removeItem("rememberMe");
+          localStorage.removeItem("rememberedUsername");
+        }
+  
+        // Move to OTP step
+        setStep("otp");
       } else {
-        setError("Invalid username or MPIN.");
-        return;
+        // Handle invalid username or password
+        setError(data?.message || "Invalid username or password.");
       }
-    
-      // Remember me
-      if (rememberMe) {
-        localStorage.setItem("rememberMe", "true");
-        localStorage.setItem("rememberedUsername", username);
-      } else {
-        localStorage.removeItem("rememberMe");
-        localStorage.removeItem("rememberedUsername");
-      }
-    
-      setStep("otp");
-    } 
-     catch (error) {
+    } catch (error) {
       setError("Something went wrong. Please try again.");
       console.error("Login error:", error);
     } finally {
-      setLoading(false);
+      setLoading(false); // Reset loading state
     }
   };
+  
+  
 
-  /*************  ✨ Windsurf Command ⭐  *************/
-  /**
-   * Handles change in one of the OTP input boxes.
-   * Ensures input is a number, updates the OTP state, and focuses the next input box if the current one has a value.
-   * @param {React.ChangeEvent<HTMLInputElement>} e - The change event.
-   * @param {number} index - The index of the OTP input box.
-   */
-  /*******  3bbe5676-6348-47c9-ae27-64b058c210a9  *******/
+ 
   const handleOtpChange = (e, index) => {
     const val = e.target.value;
     if (!/^\d*$/.test(val)) return;
@@ -202,41 +172,75 @@ export default function LoginPage() {
     // Add resend OTP API call here if needed
   };
 
-  const handleOtpVerify = (e) => {
+  const handleOtpVerify = async (e) => {
     e.preventDefault();
-
+  
+    // Validate OTP and MPIN inputs
     if (otp.join("").length < 6) {
       setError("Please enter the 6-digit OTP.");
       return;
     }
-
-    setLoading(true);
-    setError("");
-
-    setTimeout(() => {
-      if (otp.join("") === "123456") {
+  
+    if (mpin.length !== 6) {
+      setError("Please enter a valid 6-digit MPIN.");
+      return;
+    }
+  
+    setLoading(true); // Set loading state to true
+    setError(""); // Clear any previous errors
+  
+    try {
+      // Get the userId and token from localStorage
+      const userId = localStorage.getItem("userId");
+      const token = localStorage.getItem("token");
+  
+      // Check if token and userId exist in localStorage (this can be an edge case to handle)
+      if (!userId || !token) {
+        setError("Session expired. Please log in again.");
+        return;
+      }
+  
+      // Prepare the data to send
+      const data = {
+        userId,
+        token,
+        otp: otp.join(""), // Convert OTP array to a string
+        mpin, // The MPIN entered by the user
+      };
+  
+      // Send a POST request to the API to verify OTP and MPIN
+      const response = await fetch("http://gateway.dhanushop.com/api/users/verify-otp", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+  
+      const responseData = await response.json();
+  
+      // Check if the response is successful and if the OTP and MPIN are valid
+      if (response.ok && responseData?.isValid) {
+        // Handle navigation based on user type
         const userType = localStorage.getItem("userType");
-
-        if (rememberMe) {
-          localStorage.setItem("rememberMe", "true");
-          localStorage.setItem("rememberedUsername", username);
-        } else {
-          localStorage.removeItem("rememberMe");
-          localStorage.removeItem("rememberedUsername");
-        }
-
         if (userType === "admin") {
-          navigate("/admin");
+          navigate("/admin"); // Navigate to admin dashboard
         } else {
-          navigate("/user");
+          navigate("/user"); // Navigate to user dashboard
         }
       } else {
-        setError("Invalid OTP.");
+        setError(responseData?.message || "Invalid OTP or MPIN.");
       }
-      setLoading(false);
-    }, 800);
+    } catch (error) {
+      setError("Something went wrong. Please try again.");
+      console.error("OTP verification error:", error);
+    } finally {
+      setLoading(false); // Reset the loading state
+    }
   };
-
+  
+  
+  
   return (
     <div className="min-h-screen flex flex-col md:flex-row">
       <div className="w-full md:w-1/2 flex items-center justify-center p-8 bg-gray-100">
@@ -278,37 +282,34 @@ export default function LoginPage() {
                   onChange={(e) => setUsername(e.target.value)}
                 />
               </div>
-
-              {/* MPIN */}
+              {/* Password */}
               <div className="relative">
                 <Lock
                   className="absolute left-3 top-2.5 text-gray-400"
                   size={20}
                 />
                 <input
-                  type={showMpin ? "text" : "password"}
-                  placeholder="Enter 6-digit MPIN"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Password"
                   className={`w-full pl-10 pr-10 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500 outline-none ${
-                    error && error.includes("MPIN")
+                    error && error.includes("password")
                       ? "border-red-500"
                       : "border-gray-300"
                   }`}
-                  value={mpin}
-                  maxLength={6}
-                  inputMode="numeric"
-                  pattern="\d{6}"
-                  onPaste={(e) => e.preventDefault()}
-                  onChange={(e) => setMpin(e.target.value.replace(/\D/g, ""))}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                 />
                 <button
                   type="button"
-                  onClick={() => setShowMpin(!showMpin)}
+                  onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600 focus:outline-none"
                   tabIndex={-1}
                 >
-                  {showMpin ? <Eye size={20} /> : <EyeSlash size={20} />}
+                  {showPassword ? <EyeSlash size={20} /> : <Eye size={20} />}
                 </button>
               </div>
+
+            
 
               {/* Remember Me */}
               <div className="flex items-center justify-between text-sm text-gray-600">
@@ -321,12 +322,12 @@ export default function LoginPage() {
                   />
                   <span>Remember me</span>
                 </label>
-                <div
+                {/* <div
                   className="text-right text-sm text-indigo-600 cursor-pointer hover:underline"
-                  onClick={() => setStep("forgot-otp")}
+                  onClick={() => setStep("forgot-password")}
                 >
-                  Forgot MPIN?
-                </div>
+                  Forgot Password?
+                </div> */}
               </div>
 
               {/* Submit */}
@@ -340,53 +341,98 @@ export default function LoginPage() {
             </form>
           )}
 
-          {step === "otp" && (
-            <form onSubmit={handleOtpVerify} className="space-y-5">
-              <div className="text-center text-gray-600 text-sm mb-4">
-                Please enter the 6-digit OTP sent to your registered mobile.
-              </div>
+{step === "otp" && (
+  <form onSubmit={handleOtpVerify} className="space-y-5">
+    <div className="text-center text-gray-600 text-sm mb-4">
+      Please enter the 6-digit OTP sent to your registered mobile.
+    </div>
 
-              <div className="flex justify-between gap-2">
-                {Array.from({ length: 6 }).map((_, index) => (
-                  <input
-                    key={index}
-                    type="text"
-                    inputMode="numeric"
-                    maxLength="1"
-                    className="w-12 h-12 text-center border rounded-md text-lg outline-none focus:ring-2 focus:ring-indigo-500"
-                    value={otp[index]}
-                    onChange={(e) => handleOtpChange(e, index)}
-                    onKeyDown={(e) => handleOtpKeyDown(e, index)}
-                    ref={(el) => (inputRefs.current[index] = el)}
-                  />
-                ))}
-              </div>
+    {/* OTP Input Fields */}
+    <div className="flex justify-between gap-2">
+      {Array.from({ length: 6 }).map((_, index) => (
+        <input
+          key={index}
+          type="text"
+          inputMode="numeric"
+          maxLength="1"
+          className="w-12 h-12 text-center border rounded-md text-lg outline-none focus:ring-2 focus:ring-indigo-500"
+          value={otp[index]}
+          onChange={(e) => handleOtpChange(e, index)}
+          onKeyDown={(e) => handleOtpKeyDown(e, index)}
+          ref={(el) => (inputRefs.current[index] = el)}
+        />
+      ))}
+    </div>
+    <div className="flex justify-between items-center text-sm text-gray-600">
+      <span>
+        Didn’t receive OTP?{" "}
+        <button
+          type="button"
+          className={`text-indigo-600 font-medium hover:underline disabled:opacity-50`}
+          onClick={handleResendOtp}
+          disabled={!canResend}
+        >
+          {canResend ? "Resend OTP" : `Resend in ${resendTimer}s`}
+        </button>
+      </span>
+    </div>
+<hr className="my-4" />
+    {/* MPIN Input Field */}
+    <div className="  text-gray-600 text-sm ">
+      Please enter your MPIN 
+    </div>
+    <div className="relative">
+      
+      <Lock
+        className="absolute left-3 top-2.5 text-gray-400"
+        size={20}
+      />
+      <input
+        type={showMpin ? "text" : "password"}
+        placeholder="Enter 6-digit MPIN"
+        className={`w-full pl-10 pr-10 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500 outline-none ${
+          error && error.includes("MPIN") ? "border-red-500" : "border-gray-300"
+        }`}
+        value={mpin}
+        maxLength={6}
+        inputMode="numeric"
+        onChange={(e) => setMpin(e.target.value.replace(/\D/g, ""))}
+      />
+      <button
+        type="button"
+        onClick={() => setShowMpin(!showMpin)}
+        className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600 focus:outline-none"
+      >
+        {showMpin ? <Eye size={20} /> : <EyeSlash size={20} />}
+      </button>
+    </div>
 
-              <div className="flex justify-between items-center text-sm text-gray-600">
-                <span>
-                  Didn’t receive OTP?{" "}
-                  <button
-                    type="button"
-                    className={`text-indigo-600 font-medium hover:underline disabled:opacity-50`}
-                    onClick={handleResendOtp}
-                    disabled={!canResend}
-                  >
-                    {canResend ? "Resend OTP" : `Resend in ${resendTimer}s`}
-                  </button>
-                </span>
-              </div>
+    {/* Resend OTP */}
+    <div className="flex justify-between items-center text-sm text-gray-600">
+      <span>
+        Forgot MPIN?{" "}
+        <button
+          type="button"
+          className={`text-indigo-600 font-medium hover:underline disabled:opacity-50`}
+         >Reset MPIN
+        </button>
+      </span>
+    </div>
+  
 
-              <button
-                type="submit"
-                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-md font-semibold transition"
-                disabled={loading}
-              >
-                {loading ? "Verifying OTP..." : "Verify OTP"}
-              </button>
-            </form>
-          )}
+    {/* Submit Button */}
+    <button
+      type="submit"
+      className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-md font-semibold transition"
+      disabled={loading}
+    >
+      {loading ? "Verifying..." : "Verify OTP & MPIN"}
+    </button>
+  </form>
+)}
 
-          {step === "forgot-otp" && (
+
+          {/* {step === "forgot-password" && (
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -470,7 +516,7 @@ export default function LoginPage() {
                 Verify OTPs
               </button>
             </form>
-          )}
+          )} */}
 
           {step === "set-mpin" && (
             <form

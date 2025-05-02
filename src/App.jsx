@@ -26,6 +26,7 @@ import UserReports from "./UserPages/UserReports";
 import EmployeeMaster from "./AdminPages/EmployeeMaster.jsx";
 import Financials from "./UserPages/Financial/Financials.jsx";
 import Wallet from "./UserPages/Wallet.jsx";
+import FundTransfer from "./AdminPages/FundTransfer/FundTransfer.jsx";
 
 function App() {
   return (
@@ -53,6 +54,7 @@ function App() {
             <Route path="registration" element={<Registration />} />
             <Route path="financial" element={<Financial />} />
             <Route path="employeemaster" element={<EmployeeMaster />} />
+            <Route path="fundtransfer" element={<FundTransfer />} />
           </Route>
 
           <Route

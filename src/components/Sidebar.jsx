@@ -14,7 +14,8 @@ export default function Sidebar() {
     { to: "/admin/settings", label: "Basic Settings", icon: <Gear size={24} weight="fill" /> },
     { to: "/admin/commission", label: "Commission", icon: <Gear size={24} weight="fill" /> },
     {to: "/admin/financial",label: "Financial", icon: <Gear size={24} weight="fill" />},
-    {to: "/admin/employeemaster",label: "Employee Master", icon: <Gear size={24} weight="fill" />}
+    {to: "/admin/employeemaster",label: "Employee Master", icon: <Gear size={24} weight="fill" />},
+    {to:"/admin/fundtransfer",label: "Fund Transfer", icon: <Gear size={24} weight="fill" />}
   ];
 
   const usersidebarLinks = [

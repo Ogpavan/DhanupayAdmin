@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { fetchStatesList } from "../api/stateListApi";
-import { fetchCitiesByState } from "../api/CityListApi";
-import PreviewPane from "./PreviewPane";
+import { fetchStatesList } from "../api/stateListApi"
+import { fetchCitiesByState } from "../api/CityListApi"
 
 // Steps array
 const steps = [
@@ -119,14 +118,12 @@ export default function Registration() {
 
   const nextStep = () => setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1));
   const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 0));
-
-
   const openPreview = () => setIsPreviewOpen(true);
   const closePreview = () => setIsPreviewOpen(false);
-
+        
   const handleSubmit = () => {
     if (agreeTerms) {
-      console.log("Submitted Data:", formData);
+      console.log("Form Data Submitted:", formData);
       closePreview();
       alert("Form Submitted Successfully!");
     } else {
@@ -317,11 +314,48 @@ export default function Registration() {
             Next
           </button>
         ) : (
-             <button onClick={openPreview} className="btn-success">
+          <button onClick={openPreview} className="btn-success">
             Preview & Submit
           </button>
         )}
       </div>
+
+      {/* Preview Modal */}
+      {isPreviewOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white w-1/2 p-6 rounded-lg shadow-lg">
+            <h2 className="text-xl font-bold mb-4">Preview Form Data</h2>
+            <div className="space-y-2">
+              {Object.keys(formData).map((key) => (
+                <div key={key} className="flex justify-between">
+                  <span className="font-semibold">{key}:</span>
+                  <span>{typeof formData[key] === "object" ? formData[key]?.name : formData[key]}</span>
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 flex items-center">
+              <input
+                type="checkbox"
+                id="agree"
+                checked={agreeTerms}
+                onChange={(e) => setAgreeTerms(e.target.checked)}
+                className="mr-2"
+              />
+              <label htmlFor="agree" className="text-sm">
+                I agree to the terms and conditions
+              </label>
+            </div>
+            <div className="mt-6 flex justify-end">
+              <button onClick={closePreview} className="btn-outline mr-4">
+                Close
+              </button>
+              <button onClick={handleSubmit} className="btn-primary">
+                Submit
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -387,16 +421,6 @@ function Selectlistbyapi({ label, name, value, onChange, options = [], className
           </option>
         ))}
       </select>
-
-      {isPreviewOpen && (
-        <PreviewPane
-          formData={formData}
-          onClose={closePreview}
-          onSubmit={handleSubmit}
-          agreeTerms={agreeTerms}
-          setAgreeTerms={setAgreeTerms}
-        />
-      )}
     </div>
   );
 }
