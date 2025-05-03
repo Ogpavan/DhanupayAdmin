@@ -30,6 +30,7 @@ import FundTransfer from "./AdminPages/FundTransfer/FundTransfer.jsx";
 import OTPForm from "./auth/OTPForm.jsx";
 import ForgotMpin from "./auth/ForgotMpin.jsx";
 import SetupMpinPage from "./auth/SetupMpinPage.jsx";
+import ReportViewer from "./UserPages/ReportViewer/Reportviewer.jsx";
 
 function App() {
   return (
@@ -81,7 +82,7 @@ function App() {
             <Route path="reports" element={<UserReports />} />
             <Route path="financials" element={<Financials />} />
             <Route path="wallet" element={<Wallet />} />
-            <Route path="reportviewer" element={<Reportviewer />} />
+            <Route path="reportviewer" element={<ReportViewer />} />
 
           </Route>
         </Routes>

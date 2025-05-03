@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { jsPDF } from 'jspdf';
-import autoTable from 'jspdf-autotable'; // Use jspdf-autotable for table formatting
+ // Use jspdf-autotable for table formatting
 import * as XLSX from 'xlsx';
 
 const ReportViewer = ({ reportData, onBack }) => {
