@@ -15,7 +15,7 @@ import {
 
 // Navbar.jsx
 export default function Navbar() {
-  const userType = Cookies.get("userTypeName");
+  const userType = Cookies.get("UserTypeName");
   const token = Cookies.get("token"); 
   const UserName = Cookies.get("UserName"); // Fetching user type (admin or user)
   const [data, setData] = useState([]);

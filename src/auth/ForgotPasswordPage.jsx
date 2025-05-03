@@ -1,122 +1,179 @@
 import { useState, useRef } from "react";
 import { EnvelopeSimple, Lock, Eye, EyeSlash } from "phosphor-react";
-import swal from 'sweetalert2';
-
-// Dummy OTP value
-const dummyOTP = "1234";
+import swal from "sweetalert2";
+import Cookies from "js-cookie";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
-  const [otp, setOtp] = useState(["", "", "", ""]); // OTP as an array of 6 input values
+  const [otp, setOtp] = useState(["", "", "", ""]);
   const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState(""); // New state for confirm password
-  const [showNewPassword, setShowNewPassword] = useState(false); // Toggle for New Password visibility
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false); // Toggle for Confirm Password visibility
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [step, setStep] = useState(1); // Step 1 = Enter Email, Step 2 = OTP, Step 3 = Reset Password
-  const [resendCount, setResendCount] = useState(0); // To track OTP resend attempts
+  const [step, setStep] = useState(1);
+  const [resendCount, setResendCount] = useState(0);
+  const [otpId, setOtpId] = useState("");
+  const [token, setToken] = useState("");
+  const [userid, setUserid] = useState("");
 
-
-
-  //password 
-
-  // At the top, below useState imports
-const passwordRules = {
-    length: (pwd) => pwd.length >= 8,
-    uppercase: (pwd) => /[A-Z]/.test(pwd),
-    lowercase: (pwd) => /[a-z]/.test(pwd),
-    number: (pwd) => /[0-9]/.test(pwd),
-    specialChar: (pwd) => /[!@#$%^&*(),.?":{}|<>]/.test(pwd),
-  };
-  
-  const validatePasswordStrength = (pwd) => {
-    return {
-      length: passwordRules.length(pwd),
-      uppercase: passwordRules.uppercase(pwd),
-      lowercase: passwordRules.lowercase(pwd),
-      number: passwordRules.number(pwd),
-      specialChar: passwordRules.specialChar(pwd),
-    };
-  };
-  
-  // Create refs for OTP inputs
   const otpRefs = useRef([]);
 
-  const handleEmailSubmit = (e) => {
+  const handleEmailSubmit = async (e) => {
     e.preventDefault();
-
     if (!email) {
       setError("Please enter your email.");
+      return;
+    }
+  
+    setLoading(true);
+    setError("");
+  
+    try {
+      const response = await fetch(
+        "https://gateway.dhanushop.com/api/users/ForgetPassword",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ Username: email }),
+        }
+      );
+  
+      const data = await response.json();
+  
+      if (data.success) {
+        setOtpId(data.otpid); // Save otpid
+        setToken(data.token); // Save token
+        setUserid(data.userid); // Save userid
+        swal.fire({
+          title: "Success",
+          text: data.message,
+          icon: "success",
+          confirmButtonText: "OK",
+        });
+        setStep(2); // Proceed to OTP input step
+      } else {
+        setError(data.message || "Failed to send OTP.");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      setError("Failed to send OTP. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+
+  const handleOtpSubmit = async (e) => {
+    e.preventDefault();
+  
+    const enteredOtp = otp.join("");
+    if (!enteredOtp || enteredOtp.length !== 4) {
+      setError("Please enter a valid 4-digit OTP.");
+      return;
+    }
+  
+    setLoading(true);
+    setError("");
+  
+    try {
+      const response = await fetch(
+        "https://gateway.dhanushop.com/api/users/OTPValidator",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`, // Use the token received from the ForgetPassword API
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            UserId: userid, // Use the userid received from the ForgetPassword API
+            LoginId: otpId, // Use the otpid received from the ForgetPassword API
+            OTP: enteredOtp, // Use the entered OTP
+          }),
+        }
+      );
+  
+      const data = await response.json();
+  
+      if (data.success) {
+        swal.fire({
+          title: "Success",
+          text: data.message,
+          icon: "success",
+          confirmButtonText: "OK",
+        }).then(() => setStep(3)); // Proceed to the next step
+      } else {
+        setError(data.message || "OTP verification failed.");
+      }
+    } catch (error) {
+      setError("Failed to verify OTP. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+
+  const handlePasswordReset = async (e) => {
+    e.preventDefault();
+
+    const strength = validatePasswordStrength(newPassword);
+
+    if (!newPassword) {
+      setError("Please enter a new password.");
+      return;
+    }
+
+    if (Object.values(strength).includes(false)) {
+      setError("Password does not meet all requirements.");
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setError("Passwords do not match.");
       return;
     }
 
     setLoading(true);
     setError("");
 
-    setTimeout(() => {
-      // Simulate OTP sending
-      console.log(`OTP sent to ${email}`);
-      setStep(2); // Move to OTP step
+    try {
+      const response = await fetch(
+        "https://gateway.dhanushop.com/api/users/set-password",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            UserId: userid,
+            LoginId: otpId,
+            Password: newPassword,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.success) {
+        swal.fire({
+          title: "Success",
+          text: "Password reset successfully.",
+          icon: "success",
+          confirmButtonText: "OK",
+        }).then(() => {
+          window.location.href = "/login";
+        });
+      } else {
+        setError(data.message || "Failed to reset password.");
+      }
+    } catch (error) {
+      setError("Failed to reset password. Please try again.");
+    } finally {
       setLoading(false);
-    }, 800);
-  };
-
-  const handleOtpChange = (e, index) => {
-    const newOtp = [...otp];
-    newOtp[index] = e.target.value;
-    setOtp(newOtp);
-
-    // Move focus to next input if filled, or previous if backspace is pressed
-    if (e.target.value && index < otp.length - 1) {
-      otpRefs.current[index + 1].focus();
-    } else if (e.target.value === "" && index > 0) {
-      otpRefs.current[index - 1].focus();
     }
   };
-
-  const handleOtpSubmit = (e) => {
-    e.preventDefault();
-
-    if (otp.join("") !== dummyOTP) {
-      setError("Incorrect OTP.");
-      return;
-    }
-
-    setStep(3); // Move to Reset Password step
-    setError("");
-  };
-  const handlePasswordReset = (e) => {
-    e.preventDefault();
-  
-    const strength = validatePasswordStrength(newPassword);
-  
-    if (!newPassword) {
-      setError("Please enter a new password.");
-      return;
-    }
-  
-    if (Object.values(strength).includes(false)) {
-      setError("Password does not meet all requirements.");
-      return;
-    }
-  
-    if (newPassword !== confirmPassword) {
-      setError("Passwords do not match.");
-      return;
-    }
-  
-    console.log("Password reset successfully for:", email);
-    swal.fire({
-      title: "Success",
-      text: "Password reset successfully",
-      icon: "success",
-      confirmButtonText: "OK",
-    }).then(() => {
-      window.location.href = "/login";
-    });
-  };
-  
 
   const handleResendOtp = () => {
     setResendCount(resendCount + 1);
@@ -124,9 +181,28 @@ const passwordRules = {
     // Simulate OTP resend
     console.log(`OTP resent to ${email}`);
   };
-  //popup on password success reset
-   
-
+  const handleOtpChange = (e, index) => {
+    const newOtp = [...otp];
+    newOtp[index] = e.target.value;
+    setOtp(newOtp);
+  
+    if (e.target.value && index < otp.length - 1) {
+      otpRefs.current[index + 1].focus();
+    } else if (e.target.value === "" && index > 0) {
+      otpRefs.current[index - 1].focus();
+    }
+  };
+  
+  const validatePasswordStrength = (password) => {
+    return {
+      length: password.length >= 8, // At least 8 characters
+      uppercase: /[A-Z]/.test(password), // At least 1 uppercase letter
+      lowercase: /[a-z]/.test(password), // At least 1 lowercase letter
+      number: /[0-9]/.test(password), // At least 1 number
+      specialChar: /[!@#$%^&*(),.?":{}|<>]/.test(password), // At least 1 special character
+    };
+  };
+  
   return (
     <div className="min-h-screen flex flex-col md:flex-row">
       {/* Left: Illustration */}
@@ -174,7 +250,7 @@ const passwordRules = {
           {step === 2 && (
             <div>
               <div className="text-center text-gray-600 mb-4">
-                <p>An OTP has been sent to  phone number.</p>
+                <p>An OTP has been sent to your mobile number.</p>
               </div>
               <form onSubmit={handleOtpSubmit} className="space-y-5">
                 <div className="flex space-x-3 justify-center">
@@ -239,10 +315,6 @@ const passwordRules = {
                 </button>
               </div>
 
-              {/* Password strength info */}
-
-
-
               <div className="relative">
                 <Lock className="absolute left-3  top-2.5 text-gray-400" size={20} />
                 <input
@@ -262,21 +334,20 @@ const passwordRules = {
               </div>
 
               <div className="text-sm mt-2 ml-4 text-gray-600 space-y-1">
-  {Object.entries(validatePasswordStrength(newPassword)).map(([key, valid]) => (
-    <div key={key} className={`flex items-center gap-2 ${valid ? 'text-green-600' : 'text-red-500'}`}>
-      <span>•</span>
-      {key === "length" && "At least 8 characters"}
-      {key === "uppercase" && "At least 1 uppercase letter"}
-      {key === "lowercase" && "At least 1 lowercase letter"}
-      {key === "number" && "At least 1 number"}
-      {key === "specialChar" && "At least 1 special character (!@#$...)"}
-    </div>
-  ))}
-</div>
+                {Object.entries(validatePasswordStrength(newPassword)).map(([key, valid]) => (
+                  <div key={key} className={`flex items-center gap-2 ${valid ? 'text-green-600' : 'text-red-500'}`}>
+                    <span>•</span>
+                    {key === "length" && "At least 8 characters"}
+                    {key === "uppercase" && "At least 1 uppercase letter"}
+                    {key === "lowercase" && "At least 1 lowercase letter"}
+                    {key === "number" && "At least 1 number"}
+                    {key === "specialChar" && "At least 1 special character"}
+                  </div>
+                ))}
+              </div>
 
               <button
-                // type="submit"
-                onClick={handlePasswordReset}
+                type="submit"
                 className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-md font-semibold transition"
               >
                 Reset Password
