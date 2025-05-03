@@ -13,7 +13,7 @@ export default function UserProfile() {
   };
 
   return (
-    <div className="rounded-lg p-6 max-w-4xl mx-auto  ">
+    <div className="rounded-lg p-6 max-w-4xl mx-auto h-[78vh] overflow-scroll hide-scrollbar  ">
  
 
       {/* Tab Buttons */}

@@ -10,6 +10,7 @@ import Broadband from "./ServicesOnDashboard/Broadband";
 import LoanPayment from "./ServicesOnDashboard/LoanPayment";
 import Fastag from "./ServicesOnDashboard/Fastag";
 import CableTV from "./ServicesOnDashboard/CableTV";
+import "../App.css";
 
 export default function UserDashboard() {
   const [activeService, setActiveService] = useState("mobile");
@@ -34,7 +35,7 @@ export default function UserDashboard() {
     }
     if (activeService === "water") {
       return <Water activeLabel={activeLabel} />;
-      return <Water activeLabel={activeLabel} />;
+     
     }
     if (activeService === "broadband") {
       return <Broadband activeLabel={activeLabel} />;
@@ -50,7 +51,7 @@ export default function UserDashboard() {
     }
     
     return (
-      <div className="bg-white shadow-md rounded-lg p-6">
+      <div className="bg-white  shadow-md rounded-lg p-6  ">
         <h2 className="text-xl font-semibold mb-4">{activeLabel} Payment</h2>
         <form className="space-y-4">
           <input type="text" placeholder="Enter Customer ID or Details" className="w-full p-2 border rounded" />
@@ -62,10 +63,10 @@ export default function UserDashboard() {
   };
 
   return (
-    <div className="p-4 ">
+    <div className="p-2 h-[79vh] overflow-scroll hide-scrollbar ">
       <ServiceSelector activeService={activeService} setActiveService={setActiveService} />
 
-      <div className="">
+      <div className=" ">
         {renderForm()}
         
       </div>

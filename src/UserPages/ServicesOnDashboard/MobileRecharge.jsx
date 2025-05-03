@@ -1,4 +1,5 @@
 import { useState } from "react";
+import "../../App.css"
 
 export default function MobileRecharge({ activeLabel }) {
   const [transactions, setTransactions] = useState([
@@ -25,7 +26,7 @@ export default function MobileRecharge({ activeLabel }) {
   ]);
 
   return (
-    <div className="flex gap-4 " >
+    <div className="flex gap-4  " >
 
     
     <div className="bg-white shadow-md rounded-lg p-6 max-w-md">

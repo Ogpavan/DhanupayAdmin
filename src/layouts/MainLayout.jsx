@@ -3,10 +3,12 @@
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import { Outlet } from "react-router-dom";
+import "../App.css";
+
 
 export default function MainLayout() {
   return (
-    <div className="h-screen flex flex-col">
+    <div className="h-screen flex flex-col ">
       {/* Top Navbar */}
       <Navbar />
 
@@ -16,7 +18,7 @@ export default function MainLayout() {
         <Sidebar />
 
         {/* Dynamic page content */}
-        <main className="flex-1 px-6 py-3 bg-gray-50 overflow-auto">
+        <main className="flex-1 px-6 py-3 marker:overflow-scroll hide-scrollbar">
           <Outlet />
         </main>
       </div>

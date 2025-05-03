@@ -18,7 +18,7 @@ const services = [
 
 export default function ServiceSelector({ activeService, setActiveService }) {
   return (
-    <div className="grid grid-cols-10 gap-2 mb-4 bg-indigo-700  p-5 rounded-xl">
+    <div className="grid grid-cols-10 gap-2 mb-4 bg-indigo-700   p-5 rounded-xl">
       {services.map((service) => (
         <button
           key={service.id}

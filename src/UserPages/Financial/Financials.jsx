@@ -8,6 +8,7 @@ import {
 import DMTTransactions from "./DMTTransactions";
 import AadhaarPayTransactions from "./AadhaarPayTransactions";
 import MicroATMTransactions from "./MicroATMTransactions";
+import "../../App.css";
  
 
 // Placeholder components for each service
@@ -28,7 +29,7 @@ const Financials = () => {
   const selectedComponent = services.find(service => service.id === selectedService)?.component;
 
   return (
-    <div className="flex flex-col min-h-screen ">
+    <div className="flex flex-col h-[79vh]  overflow-scroll hide-scrollbar ">
       {/* Top Service Bar */}
       <div className="bg-indigo-700 p-4 rounded-md">
         <div className="flex gap-4">

@@ -26,6 +26,7 @@ import UserReports from "./UserPages/UserReports";
 import EmployeeMaster from "./AdminPages/EmployeeMaster.jsx";
 import Financials from "./UserPages/Financial/Financials.jsx";
 import Wallet from "./UserPages/Wallet.jsx";
+import Reportviewer from "./UserPages/ReportViewer/Reportviewer.jsx";
 
 function App() {
   return (
@@ -73,6 +74,7 @@ function App() {
             <Route path="reports" element={<UserReports />} />
             <Route path="financials" element={<Financials />} />
             <Route path="wallet" element={<Wallet />} />
+            <Route path="reportviewer" element={<Reportviewer />} />
 
           </Route>
         </Routes>

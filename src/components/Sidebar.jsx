@@ -37,7 +37,7 @@ export default function Sidebar() {
   const sidebarLinks = userType === "admin" ? AdminsidebarLinks : usersidebarLinks;
 
   return (
-    <div className="w-60 h-full bg-gray-200 text-gray-900 p-4">
+    <div className="w-60  bg-gray-200 text-gray-900 p-4 h-[calc(100vh-16.5vh)] hide-scrollbar  overflow-y-scroll">
       <nav className="flex flex-col space-y-4">
         {sidebarLinks.map((link, index) => (
           <NavLink
