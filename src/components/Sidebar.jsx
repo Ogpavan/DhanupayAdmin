@@ -1,20 +1,19 @@
 import { NavLink } from "react-router-dom";
 import { House, Users, Wallet, Gear, UserCircleGear, Notepad } from "phosphor-react";
+import Cookies from "js-cookie";
 
-// Sidebar component
 export default function Sidebar() {
-  // Define the sidebar links for admin and user
   const AdminsidebarLinks = [
     { to: "/admin", label: "Dashboard", icon: <House size={24} weight="fill" /> },
     { to: "/admin/profile", label: "My Profile", icon: <UserCircleGear size={24} weight="fill" /> },
     { to: "/admin/users", label: "Users & Account", icon: <Users size={24} weight="fill" /> },
     { to: "/admin/transactions", label: "Transactions", icon: <Wallet size={24} weight="fill" /> },
     { to: "/admin/registration", label: "Registration", icon: <Users size={24} weight="fill" /> },
-    
     { to: "/admin/settings", label: "Basic Settings", icon: <Gear size={24} weight="fill" /> },
     { to: "/admin/commission", label: "Commission", icon: <Gear size={24} weight="fill" /> },
-    {to: "/admin/financial",label: "Financial", icon: <Gear size={24} weight="fill" />},
-    {to: "/admin/employeemaster",label: "Employee Master", icon: <Gear size={24} weight="fill" />}
+    { to: "/admin/financial", label: "Financial", icon: <Gear size={24} weight="fill" /> },
+    { to: "/admin/employeemaster", label: "Employee Master", icon: <Gear size={24} weight="fill" /> },
+    { to: "/admin/fundtransfer", label: "Fund Transfer", icon: <Gear size={24} weight="fill" /> },
   ];
 
   const usersidebarLinks = [
@@ -26,15 +25,13 @@ export default function Sidebar() {
     { to: "/user/reports", label: "Reports", icon: <Notepad size={24} weight="fill" /> },
     { to: "/user/settings", label: "Basic Settings", icon: <Gear size={24} weight="fill" /> },
     { to: "/user/commission", label: "Commission", icon: <Gear size={24} weight="fill" /> },
-    {to: "/user/financials",label: "Financial", icon: <Gear size={24} weight="fill" />},
-    {to:"/user/wallet",label: "Wallet", icon: <Gear size={24} weight="fill" />}
+    { to: "/user/financials", label: "Financial", icon: <Gear size={24} weight="fill" /> },
+    { to: "/user/wallet", label: "Wallet", icon: <Gear size={24} weight="fill" /> },
   ];
 
-  // Fetch user type from localStorage (either 'admin' or 'user')
-  const userType = localStorage.getItem("userType");
-
-  // Conditional rendering of sidebar links based on user type
-  const sidebarLinks = userType === "admin" ? AdminsidebarLinks : usersidebarLinks;
+  // Get user type from Cookies and provide fallback
+  const userTypeName = Cookies.get("userTypeName") || "user"; // Default to 'user' if not found
+  const sidebarLinks = userTypeName === "Employee" ? AdminsidebarLinks : usersidebarLinks;
 
   return (
     <div className="w-60  bg-gray-200 text-gray-900 p-4 h-[calc(100vh-16.5vh)] hide-scrollbar  overflow-y-scroll">

@@ -26,7 +26,10 @@ import UserReports from "./UserPages/UserReports";
 import EmployeeMaster from "./AdminPages/EmployeeMaster.jsx";
 import Financials from "./UserPages/Financial/Financials.jsx";
 import Wallet from "./UserPages/Wallet.jsx";
-import Reportviewer from "./UserPages/ReportViewer/Reportviewer.jsx";
+import FundTransfer from "./AdminPages/FundTransfer/FundTransfer.jsx";
+import OTPForm from "./auth/OTPForm.jsx";
+import ForgotMpin from "./auth/ForgotMpin.jsx";
+import SetupMpinPage from "./auth/SetupMpinPage.jsx";
 
 function App() {
   return (
@@ -36,7 +39,10 @@ function App() {
         <Routes>
           <Route path="/" element={<Navigate to="/login" />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/otp" element={<OTPForm />} />
+          <Route path="/forgot-mpin" element={<ForgotMpin />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/setup-mpin" element={<SetupMpinPage />} />
           <Route
             path="/admin"
             element={
@@ -54,6 +60,7 @@ function App() {
             <Route path="registration" element={<Registration />} />
             <Route path="financial" element={<Financial />} />
             <Route path="employeemaster" element={<EmployeeMaster />} />
+            <Route path="fundtransfer" element={<FundTransfer />} />
           </Route>
 
           <Route
