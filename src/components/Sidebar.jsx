@@ -30,8 +30,8 @@ export default function Sidebar() {
   ];
 
   // Get user type from Cookies and provide fallback
-  const userTypeName = Cookies.get("userTypeName") || "user"; // Default to 'user' if not found
-  const sidebarLinks = userTypeName === "Employee" ? AdminsidebarLinks : usersidebarLinks;
+  const userTypeName = Cookies.get("UserName") || "user"; // Default to 'user' if not found
+  const sidebarLinks = userTypeName === "admin" ? AdminsidebarLinks : usersidebarLinks;
 
   return (
     <div className="w-60  bg-gray-200 text-gray-900 p-4 h-[calc(100vh-16.5vh)] hide-scrollbar  overflow-y-scroll">

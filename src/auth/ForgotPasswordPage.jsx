@@ -3,11 +3,11 @@ import { EnvelopeSimple, Lock, Eye, EyeSlash } from "phosphor-react";
 import swal from 'sweetalert2';
 
 // Dummy OTP value
-const dummyOTP = "123456";
+const dummyOTP = "1234";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
-  const [otp, setOtp] = useState(["", "", "", "", "", ""]); // OTP as an array of 6 input values
+  const [otp, setOtp] = useState(["", "", "", ""]); // OTP as an array of 6 input values
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState(""); // New state for confirm password
   const [showNewPassword, setShowNewPassword] = useState(false); // Toggle for New Password visibility
@@ -154,7 +154,7 @@ const passwordRules = {
                 <EnvelopeSimple className="absolute left-3 top-2.5 text-gray-400" size={20} />
                 <input
                   type="text"
-                  placeholder="Enter your email or phone number"
+                  placeholder="Enter your userId "
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 outline-none"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -174,7 +174,7 @@ const passwordRules = {
           {step === 2 && (
             <div>
               <div className="text-center text-gray-600 mb-4">
-                <p>An OTP has been sent to both your email and phone number.</p>
+                <p>An OTP has been sent to  phone number.</p>
               </div>
               <form onSubmit={handleOtpSubmit} className="space-y-5">
                 <div className="flex space-x-3 justify-center">
