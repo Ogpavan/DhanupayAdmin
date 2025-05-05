@@ -177,22 +177,32 @@ export default function SetupMpinPage() {
           {step === 2 && (
             <form onSubmit={handleMpinSubmit} className="space-y-5">
               <div>
-                <input
-                  type="password"
-                  placeholder="Enter 4-digit MPIN"
-                  className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500 outline-none"
-                  value={mpin}
-                  onChange={(e) => setMpin(e.target.value)}
-                />
-              </div>
-              <div>
-                <input
-                  type="password"
-                  placeholder="Confirm MPIN"
-                  className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500 outline-none"
-                  value={confirmMpin}
-                  onChange={(e) => setConfirmMpin(e.target.value)}
-                />
+              <input
+  type="password"
+  placeholder="Enter 4-digit MPIN"
+  className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500 outline-none mb-2"
+  value={mpin}
+  onChange={(e) => {
+    const value = e.target.value;
+    if (/^\d{0,4}$/.test(value)) { // Allow only 4-digit numbers
+      setMpin(value);
+    }
+  }}
+/>
+
+<input
+  type="password"
+  placeholder="Confirm MPIN"
+  className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500 outline-none"
+  value={confirmMpin}
+  onChange={(e) => {
+    const value = e.target.value;
+    if (/^\d{0,4}$/.test(value)) { // Allow only 4-digit numbers
+      setConfirmMpin(value);
+    }
+  }}
+/>
+
               </div>
               <button
                 type="submit"
