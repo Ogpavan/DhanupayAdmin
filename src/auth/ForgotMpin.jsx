@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import loginpageimage from "/LoginPageImage.png"; // Replace with the appropriate image path
 import Cookies from "js-cookie"; // Import js-cookie
+
 export default function ForgotMpin() {
   const navigate = useNavigate();
-  const [step, setStep] = useState(1);
-  const [userId, setUserId] = useState(""); // Step 1
+  const [step, setStep] = useState(2); // Start from OTP verification step
   const [otp, setOtp] = useState(""); // Step 2
   const [newMpin, setNewMpin] = useState(""); // Step 3
   const [confirmMpin, setConfirmMpin] = useState(""); // Step 3
@@ -13,44 +13,45 @@ export default function ForgotMpin() {
   const [loading, setLoading] = useState(false);
   const [otpId, setOtpId] = useState(""); // To track the OTP ID for validation
   const token = Cookies.get("token"); // Replace with your token logic
+  const userId = Cookies.get("UserId"); // Get User ID from cookies
 
-  const handleSendOtp = async () => {
-    if (!userId) {
-      setError("Please enter your User ID.");
-      return;
-    }
+  // Automatically send OTP when component loads
+  useEffect(() => {
+    const sendOtpOnLoad = async () => {
+      setError("");
+      setLoading(true);
 
-    setError("");
-    setLoading(true);
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_BACKEND_URL}/api/users/ForgetMPIN`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ UserId: userId }),
+          }
+        );
 
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/api/users/ForgetMPIN`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ UserId: userId }),
+        const data = await response.json();
+        console.log(data);
+
+        if (response.ok && data.success) {
+          setOtpId(data.OTPId); // Save OTP ID for validation
+           
+        } else {
+          setError(data.message || "Failed to send OTP. Please try again.");
         }
-      );
-
-      const data = await response.json();
-console.log(data);
-      if (response.ok && data.success) {
-        setOtpId(data.OTPId); // Save OTP ID for validation
-        alert("OTP sent successfully to your registered phone number!");
-        setStep(2); // Move to Step 2
-      } else {
-        setError(data.message || "Failed to send OTP. Please try again.");
+      } catch (err) {
+        setError("Something went wrong. Please try again.");
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      setError("Something went wrong. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
+
+    sendOtpOnLoad();
+  }, [token, userId]);
 
   const handleVerifyOtp = async () => {
     if (!otp) {
@@ -77,7 +78,7 @@ console.log(data);
       const data = await response.json();
 
       if (response.ok && data.success) {
-        alert("OTP verified successfully!");
+        
         setStep(3); // Move to Step 3
       } else {
         setError(data.message || "Invalid OTP. Please try again.");
@@ -114,14 +115,14 @@ console.log(data);
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ UserId: userId,LoginId: otpId, MPin: newMpin }),
+          body: JSON.stringify({ UserId: userId, LoginId: otpId, MPin: newMpin }),
         }
       );
 
       const data = await response.json();
 
       if (response.ok && data.success) {
-        alert("MPIN reset successfully!");
+         
         navigate("/login"); // Redirect to login page
       } else {
         setError(data.message || "Failed to set MPIN. Please try again.");
@@ -148,17 +149,11 @@ console.log(data);
       <div className="w-full md:w-1/2 flex items-center justify-center p-8">
         <div className="bg-white rounded-2xl p-8 w-full max-w-md">
           <h2 className="text-2xl font-semibold text-gray-800 mb-1">
-            {step === 1
-              ? "Enter User ID"
-              : step === 2
-              ? "Verify OTP"
-              : "Set New MPIN"}
+            {step === 2 ? "Verify OTP" : "Set New MPIN"}
           </h2>
           <p className="text-sm text-gray-600 mb-6">
-            {step === 1
-              ? "Enter your User ID to send an OTP to your registered phone number."
-              : step === 2
-              ? "Verify the OTP sent to your phone."
+            {step === 2
+              ? "Enter the OTP sent to your registered mobile number."
               : "Set a new MPIN to secure your account."}
           </p>
           {error && (
@@ -169,27 +164,6 @@ console.log(data);
             onSubmit={step === 3 ? handleSetMpin : (e) => e.preventDefault()}
             className="space-y-5"
           >
-            {step === 1 && (
-              <>
-                {/* User ID Input */}
-                <input
-                  type="text"
-                  placeholder="Enter User ID"
-                  className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500 outline-none"
-                  value={userId}
-                  onChange={(e) => setUserId(e.target.value)}
-                />
-                <button
-                  type="button"
-                  onClick={handleSendOtp}
-                  disabled={loading}
-                  className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-md font-semibold transition"
-                >
-                  {loading ? "Sending OTP..." : "Send OTP"}
-                </button>
-              </>
-            )}
-
             {step === 2 && (
               <>
                 {/* OTP Input */}
