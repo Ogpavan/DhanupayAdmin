@@ -62,10 +62,10 @@ export default function LoginPage() {
       );
 
       const data = await response.json();
-      console.log(data);
-      console.log(data.Token);
-      console.log(data.UserId);
+      console.log("Data 1",data);
+       
       settempToken(data.Token);
+     
       settempUserId(data.UserId);
       if (response.ok && data?.Token) {
         // Save token and remember username if applicable
@@ -102,7 +102,7 @@ export default function LoginPage() {
                 {
                   method: "POST",
                   headers: {
-                    'Authorization': `Bearer ${tempToken}`,
+                    'Authorization': `Bearer ${data.Token}`,
                     'Content-Type': 'application/json'
                   },
                   body: JSON.stringify({

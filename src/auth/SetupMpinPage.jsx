@@ -15,6 +15,7 @@ export default function SetupMpinPage() {
   const location = useLocation();
 
   const UserId = location.state?.UserId || Cookies.get("UserId");
+  const loginid = Cookies.get("loginid");
 
   // Handle OTP submission
   const handleOtpSubmit = async (e) => {
@@ -31,7 +32,7 @@ export default function SetupMpinPage() {
     try {
       // Get token and other required details from cookies
       const token = Cookies.get("token");
-      const loginid = Cookies.get("loginid");
+      // const loginid = Cookies.get("loginid");
   
       const response = await fetch("https://gateway.dhanushop.com/api/users/OTPValidator", {
         method: "POST",
@@ -105,7 +106,7 @@ export default function SetupMpinPage() {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ UserId: UserId,LoginId: loginid , MPin: mpin }),
+        body: JSON.stringify({ UserId: UserId,LoginId: loginid, MPin: mpin }),
       });
   
       const data = await response.json();
@@ -124,6 +125,7 @@ export default function SetupMpinPage() {
         setError(data?.message || "Failed to set up MPIN. Please try again.");
       }
     } catch (error) {
+      console.error(error);
       setError("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
