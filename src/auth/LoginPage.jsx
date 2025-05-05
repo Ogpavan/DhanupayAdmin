@@ -12,6 +12,8 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState("");
+  const [tempToken, settempToken] = useState("");
+  const [tempUserId, settempUserId] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
@@ -61,7 +63,10 @@ export default function LoginPage() {
 
       const data = await response.json();
       console.log(data);
-
+      console.log(data.Token);
+      console.log(data.UserId);
+      settempToken(data.Token);
+      settempUserId(data.UserId);
       if (response.ok && data?.Token) {
         // Save token and remember username if applicable
         Cookies.set("token", data.Token, { secure: true, sameSite: "Strict", expires: 1 });
@@ -70,9 +75,9 @@ export default function LoginPage() {
         Cookies.set("UserName", data.UserName, { secure: true, sameSite: "Strict", expires: 1 });
         Cookies.set("role", data.role, { secure: true, sameSite: "Strict", expires: 1 });
         Cookies.set("UserId", data.UserId, { secure: true, sameSite: "Strict", expires: 1 });
+      
 
-
-        if (data?.IsMPINSet==="0") {
+        if (data?.IsMPINSet === "0") {
           navigate("/setup-mpin", { state: { UserId: data.UserId, loginid: data.loginid, message: "Please set your MPIN to continue." } });
         } else {
           // Redirect to OTP page if MPIN is set
@@ -80,6 +85,53 @@ export default function LoginPage() {
         }
       } else {
         setError(data?.message || "Invalid credentials. Please try again.");
+        if (data?.message === "User already logged in on another device.") {
+          Swal.fire({
+            icon: 'warning',
+            title: 'User Already Logged In',
+            text: 'This user is already logged in on another device. Do you want to proceed and log in anyway?',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, proceed',
+            cancelButtonText: 'No, cancel',
+          }).then(async (result) => {
+            if (result.isConfirmed) {
+              console.log(tempToken);
+              console.log(tempUserId);
+              const res = await fetch(
+                `${import.meta.env.VITE_BACKEND_URL}/api/users/ConfirmLogin`,
+                {
+                  method: "POST",
+                  headers: {
+                    'Authorization': `Bearer ${tempToken}`,
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({
+                    "UserId": tempUserId,
+                  }),
+                }
+              );
+
+              const seconddata = await res.json();
+              console.log(seconddata);
+              Cookies.set("token", seconddata.Token, { secure: true, sameSite: "Strict", expires: 1 });
+              Cookies.set("loginid", seconddata.loginid, { secure: true, sameSite: "Strict", expires: 1 });
+              Cookies.set("UserTypeName", seconddata.UserTypeName, { secure: true, sameSite: "Strict", expires: 1 });
+              Cookies.set("UserName", seconddata.UserName, { secure: true, sameSite: "Strict", expires: 1 });
+              Cookies.set("role", seconddata.role, { secure: true, sameSite: "Strict", expires: 1 });
+              Cookies.set("UserId", seconddata.UserId, { secure: true, sameSite: "Strict", expires: 1 });
+              if (seconddata?.IsMPINSet === "0") {
+                navigate("/setup-mpin", { state: { UserId: seconddata.UserId, loginid: data.loginid, message: "Please set your MPIN to continue." } });
+              } else {
+                // Redirect to OTP page if MPIN is set
+                navigate("/otp", { state: { message: seconddata.Message, userId: data.UserId } });
+              }
+            } else {
+              // User canceled
+              return;
+            }
+          });
+        }
+
       }
     } catch (err) {
       setError(
