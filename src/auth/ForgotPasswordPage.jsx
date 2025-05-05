@@ -32,7 +32,7 @@ export default function ForgotPasswordPage() {
   
     try {
       const response = await fetch(
-        "https://gateway.dhanushop.com/api/users/ForgetPassword",
+        `${import.meta.env.VITE_BACKEND_URL}/api/users/ForgetPassword`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -79,7 +79,7 @@ export default function ForgotPasswordPage() {
   
     try {
       const response = await fetch(
-        "https://gateway.dhanushop.com/api/users/OTPValidator",
+        `${import.meta.env.VITE_BACKEND_URL}/api/users/OTPValidator`,
         {
           method: "POST",
           headers: {
@@ -139,7 +139,7 @@ export default function ForgotPasswordPage() {
 
     try {
       const response = await fetch(
-        "https://gateway.dhanushop.com/api/users/set-password",
+        `${import.meta.env.VITE_BACKEND_URL}/api/users/set-password`,
         {
           method: "POST",
           headers: {

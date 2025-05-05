@@ -7,7 +7,7 @@ export default function OTPForm() {
   const location = useLocation();
   const navigate = useNavigate();
   const { message = "Please enter the OTP and MPIN sent to your registered number.", userId = "" } = location.state || {};
-  const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://gateway.dhanushop.com"; // API base URL
+  const BASE_URL = import.meta.env.VITE_BACKEND_URL || "https://gateway.dhanushop.com"; // API base URL
 
   // State variables
   const [otp, setOtp] = useState("");

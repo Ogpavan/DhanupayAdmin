@@ -105,7 +105,7 @@ export default function SetupMpinPage() {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ UserId: UserId, MPin: mpin }),
+        body: JSON.stringify({ UserId: UserId,LoginId: loginid , MPin: mpin }),
       });
   
       const data = await response.json();

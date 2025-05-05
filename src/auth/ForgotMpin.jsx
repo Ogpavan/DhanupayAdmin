@@ -25,7 +25,7 @@ export default function ForgotMpin() {
 
     try {
       const response = await fetch(
-        "https://gateway.dhanushop.com/api/users/ForgetMPIN",
+        `${import.meta.env.VITE_BACKEND_URL}/api/users/ForgetMPIN`,
         {
           method: "POST",
           headers: {
@@ -63,7 +63,7 @@ console.log(data);
 
     try {
       const response = await fetch(
-        "https://gateway.dhanushop.com/api/users/OTPValidator",
+        `${import.meta.env.VITE_BACKEND_URL}/api/users/OTPValidator`,
         {
           method: "POST",
           headers: {
@@ -107,14 +107,14 @@ console.log(data);
 
     try {
       const response = await fetch(
-        "https://gateway.dhanushop.com/api/users/set-mpin",
+        `${import.meta.env.VITE_BACKEND_URL}/api/users/set-mpin`,
         {
           method: "POST",
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ UserId: userId, MPin: newMpin }),
+          body: JSON.stringify({ UserId: userId,LoginId: otpId, MPin: newMpin }),
         }
       );
 
