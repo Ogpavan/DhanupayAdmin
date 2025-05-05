@@ -10,12 +10,14 @@ export default function OTPForm() {
   const BASE_URL = import.meta.env.VITE_BACKEND_URL || "https://gateway.dhanushop.com"; // API base URL
 
   // State variables
-  const [otp, setOtp] = useState("");
-  const [mpin, setMpin] = useState("");
+  const [otp, setOtp] = useState(["", "", "", ""]);
+  const [mpin, setMpin] = useState(["", "", "", ""]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [resendTimer, setResendTimer] = useState(30); // Timer for resend OTP
   const [resending, setResending] = useState(false);
+  const [otpVisible, setOtpVisible] = useState(false); // Toggle for OTP visibility
+  const [mpinVisible, setMpinVisible] = useState(false); // Toggle for MPIN visibility
 
   // Retrieve token and login details from cookies
   const token = Cookies.get("token");
@@ -32,11 +34,55 @@ export default function OTPForm() {
     return () => clearTimeout(timer);
   }, [resendTimer]);
 
+  // Handle input change for OTP and MPIN
+  const handleInputChange = (e, index, type) => {
+    const value = e.target.value.replace(/[^0-9]/g, "");
+    if (type === "otp") {
+      const newOtp = [...otp];
+      newOtp[index] = value;
+      setOtp(newOtp);
+
+      if (value && index < 3) {
+        document.getElementById(`otp-${index + 1}`).focus();
+      }
+    } else {
+      const newMpin = [...mpin];
+      newMpin[index] = value;
+      setMpin(newMpin);
+
+      if (value && index < 3) {
+        document.getElementById(`mpin-${index + 1}`).focus();
+      }
+    }
+  };
+
+  const handleBackspace = (e, index, type) => {
+    if (e.key === "Backspace") {
+      if (type === "otp") {
+        const newOtp = [...otp];
+        newOtp[index] = "";
+        setOtp(newOtp);
+
+        if (index > 0) {
+          document.getElementById(`otp-${index - 1}`).focus();
+        }
+      } else {
+        const newMpin = [...mpin];
+        newMpin[index] = "";
+        setMpin(newMpin);
+
+        if (index > 0) {
+          document.getElementById(`mpin-${index - 1}`).focus();
+        }
+      }
+    }
+  };
+
   // Handle OTP and MPIN verification
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!otp.trim() || !mpin.trim()) {
+    if (otp.includes("") || mpin.includes("")) {
       setError("Both OTP and MPIN are required.");
       return;
     }
@@ -51,7 +97,7 @@ export default function OTPForm() {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ UserId: UserId, LoginId: loginid, OTP: otp, MPin: mpin }),
+        body: JSON.stringify({ UserId: UserId, LoginId: loginid, OTP: otp.join(""), MPin: mpin.join("") }),
       });
 
       const data = await response.json();
@@ -117,7 +163,7 @@ export default function OTPForm() {
       <div className="w-full md:w-1/2 flex items-center justify-center p-8 bg-gray-100">
         <img
           src={loginpageimage}
-          alt="OTP Verification Illustration"
+          alt="Secure Login Illustration"
           className="max-w-md w-full"
         />
       </div>
@@ -125,37 +171,67 @@ export default function OTPForm() {
       {/* Form Section */}
       <div className="w-full md:w-1/2 flex items-center justify-center p-8">
         <div className="bg-white rounded-2xl p-8 w-full max-w-md">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-1">OTP Verification</h2>
-          <p className="text-sm text-gray-600 mb-6">{message}</p>
+          <h2 className="text-2xl font-semibold text-gray-800 mb-3">Secure Login with OTP and MPIN</h2>
+          <p className="text-sm text-center text-gray-600 mb-10">{message}</p>
           {error && <div className="text-red-500 text-sm mb-4 text-center">{error}</div>}
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-6">
             {/* OTP Input */}
-            <input
-              type="text"
-              aria-label="Enter OTP"
-              placeholder="Enter OTP"
-              className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500 outline-none"
-              value={otp}
-              onChange={(e) => setOtp(e.target.value)}
-              onPaste={(e) => e.preventDefault()} // Prevent pasting in OTP field
-            />
+            <div className="flex items-center">
+              <label className="block text-sm font-medium text-gray-700 mb-2 pr-3">Enter OTP: </label>
+              <div className="flex space-x-2">
+                {otp.map((digit, index) => (
+                  <input
+                    key={index}
+                    id={`otp-${index}`}
+                    type={otpVisible ? "text" : "password"}
+                    maxLength="1"
+                    className="w-12 h-12 text-center border rounded-md focus:ring-2 focus:ring-indigo-500 outline-none"
+                    value={digit}
+                    onChange={(e) => handleInputChange(e, index, "otp")}
+                    onKeyDown={(e) => handleBackspace(e, index, "otp")}
+                  />
+                ))}
+              </div>
+              <button
+                type="button"
+                onClick={() => setOtpVisible((prev) => !prev)}
+                className="ml-4 text-indigo-600 text-sm hover:underline"
+              >
+                {otpVisible ? "Hide" : "Show"}
+              </button>
+            </div>
 
             {/* MPIN Input */}
-            <input
-              type="password"
-              aria-label="Enter MPIN"
-              placeholder="Enter MPIN"
-              className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500 outline-none"
-              value={mpin}
-              onChange={(e) => setMpin(e.target.value)}
-              onPaste={(e) => e.preventDefault()} // Prevent pasting in MPIN field
-            />
+            <div className="flex items-center">
+              <label className="block text-sm font-medium text-gray-700 mb-2 pr-2">Enter MPIN: </label>
+              <div className="flex space-x-2">
+                {mpin.map((digit, index) => (
+                  <input
+                    key={index}
+                    id={`mpin-${index}`}
+                    type={mpinVisible ? "text" : "password"}
+                    maxLength="1"
+                    className="w-12 h-12 text-center border rounded-md focus:ring-2 focus:ring-indigo-500 outline-none"
+                    value={digit}
+                    onChange={(e) => handleInputChange(e, index, "mpin")}
+                    onKeyDown={(e) => handleBackspace(e, index, "mpin")}
+                  />
+                ))}
+              </div>
+              <button
+                type="button"
+                onClick={() => setMpinVisible((prev) => !prev)}
+                className="ml-4 text-indigo-600 text-sm hover:underline"
+              >
+                {mpinVisible ? "Hide" : "Show"}
+              </button>
+            </div>
 
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-md font-semibold transition"
+              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-md font-semibold transition mt-5"
               disabled={loading}
             >
               {loading ? "Verifying..." : "Verify"}

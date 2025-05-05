@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { EnvelopeSimple, Lock, Eye, EyeSlash } from "phosphor-react";
 import swal from "sweetalert2";
 import Cookies from "js-cookie";
@@ -13,12 +13,29 @@ export default function ForgotPasswordPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(1);
-  const [resendCount, setResendCount] = useState(0);
+  const [resendTimer, setResendTimer] = useState(30); // Timer for resend OTP
+  const [resending, setResending] = useState(false);
+   
   const [otpId, setOtpId] = useState("");
   const [token, setToken] = useState("");
   const [userid, setUserid] = useState("");
 
   const otpRefs = useRef([]);
+
+
+
+
+  useEffect(() => {
+
+      let timer = null;
+      if (resendTimer > 0) {
+        timer = setTimeout(() => setResendTimer((prev) => prev - 1), 1000);
+      }
+      return () => clearTimeout(timer);
+    }, [resendTimer]);
+
+
+
 
   const handleEmailSubmit = async (e) => {
     e.preventDefault();
@@ -175,12 +192,37 @@ export default function ForgotPasswordPage() {
     }
   };
 
-  const handleResendOtp = () => {
-    setResendCount(resendCount + 1);
+  const handleResendOtp = async () => {
+    if (resending || resendTimer > 0) return;
+
+    setResending(true);
     setError("");
-    // Simulate OTP resend
-    console.log(`OTP resent to ${email}`);
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/users/OTP_Resend`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ UserId: userid, LoginId: otpId }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data?.success) {
+        setResendTimer(30);
+        alert(data.message || "OTP resent successfully!");
+      } else {
+        setError(data?.message || "Failed to resend OTP. Please try again.");
+      }
+    } catch {
+      setError("Failed to resend OTP. Please check your connection and try again.");
+    } finally {
+      setResending(false);
+    }
   };
+  
   const handleOtpChange = (e, index) => {
     const newOtp = [...otp];
     newOtp[index] = e.target.value;
@@ -230,7 +272,7 @@ export default function ForgotPasswordPage() {
                 <EnvelopeSimple className="absolute left-3 top-2.5 text-gray-400" size={20} />
                 <input
                   type="text"
-                  placeholder="Enter your userId "
+                  placeholder="Enter your username "
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 outline-none"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -250,7 +292,7 @@ export default function ForgotPasswordPage() {
           {step === 2 && (
             <div>
               <div className="text-center text-gray-600 mb-4">
-                <p>An OTP has been sent to your mobile number.</p>
+                <p>Please enter the OTP sent to registered number.</p>
               </div>
               <form onSubmit={handleOtpSubmit} className="space-y-5">
                 <div className="flex space-x-3 justify-center">
@@ -277,16 +319,15 @@ export default function ForgotPasswordPage() {
               </form>
 
               <div className="text-center mt-4">
-                <button
-                  onClick={handleResendOtp}
-                  className="text-indigo-600 hover:text-indigo-700 font-semibold"
-                  disabled={resendCount >= 3}
-                >
-                  {resendCount < 3 ? "Resend OTP" : "OTP Resend Limit Reached"}
-                </button>
-                {resendCount > 0 && resendCount < 3 && (
-                  <p className="text-sm text-gray-500">Attempt {resendCount} of 3</p>
-                )}
+              <button
+              onClick={handleResendOtp}
+              disabled={resending || resendTimer > 0}
+              className={`${
+                resending || resendTimer > 0 ? "text-gray-400 cursor-not-allowed" : "text-indigo-600 hover:underline"
+              }`}
+            >
+              {resending ? "Resending..." : resendTimer > 0 ? `Resend OTP in ${resendTimer}s` : "Resend OTP"}
+            </button>
               </div>
             </div>
           )}
@@ -300,12 +341,41 @@ export default function ForgotPasswordPage() {
               <div className="relative">
                 <Lock className="absolute left-3  top-2.5 text-gray-400" size={20} />
                 <input
+    type={showNewPassword ? "text" : "password"}
+    placeholder=" New Password"
+    className="w-full pl-10 pr-10 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500 outline-none"
+    value={newPassword}
+    onChange={(e) => {
+      const sanitizedInput = e.target.value.replace(/[^a-zA-Z0-9!@#$%^&*()_+={}[\]:;'"<>,.?/|]/g, "");
+      if (sanitizedInput !== e.target.value) {
+        setError("Password contains invalid characters.");
+      } else {
+        setError("");
+      }
+      setNewPassword(sanitizedInput);
+    }}
+    onKeyDown={(e) => {
+      const invalidChars = ["'", "`", "~", "\\", "<", ">", "|", "&",".","/"];
+      if (invalidChars.includes(e.key)) {
+        e.preventDefault(); // Block invalid character
+        setError(`The character ${e.key} is not allowed.`);
+      }
+    }}
+    onPaste={(e) => {
+      e.preventDefault();
+      setError("Pasting is not allowed in the password field.");
+    }}
+  />
+
+
+               
+                {/* <input
                   type={showNewPassword ? "text" : "password"}
                   placeholder="New Password"
                   className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 outline-none"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                />
+                /> */}
                 <button
                   type="button"
                   className="absolute right-3 top-2.5 text-indigo-500"
@@ -318,12 +388,31 @@ export default function ForgotPasswordPage() {
               <div className="relative">
                 <Lock className="absolute left-3  top-2.5 text-gray-400" size={20} />
                 <input
-                  type={showConfirmPassword ? "text" : "password"}
-                  placeholder="Confirm Password"
-                  className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 outline-none"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                />
+    type={showConfirmPassword ? "text" : "password"}
+    placeholder=" Confirm Password"
+    className="w-full pl-10 pr-10 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500 outline-none"
+    value={confirmPassword}
+    onChange={(e) => {
+      const sanitizedInput = e.target.value.replace(/[^a-zA-Z0-9!@#$%^&*()_+={}[\]:;'"<>,.?/|]/g, "");
+      if (sanitizedInput !== e.target.value) {
+        setError("Password contains invalid characters.");
+      } else {
+        setError("");
+      }
+      setConfirmPassword(sanitizedInput);
+    }}
+    onKeyDown={(e) => {
+      const invalidChars = ["'", "`", "~", "\\", "<", ">", "|", "&",".","/"];
+      if (invalidChars.includes(e.key)) {
+        e.preventDefault(); // Block invalid character
+        setError(`The character ${e.key} is not allowed.`);
+      }
+    }}
+    onPaste={(e) => {
+      e.preventDefault();
+      setError("Pasting is not allowed in the password field.");
+    }}
+  />
                 <button
                   type="button"
                   className="absolute right-3 top-2.5 text-indigo-500"

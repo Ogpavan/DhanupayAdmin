@@ -16,6 +16,8 @@ export default function LoginPage() {
   const [tempUserId, settempUserId] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [userType, setUserType] = useState("Admin"); // Default user type
+
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -57,6 +59,7 @@ export default function LoginPage() {
             OS: os,
             Browser: browserName,
             Device: device,
+            UserType: userType,
           }),
         }
       );
@@ -89,47 +92,56 @@ export default function LoginPage() {
           Swal.fire({
             icon: 'warning',
             title: 'User Already Logged In',
-            text: 'This user is already logged in on another device. Do you want to proceed and log in anyway?',
+            text: 'This user is already logged in on another device. Do you want to proceed and log in anyway? Proceeding will log out the user from the previous device.',
             showCancelButton: true,
-            confirmButtonText: 'Yes, proceed',
-            cancelButtonText: 'No, cancel',
+            confirmButtonText: 'Yes, Proceed',
+            cancelButtonText: 'No, Cancel',
           }).then(async (result) => {
             if (result.isConfirmed) {
-              console.log(tempToken);
-              console.log(tempUserId);
-              const res = await fetch(
-                `${import.meta.env.VITE_BACKEND_URL}/api/users/ConfirmLogin`,
-                {
-                  method: "POST",
-                  headers: {
-                    'Authorization': `Bearer ${data.Token}`,
-                    'Content-Type': 'application/json'
-                  },
-                  body: JSON.stringify({
-                    "UserId": tempUserId,
-                  }),
+              try {
+                const res = await fetch(
+                  `${import.meta.env.VITE_BACKEND_URL}/api/users/ConfirmLogin`,
+                  {
+                    method: "POST",
+                    headers: {
+                      'Authorization': `Bearer ${tempToken}`, // Use tempToken instead of data.Token
+                      'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                      "UserId": tempUserId, // Use tempUserId correctly
+                    }),
+                  }
+                );
+          
+                const seconddata = await res.json();
+                console.log("ConfirmLogin Response:", seconddata);
+          
+                if (res.ok && seconddata?.Token) {
+                  Cookies.set("token", seconddata.Token, { secure: true, sameSite: "Strict", expires: 1 });
+                  Cookies.set("loginid", seconddata.loginid, { secure: true, sameSite: "Strict", expires: 1 });
+                  Cookies.set("UserTypeName", seconddata.UserTypeName, { secure: true, sameSite: "Strict", expires: 1 });
+                  Cookies.set("UserName", seconddata.UserName, { secure: true, sameSite: "Strict", expires: 1 });
+                  Cookies.set("role", seconddata.role, { secure: true, sameSite: "Strict", expires: 1 });
+                  Cookies.set("UserId", seconddata.UserId, { secure: true, sameSite: "Strict", expires: 1 });
+          
+                  if (seconddata?.IsMPINSet === "0") {
+                    navigate("/setup-mpin", { state: { UserId: seconddata.UserId, loginid: seconddata.loginid, message: "Please set your MPIN to continue." } });
+                  } else {
+                    navigate("/otp", { state: { message: seconddata.Message, userId: seconddata.UserId } });
+                  }
+                } else {
+                  setError(seconddata?.message || "Failed to proceed with login.");
                 }
-              );
-
-              const seconddata = await res.json();
-              console.log(seconddata);
-              Cookies.set("token", seconddata.Token, { secure: true, sameSite: "Strict", expires: 1 });
-              Cookies.set("loginid", seconddata.loginid, { secure: true, sameSite: "Strict", expires: 1 });
-              Cookies.set("UserTypeName", seconddata.UserTypeName, { secure: true, sameSite: "Strict", expires: 1 });
-              Cookies.set("UserName", seconddata.UserName, { secure: true, sameSite: "Strict", expires: 1 });
-              Cookies.set("role", seconddata.role, { secure: true, sameSite: "Strict", expires: 1 });
-              Cookies.set("UserId", seconddata.UserId, { secure: true, sameSite: "Strict", expires: 1 });
-              if (seconddata?.IsMPINSet === "0") {
-                navigate("/setup-mpin", { state: { UserId: seconddata.UserId, loginid: data.loginid, message: "Please set your MPIN to continue." } });
-              } else {
-                // Redirect to OTP page if MPIN is set
-                navigate("/otp", { state: { message: seconddata.Message, userId: data.UserId } });
+              } catch (err) {
+                setError("An error occurred while confirming login. Please try again.");
+                console.error("ConfirmLogin Error:", err);
               }
             } else {
-              // User canceled
+              // User canceled the confirmation
               return;
             }
           });
+          
         }
 
       }
@@ -172,7 +184,26 @@ export default function LoginPage() {
             <div className="text-red-500 text-sm mb-4 text-center">{error}</div>
           )}
 
-          <form onSubmit={handleLogin} className="space-y-5">
+<form onSubmit={handleLogin} className="space-y-5">
+            {/* User Type Selection */}
+            <div className="space-y-2">
+              <label className="text-gray-700 font-medium">Login As:</label>
+              <div className="flex justify-between text-sm">
+                {["Admin", "Superdistributor", "Distributor", "Retailer"].map((type) => (
+                  <label key={type} className="flex items-center space-x-2">
+                    <input
+                      type="radio"
+                      name="userType"
+                      value={type}
+                      checked={userType === type}
+                      onChange={() => setUserType(type)}
+                      className="accent-indigo-600"
+                    />
+                    <span>{type}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
             {/* Username */}
             <div className="relative">
               <EnvelopeSimple
@@ -190,27 +221,45 @@ export default function LoginPage() {
 
             {/* Password */}
             <div className="relative">
-              <Lock
-                className="absolute left-3 top-2.5 text-gray-400"
-                size={20}
-              />
-              <input
-                type={showPassword ? "text" : "password"}
-                placeholder="Password"
-                className="w-full pl-10 pr-10 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500 outline-none"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                onPaste={handlePasswordPaste}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600 focus:outline-none"
-                tabIndex={-1}
-              >
-                {showPassword ? <EyeSlash size={20} /> : <Eye size={20} />}
-              </button>
-            </div>
+  <Lock className="absolute left-3 top-2.5 text-gray-400" size={20} />
+  <input
+    type={showPassword ? "text" : "password"}
+    placeholder="Password"
+    className="w-full pl-10 pr-10 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500 outline-none"
+    value={password}
+    onChange={(e) => {
+      const sanitizedInput = e.target.value.replace(/[^a-zA-Z0-9!@#$%^&*()_+={}[\]:;'"<>,.?/|]/g, "");
+      if (sanitizedInput !== e.target.value) {
+        setError("Password contains invalid characters.");
+      } else {
+        setError("");
+      }
+      setPassword(sanitizedInput);
+    }}
+    onKeyDown={(e) => {
+      const invalidChars = ["'", "`", "~", "\\", "<", ">", "|", "&",".","/"];
+      if (invalidChars.includes(e.key)) {
+        e.preventDefault(); // Block invalid character
+        setError(`The character ${e.key} is not allowed.`);
+      }
+    }}
+    onPaste={(e) => {
+      e.preventDefault();
+      setError("Pasting is not allowed in the password field.");
+    }}
+  />
+  <button
+    type="button"
+    onClick={() => setShowPassword(!showPassword)}
+    className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600 focus:outline-none"
+    tabIndex={-1}
+  >
+    {showPassword ? <EyeSlash size={20} /> : <Eye size={20} />}
+  </button>
+</div>
+ 
+
+
 
             {/* Remember Me */}
             <div className="flex items-center justify-between text-sm text-gray-600">
