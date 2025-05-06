@@ -232,7 +232,7 @@ export default function LoginPage() {
             <div className="space-y-2">
               <label className="text-gray-700 font-medium">Login As:</label>
               <div className="flex justify-between text-sm">
-                {["Admin", "Superdistributor", "Distributor", "Retailer"].map((type) => (
+                {[ "Superdistributor", "Distributor", "Retailer"].map((type) => (
                   <label key={type} className="flex items-center space-x-2">
                     <input
                       type="radio"

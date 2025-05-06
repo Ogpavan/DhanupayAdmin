@@ -33,6 +33,9 @@ import SetupMpinPage from "./auth/SetupMpinPage.jsx";
 import ReportViewer from "./UserPages/ReportViewer/Reportviewer.jsx";
 import UserTypeAndRoleManager from "./AdminPages/UserTypeAndRoleManager.jsx";
 import ChangePassword from "./AdminPages/ChangePassword.jsx";
+import AdminLoginPage from "./auth/AdminLoginPage.jsx";
+import Home from "./auth/Home.jsx";
+import AdminForgotPasswordPage from "./auth/AdminForgotPasswordPage.jsx";
 
 function App() {
   return (
@@ -40,11 +43,14 @@ function App() {
       <GlobalLoader />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Navigate to="/login" />} />
+          <Route path="/" element={<Home />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/administrator" element={<AdminLoginPage />} />
           <Route path="/otp" element={<OTPForm />} />
           <Route path="/forgot-mpin" element={<ForgotMpin />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          
+          <Route path="/admin-forgot-password" element={<AdminForgotPasswordPage />} />
           <Route path="/setup-mpin" element={<SetupMpinPage />} />
           <Route
             path="/admin"

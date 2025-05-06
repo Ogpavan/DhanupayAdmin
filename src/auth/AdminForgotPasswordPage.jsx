@@ -3,7 +3,7 @@ import { Lock, Eye, EyeSlash, Phone } from "phosphor-react";
 import swal from "sweetalert2";
 import Cookies from "js-cookie";
 
-export default function ForgotPasswordPage() {
+export default function AdminForgotPasswordPage() {
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState(["", "", "", ""]);
   const [userType, setUserType] = useState(""); // New state for user type
@@ -48,7 +48,7 @@ export default function ForgotPasswordPage() {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ Username: phone, UserType: userType }),
+          body: JSON.stringify({ Username: phone, UserType: 'Admin' }),
         }
       );
 
@@ -276,26 +276,6 @@ export default function ForgotPasswordPage() {
 
           {step === 1 && (
             <form onSubmit={handlePhoneSubmit} className="space-y-5">
-              <div>
-                <p className="text-gray-600 mb-2">Select your user type:</p>
-                <div className="space-y-2">
-                  {["Distributor", "Retailer", "Super Distributor"].map(
-                    (type) => (
-                      <label key={type} className="flex items-center space-x-2">
-                        <input
-                          type="radio"
-                          value={type}
-                          checked={userType === type}
-                          onChange={() => setUserType(type)}
-                          className="text-indigo-600 focus:ring-0"
-                        />
-                        <span className="text-gray-700">{type}</span>
-                      </label>
-                    )
-                  )}
-                </div>
-              </div>
-
               <div className="relative">
                 <Phone
                   className="absolute left-3 top-2.5 text-gray-400"
