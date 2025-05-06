@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { EnvelopeSimple, Lock, Eye, EyeSlash } from "phosphor-react";
+import { Phone, Lock, Eye, EyeSlash, User } from "phosphor-react";
 import loginpageimage from "/LoginPageImage.png"; // Replace with the correct image path
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
@@ -8,7 +8,7 @@ import Cookies from "js-cookie";
 import DOMPurify from "dompurify";
 
 export default function LoginPage() {
-  const [username, setUsername] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState(""); // Changed state from username to phoneNumber
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState("");
@@ -24,17 +24,22 @@ export default function LoginPage() {
     e.preventDefault();
 
     // Sanitize inputs
-    const sanitizedUsername = DOMPurify.sanitize(username.trim());
+    const sanitizedPhoneNumber = DOMPurify.sanitize(phoneNumber.trim());
     const sanitizedPassword = DOMPurify.sanitize(password.trim());
 
-    if (!sanitizedUsername || !sanitizedPassword) {
-      setError("Please enter both username and password.");
+    // Validate phone number
+    if (!/^\d{10}$/.test(sanitizedPhoneNumber)) {
+      setError("Please enter a valid 10-digit phone number.");
+      return;
+    }
+
+    if (!sanitizedPassword) {
+      setError("Please enter your password.");
       return;
     }
 
     setLoading(true);
     setError("");
-
     try {
       // Get IP and browser details
       const ip = await fetch("https://api.ipify.org?format=json")
@@ -53,7 +58,7 @@ export default function LoginPage() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            Username: sanitizedUsername,
+            UserName: sanitizedPhoneNumber,
             Password: sanitizedPassword,
             IP: ip,
             OS: os,
@@ -63,6 +68,7 @@ export default function LoginPage() {
           }),
         }
       );
+
 
       const data = await response.json();
       console.log("Data 1",data);
@@ -184,7 +190,7 @@ export default function LoginPage() {
             <div className="text-red-500 text-sm mb-4 text-center">{error}</div>
           )}
 
-<form onSubmit={handleLogin} className="space-y-5">
+          <form onSubmit={handleLogin} className="space-y-5">
             {/* User Type Selection */}
             <div className="space-y-2">
               <label className="text-gray-700 font-medium">Login As:</label>
@@ -204,20 +210,37 @@ export default function LoginPage() {
                 ))}
               </div>
             </div>
-            {/* Username */}
+            {/* Phone Number */}
             <div className="relative">
-              <EnvelopeSimple
-                className="absolute left-3 top-2.5 text-gray-400"
-                size={20}
-              />
-              <input
-                type="text"
-                placeholder="Username"
-                className="w-full pl-10 pr-4 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500 outline-none"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-              />
-            </div>
+              <Phone className="absolute left-3 top-2.5 text-gray-400" size={20} />
+  <input
+    type="text"
+    placeholder="Enter your 10-digit phone number"
+    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 outline-none"
+    value={phoneNumber}
+    onChange={(e) => {
+      const input = e.target.value;
+      if (/^\d*$/.test(input) && input.length <= 10) {
+        setPhoneNumber(input);
+        setError(""); // Clear error when valid input
+      } else if (!/^\d*$/.test(input)) {
+        setError("Only numeric characters are allowed.");
+      } else {
+        setError("Phone number must be a maximum of 10 digits.");
+      }
+    }}
+    onPaste={(e) => {
+      e.preventDefault();
+      setError("Pasting is not allowed.");
+    }}
+    onKeyDown={(e) => {
+      const invalidChars = ["e", "E", "+", "-", ".", " "];
+      if (invalidChars.includes(e.key)) {
+        e.preventDefault();
+      }
+    }}
+  />
+</div>
 
             {/* Password */}
             <div className="relative">
@@ -228,7 +251,7 @@ export default function LoginPage() {
     className="w-full pl-10 pr-10 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500 outline-none"
     value={password}
     onChange={(e) => {
-      const sanitizedInput = e.target.value.replace(/[^a-zA-Z0-9!@#$%^&*()_+={}[\]:;'"<>,.?/|]/g, "");
+      const sanitizedInput = e.target.value.replace(/[^a-zA-Z0-9!@#$%^&*()_+={}[\]:;'"<>,.?/|\\-]/g, "");
       if (sanitizedInput !== e.target.value) {
         setError("Password contains invalid characters.");
       } else {
@@ -237,7 +260,7 @@ export default function LoginPage() {
       setPassword(sanitizedInput);
     }}
     onKeyDown={(e) => {
-      const invalidChars = ["'", "`", "~", "\\", "<", ">", "|", "&",".","/"];
+      const invalidChars = ["'", "`", "~", "<", ">", "|", "\\"];
       if (invalidChars.includes(e.key)) {
         e.preventDefault(); // Block invalid character
         setError(`The character ${e.key} is not allowed.`);
@@ -257,8 +280,6 @@ export default function LoginPage() {
     {showPassword ? <EyeSlash size={20} /> : <Eye size={20} />}
   </button>
 </div>
- 
-
 
 
             {/* Remember Me */}

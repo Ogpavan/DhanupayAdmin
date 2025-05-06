@@ -14,6 +14,7 @@ export default function Sidebar() {
     { to: "/admin/financial", label: "Financial", icon: <Gear size={24} weight="fill" /> },
     { to: "/admin/employeemaster", label: "Employee Master", icon: <Gear size={24} weight="fill" /> },
     { to: "/admin/fundtransfer", label: "Fund Transfer", icon: <Gear size={24} weight="fill" /> },
+    { to: "/admin/UserTypeAndRoleManager", label: "User Master", icon: <Gear size={24} weight="fill" /> },
   ];
 
   const usersidebarLinks = [
@@ -30,8 +31,8 @@ export default function Sidebar() {
   ];
 
   // Get user type from Cookies and provide fallback
-  const userTypeName = Cookies.get("UserName") || "user"; // Default to 'user' if not found
-  const sidebarLinks = userTypeName === "admin" ? AdminsidebarLinks : usersidebarLinks;
+  const role = Cookies.get("role") || "user"; // Default to 'user' if not found
+  const sidebarLinks = role === "Admin" ? AdminsidebarLinks : usersidebarLinks;
 
   return (
     <div className="w-60  bg-gray-200 text-gray-900 p-4 h-[calc(100vh-16.5vh)] hide-scrollbar  overflow-y-scroll">

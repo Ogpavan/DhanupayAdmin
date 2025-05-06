@@ -39,3 +39,12 @@ body {
 .ag-theme-quartz .ag-header-cell-last-left-pinned {
   border-right: none !important;
 }
+
+
+.error-message {
+  height: 20px; /* Adjust as needed */
+  
+  overflow: hidden;
+  text-align: center;
+   /* Tailwind's red-500 color */
+}

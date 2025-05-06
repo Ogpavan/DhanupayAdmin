@@ -1,11 +1,13 @@
 import { useState, useRef, useEffect } from "react";
-import { EnvelopeSimple, Lock, Eye, EyeSlash } from "phosphor-react";
+import {  Lock, Eye, EyeSlash, Phone } from "phosphor-react";
 import swal from "sweetalert2";
 import Cookies from "js-cookie";
 
 export default function ForgotPasswordPage() {
-  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState(["", "", "", ""]);
+  const [userType, setUserType] = useState(""); // New state for user type
+
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -37,10 +39,10 @@ export default function ForgotPasswordPage() {
 
 
 
-  const handleEmailSubmit = async (e) => {
+  const handlePhoneSubmit = async (e) => {
     e.preventDefault();
-    if (!email) {
-      setError("Please enter your email.");
+    if (!phone) {
+      setError("Please enter your phone number.");
       return;
     }
   
@@ -53,7 +55,7 @@ export default function ForgotPasswordPage() {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ Username: email }),
+          body: JSON.stringify({ Username: phone, UserType: userType }),
         }
       );
   
@@ -264,20 +266,73 @@ export default function ForgotPasswordPage() {
           </h2>
           <h1 className="text-4xl font-bold text-indigo-600 mb-6">Dhanupay</h1>
 
-          {error && <div className="text-red-500 text-sm mb-4 text-center">{error}</div>}
+          {error ? (
+  <div className="text-red-500 text-sm mb-4 text-center error-message">
+    {error}
+  </div>
+) : (
+  <div className="h-5 mb-4"></div>
+)}
 
+
+         
           {step === 1 && (
-            <form onSubmit={handleEmailSubmit} className="space-y-5">
-              <div className="relative">
-                <EnvelopeSimple className="absolute left-3 top-2.5 text-gray-400" size={20} />
-                <input
-                  type="text"
-                  placeholder="Enter your username "
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 outline-none"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
+            <form onSubmit={handlePhoneSubmit} className="space-y-5">
+             
+
+              <div>
+                <p className="text-gray-600 mb-2">Select your user type:</p>
+                <div className="space-y-2">
+                  {["Admin", "Distributor", "Retailer", "Super Distributor"].map((type) => (
+                    <label key={type} className="flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        value={type}
+                        checked={userType === type}
+                        onChange={() => setUserType(type)}
+                        className="text-indigo-600 focus:ring-0"
+                      />
+                      <span className="text-gray-700">{type}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
+
+              <div className="relative">
+              <Phone className="absolute left-3 top-2.5 text-gray-400" size={20} />
+              <input
+  type="text"
+  placeholder="Enter your 10-digit phone number"
+  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 outline-none"
+  value={phone}
+  onChange={(e) => {
+    const input = e.target.value;
+    if (/^\d*$/.test(input)) {
+      setPhone(input);
+
+      if (input.length === 10) {
+        setError(""); // Clear error
+      } else if (input.length < 10 && input.length > 0) {
+        setError("Phone number must be at least 10 digits.");
+      } else {
+        setError(""); // Clear error for empty input
+      }
+    } else {
+      setError("Only numeric characters are allowed.");
+    }
+  }}
+  onPaste={(e) => {
+    e.preventDefault();
+    setError("Pasting is not allowed.");
+  }}
+  onKeyDown={(e) => {
+    const invalidChars = ["e", "E", "+", "-", ".", " "];
+    if (invalidChars.includes(e.key)) {
+      e.preventDefault();
+    }
+  }}
+/>
+</div>
 
               <button
                 type="submit"
@@ -295,20 +350,25 @@ export default function ForgotPasswordPage() {
                 <p>Please enter the OTP sent to registered number.</p>
               </div>
               <form onSubmit={handleOtpSubmit} className="space-y-5">
-                <div className="flex space-x-3 justify-center">
-                  {otp.map((value, index) => (
-                    <input
-                      key={index}
-                      type="text"
-                      maxLength="1"
-                      className="w-12 h-12 text-center border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 outline-none"
-                      value={value}
-                      onChange={(e) => handleOtpChange(e, index)}
-                      autoFocus={index === 0}
-                      ref={(el) => (otpRefs.current[index] = el)} // Assign ref dynamically
-                    />
-                  ))}
-                </div>
+              <div className="flex space-x-3 justify-center">
+  {otp.map((value, index) => (
+    <input
+      key={index}
+      type="text"
+      maxLength="1"
+      className="w-12 h-12 text-center border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 outline-none"
+      value={value}
+      onChange={(e) => handleOtpChange(e, index)}
+      onKeyDown={(e) => {
+        if (!/^\d$/.test(e.key) && e.key !== "Backspace") {
+          e.preventDefault(); // Prevent non-numeric input
+        }
+      }}
+      autoFocus={index === 0}
+      ref={(el) => (otpRefs.current[index] = el)} // Assign ref dynamically
+    />
+  ))}
+</div>
 
                 <button
                   type="submit"

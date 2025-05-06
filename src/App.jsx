@@ -31,6 +31,7 @@ import OTPForm from "./auth/OTPForm.jsx";
 import ForgotMpin from "./auth/ForgotMpin.jsx";
 import SetupMpinPage from "./auth/SetupMpinPage.jsx";
 import ReportViewer from "./UserPages/ReportViewer/Reportviewer.jsx";
+import UserTypeAndRoleManager from "./AdminPages/UserTypeAndRoleManager.jsx";
 
 function App() {
   return (
@@ -62,6 +63,7 @@ function App() {
             <Route path="financial" element={<Financial />} />
             <Route path="employeemaster" element={<EmployeeMaster />} />
             <Route path="fundtransfer" element={<FundTransfer />} />
+            <Route path="UserTypeAndRoleManager" element={<UserTypeAndRoleManager />} />
           </Route>
 
           <Route
