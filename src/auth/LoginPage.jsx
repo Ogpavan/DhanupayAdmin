@@ -96,12 +96,12 @@ export default function LoginPage() {
         setError(data?.message || "Invalid credentials. Please try again.");
         if (data?.message === "User already logged in on another device.") {
           Swal.fire({
-            icon: 'warning',
-            title: 'User Already Logged In',
-            text: 'This user is already logged in on another device. Do you want to proceed and log in anyway? Proceeding will log out the user from the previous device.',
+            icon: "warning",
+            title: "User Already Logged In",
+            text: "This user is already logged in on another device. Do you want to proceed and log in anyway? Proceeding will log out the user from the previous device.",
             showCancelButton: true,
-            confirmButtonText: 'Yes, Proceed',
-            cancelButtonText: 'No, Cancel',
+            confirmButtonText: "Yes, Proceed",
+            cancelButtonText: "No, Cancel",
           }).then(async (result) => {
             if (result.isConfirmed) {
               try {
@@ -110,30 +110,67 @@ export default function LoginPage() {
                   {
                     method: "POST",
                     headers: {
-                      'Authorization': `Bearer ${tempToken}`, // Use tempToken instead of data.Token
-                      'Content-Type': 'application/json'
+                      Authorization: `Bearer ${data.Token}`, // Use the temporary token from login response
+                      "Content-Type": "application/json",
                     },
                     body: JSON.stringify({
-                      "UserId": tempUserId, // Use tempUserId correctly
+                      UserId: tempUserId, // Use the temporary UserId from login response
                     }),
                   }
                 );
-          
+        
                 const seconddata = await res.json();
                 console.log("ConfirmLogin Response:", seconddata);
-          
+        
                 if (res.ok && seconddata?.Token) {
-                  Cookies.set("token", seconddata.Token, { secure: true, sameSite: "Strict", expires: 1 });
-                  Cookies.set("loginid", seconddata.loginid, { secure: true, sameSite: "Strict", expires: 1 });
-                  Cookies.set("UserTypeName", seconddata.UserTypeName, { secure: true, sameSite: "Strict", expires: 1 });
-                  Cookies.set("UserName", seconddata.UserName, { secure: true, sameSite: "Strict", expires: 1 });
-                  Cookies.set("role", seconddata.role, { secure: true, sameSite: "Strict", expires: 1 });
-                  Cookies.set("UserId", seconddata.UserId, { secure: true, sameSite: "Strict", expires: 1 });
-          
+                  // Update cookies with the new token and details
+                  Cookies.set("token", seconddata.Token, {
+                    secure: true,
+                    sameSite: "Strict",
+                    expires: 1,
+                  });
+                  Cookies.set("loginid", seconddata.loginid, {
+                    secure: true,
+                    sameSite: "Strict",
+                    expires: 1,
+                  });
+                  Cookies.set("UserTypeName", seconddata.UserTypeName, {
+                    secure: true,
+                    sameSite: "Strict",
+                    expires: 1,
+                  });
+                  Cookies.set("UserName", seconddata.UserName, {
+                    secure: true,
+                    sameSite: "Strict",
+                    expires: 1,
+                  });
+                  Cookies.set("role", seconddata.role, {
+                    secure: true,
+                    sameSite: "Strict",
+                    expires: 1,
+                  });
+                  Cookies.set("UserId", seconddata.UserId, {
+                    secure: true,
+                    sameSite: "Strict",
+                    expires: 1,
+                  });
+        
+                  // Navigate based on the MPIN setup status
                   if (seconddata?.IsMPINSet === "0") {
-                    navigate("/setup-mpin", { state: { UserId: seconddata.UserId, loginid: seconddata.loginid, message: "Please set your MPIN to continue." } });
+                    navigate("/setup-mpin", {
+                      state: {
+                        UserId: seconddata.UserId,
+                        loginid: seconddata.loginid,
+                        message: "Please set your MPIN to continue.",
+                      },
+                    });
                   } else {
-                    navigate("/otp", { state: { message: seconddata.Message, userId: seconddata.UserId } });
+                    navigate("/otp", {
+                      state: {
+                        message: seconddata.Message,
+                        userId: seconddata.UserId,
+                      },
+                    });
                   }
                 } else {
                   setError(seconddata?.message || "Failed to proceed with login.");
@@ -147,8 +184,8 @@ export default function LoginPage() {
               return;
             }
           });
-          
         }
+        
 
       }
     } catch (err) {
