@@ -36,6 +36,7 @@ import ChangePassword from "./AdminPages/ChangePassword.jsx";
 import AdminLoginPage from "./auth/AdminLoginPage.jsx";
 import Home from "./auth/Home.jsx";
 import AdminForgotPasswordPage from "./auth/AdminForgotPasswordPage.jsx";
+import ServiceMaster from "./AdminPages/ServiceMaster.jsx";
 
 function App() {
   return (
@@ -72,6 +73,7 @@ function App() {
             <Route path="fundtransfer" element={<FundTransfer />} />
             <Route path="UserTypeAndRoleManager" element={<UserTypeAndRoleManager />} />
             <Route path="ChangePassword" element={<ChangePassword />} />
+            <Route path="ServiceMaster" element={<ServiceMaster />} />
           </Route>
 
           <Route
