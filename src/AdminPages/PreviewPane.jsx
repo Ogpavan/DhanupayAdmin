@@ -1,16 +1,55 @@
 function PreviewPane({ formData, onClose, onSubmit, agreeTerms, setAgreeTerms }) {
+  // Sorting the formData entries to place "usertype" at the top
+  const sortedEntries = Object.entries(formData).sort(([keyA], [keyB]) => {
+    if (keyA.toLowerCase() === "usertype") return -1;
+    if (keyB.toLowerCase() === "usertype") return 1;
+    return 0;
+  });
+
   return (
     <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
       <div className="bg-white rounded-lg shadow-lg p-6 w-3/4 max-w-xl">
         <h2 className="text-xl font-bold mb-4">Preview</h2>
-        <ul className="space-y-2">
-          {Object.entries(formData).map(([key, value]) => (
-            <li key={key} className="flex justify-between">
-              <span className="font-medium capitalize">{key.replace(/([A-Z])/g, " $1")}:</span>
-              <span>{value instanceof File ? value.name : value || "N/A"}</span>
-            </li>
-          ))}
-        </ul>
+        <div className="max-h-64 overflow-y-auto border-t border-b border-gray-200 px-5 py-2">
+          <ul className="space-y-4">
+            {sortedEntries.map(([key, value]) => {
+              let content;
+
+              // Determine the content type
+              if (value instanceof File) {
+                const fileType = value.type.split("/")[0];
+                if (fileType === "image") {
+                  content = (
+                    <img
+                      src={URL.createObjectURL(value)}
+                      alt={value.name}
+                      className="w-32 h-32 object-cover rounded"
+                    />
+                  );
+                } else if (fileType === "video") {
+                  content = (
+                    <video
+                      src={URL.createObjectURL(value)}
+                      controls
+                      className="w-48 h-32 object-cover rounded"
+                    />
+                  );
+                } else {
+                  content = <span>{value.name}</span>;
+                }
+              } else {
+                content = <span>{value || "N/A"}</span>;
+              }
+
+              return (
+                <li key={key} className="flex items-start justify-between">
+                  <span className="font-medium capitalize">{key.replace(/([A-Z])/g, " $1")}:</span>
+                  <div className="ml-4">{content}</div>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
 
         {/* Terms & Conditions */}
         <div className="flex items-center mt-6">
