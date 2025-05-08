@@ -5,7 +5,7 @@ export const fetchdesingnationList = async () => {
     const userId = localStorage.getItem("userId");
   
     try {
-      const response = await fetch("http://gateway.dhanushop.com/api/desingnation/list", {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/desingnation/list`, {
         method: "POST",
         headers: {
           'Authorization': `Bearer ${token}`,

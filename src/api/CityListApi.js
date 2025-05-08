@@ -1,11 +1,10 @@
-const API_URL = "http://gateway.dhanushop.com/api/city/listBYState";
-
+import Cookies from "js-cookie";
 export const fetchCitiesByState = async (selectedState) => {
-  const token = localStorage.getItem("token");
-  const userId = localStorage.getItem("userId");
+  const token = Cookies.get("token");
+  const userId = Cookies.get("UserId");
 
   try {
-    const response = await fetch(API_URL, {
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/city/listBYState`, {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${token}`,

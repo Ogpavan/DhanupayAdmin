@@ -1,11 +1,11 @@
 // src/api/stateApi.js
-
+import Cookies from "js-cookie";
 export const fetchStatesList = async () => {
-    const token = localStorage.getItem("token");
-    const userId = localStorage.getItem("userId");
+    const token = Cookies.get("token");
+    const userId = Cookies.get("UserId");
   
     try {
-      const response = await fetch("http://gateway.dhanushop.com/api/state/list", {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/state/list`, {
         method: "POST",
         headers: {
           'Authorization': `Bearer ${token}`,

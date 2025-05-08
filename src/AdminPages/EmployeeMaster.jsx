@@ -5,18 +5,24 @@ export default function EmployeeMaster() {
   const [employees, setEmployees] = useState([
     {
       id: 1,
+      employeeId: "EMP001",
       name: "Ravi Sharma",
       email: "ravi@dhanupay.com",
       mobile: "9876543210",
-      role: "Distributor",
+      role: "HR",
+      joiningDate: "2023-01-15",
+      branch: "Mumbai",
       status: "Active",
     },
     {
       id: 2,
+      employeeId: "EMP002",
       name: "Neha Singh",
       email: "neha@dhanupay.com",
       mobile: "9123456780",
-      role: "Retailer",
+      role: "Fund Manager",
+      joiningDate: "2023-03-20",
+      branch: "Delhi",
       status: "Inactive",
     },
   ]);
@@ -28,12 +34,121 @@ export default function EmployeeMaster() {
     name: "",
     email: "",
     mobile: "",
-    role: "Retailer",
+    role: "HR",
+    joiningDate: "",
+    branch: "",
     status: "Active",
   });
 
-  const handleEdit = (emp) => {
-    setEditingId(emp.id);
+  const columns = [
+    {
+      header: "Employee ID",
+      accessor: "employeeId",
+      editable: false,
+    },
+    {
+      header: "Full Name",
+      accessor: "name",
+      editable: true,
+    },
+    {
+      header: "Email",
+      accessor: "email",
+      editable: true,
+    },
+    {
+      header: "Mobile",
+      accessor: "mobile",
+      editable: true,
+    },
+    {
+      header: "Role",
+      accessor: "role",
+      editable: true,
+      renderEdit: (value, onChange) => (
+        <select
+          className="border rounded px-2 py-1 w-full"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+        >
+          <option value="HR">HR</option>
+          <option value="Fund Manager">Fund Manager</option>
+          <option value="Customer Care">Customer Care</option>
+          <option value="Worker">Worker</option>
+          <option value="Support">Support</option>
+          <option value="Finance">Finance</option>
+        </select>
+      ),
+    },
+    {
+      header: "Joining Date",
+      accessor: "joiningDate",
+      editable: true,
+      renderEdit: (value, onChange) => (
+        <input
+          type="date"
+          className="border rounded px-2 py-1 w-full"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+        />
+      ),
+    },
+    {
+      header: "Branch",
+      accessor: "branch",
+      editable: true,
+    },
+    {
+      header: "Status",
+      accessor: "status",
+      editable: false,
+      render: (value, id) => (
+        <span
+          className={`px-2 py-1 rounded-full text-xs font-semibold cursor-pointer ${
+            value === "Active"
+              ? "bg-green-100 text-green-600"
+              : "bg-red-100 text-red-600"
+          }`}
+          onClick={() => handleStatusToggle(id)}
+        >
+          {value}
+        </span>
+      ),
+    },
+    {
+      header: "Actions",
+      accessor: "actions",
+      editable: false,
+      render: (id) =>
+        editingId === id ? (
+          <>
+            <button
+              className="text-green-600 hover:underline mr-2"
+              onClick={handleSave}
+            >
+              Save
+            </button>
+            <button
+              className="text-gray-600 hover:underline"
+              onClick={handleCancel}
+            >
+              Cancel
+            </button>
+          </>
+        ) : (
+          <button
+            className="text-blue-600 hover:underline flex items-center gap-1"
+            onClick={() => handleEdit(id)}
+          >
+            <Pencil className="h-5 w-5" /> Edit
+          </button>
+        ),
+    },
+  ];
+
+  const handleEdit = (id) => {
+    const emp = employees.find((emp) => emp.id === id);
+    setEditingId(id);
     setEditForm({ ...emp });
   };
 
@@ -70,7 +185,9 @@ export default function EmployeeMaster() {
       name: "",
       email: "",
       mobile: "",
-      role: "Retailer",
+      role: "HR",
+      joiningDate: "",
+      branch: "",
       status: "Active",
     });
     setIsAddModalOpen(false);
@@ -88,7 +205,6 @@ export default function EmployeeMaster() {
         </button>
       </div>
 
-      {/* Modal */}
       {isAddModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md">
@@ -122,17 +238,39 @@ export default function EmployeeMaster() {
                 }
               />
               <select
-                className="w-full border rounded px-3 py-2"
+                className="border rounded px-2 py-1 w-full"
                 value={newEmployee.role}
                 onChange={(e) =>
                   setNewEmployee({ ...newEmployee, role: e.target.value })
                 }
               >
-                <option value="Admin">Admin</option>
-                <option value="MasterDistributor">Master Distributor</option>
-                <option value="Distributor">Distributor</option>
-                <option value="Retailer">Retailer</option>
+                <option value="HR">HR</option>
+                <option value="Fund Manager">Fund Manager</option>
+                <option value="Customer Care">Customer Care</option>
+                <option value="Worker">Worker</option>
+                <option value="Support">Support</option>
+                <option value="Finance">Finance</option>
               </select>
+              <input
+                type="date"
+                className="w-full border rounded px-3 py-2"
+                value={newEmployee.joiningDate}
+                onChange={(e) =>
+                  setNewEmployee({
+                    ...newEmployee,
+                    joiningDate: e.target.value,
+                  })
+                }
+              />
+              <input
+                type="text"
+                placeholder="Branch"
+                className="w-full border rounded px-3 py-2"
+                value={newEmployee.branch}
+                onChange={(e) =>
+                  setNewEmployee({ ...newEmployee, branch: e.target.value })
+                }
+              />
               <div className="flex justify-end gap-3">
                 <button
                   onClick={() => setIsAddModalOpen(false)}
@@ -156,111 +294,47 @@ export default function EmployeeMaster() {
         <table className="w-full table-auto border border-gray-200 rounded-lg">
           <thead className="bg-gray-100 text-left text-sm">
             <tr>
-              <th className="p-3">Name</th>
-              <th className="p-3">Email</th>
-              <th className="p-3">Mobile</th>
-              <th className="p-3">Role</th>
-              <th className="p-3">Status</th>
-              <th className="p-3">Actions</th>
+              {columns.map((col) => (
+                <th key={col.accessor} className="p-3">
+                  {col.header}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
             {employees.map((emp) => (
               <tr key={emp.id} className="border-t text-sm">
-                <td className="p-3">
-                  {editingId === emp.id ? (
-                    <input
-                      className="border rounded px-2 py-1 w-full"
-                      value={editForm.name}
-                      onChange={(e) =>
-                        setEditForm({ ...editForm, name: e.target.value })
-                      }
-                    />
-                  ) : (
-                    emp.name
-                  )}
-                </td>
-                <td className="p-3">
-                  {editingId === emp.id ? (
-                    <input
-                      className="border rounded px-2 py-1 w-full"
-                      value={editForm.email}
-                      onChange={(e) =>
-                        setEditForm({ ...editForm, email: e.target.value })
-                      }
-                    />
-                  ) : (
-                    emp.email
-                  )}
-                </td>
-                <td className="p-3">
-                  {editingId === emp.id ? (
-                    <input
-                      className="border rounded px-2 py-1 w-full"
-                      value={editForm.mobile}
-                      onChange={(e) =>
-                        setEditForm({ ...editForm, mobile: e.target.value })
-                      }
-                    />
-                  ) : (
-                    emp.mobile
-                  )}
-                </td>
-                <td className="p-3">
-                  {editingId === emp.id ? (
-                    <select
-                      className="border rounded px-2 py-1 w-full"
-                      value={editForm.role}
-                      onChange={(e) =>
-                        setEditForm({ ...editForm, role: e.target.value })
-                      }
-                    >
-                      <option value="Admin">Admin</option>
-                      <option value="MasterDistributor">Master Distributor</option>
-                      <option value="Distributor">Distributor</option>
-                      <option value="Retailer">Retailer</option>
-                    </select>
-                  ) : (
-                    emp.role
-                  )}
-                </td>
-                <td className="p-3">
-                  <span
-                    className={`px-2 py-1 rounded-full text-xs font-semibold cursor-pointer ${
-                      emp.status === "Active"
-                        ? "bg-green-100 text-green-600"
-                        : "bg-red-100 text-red-600"
-                    }`}
-                    onClick={() => handleStatusToggle(emp.id)}
-                  >
-                    {emp.status}
-                  </span>
-                </td>
-                <td className="p-3">
-                  {editingId === emp.id ? (
-                    <>
-                      <button
-                        className="text-green-600 hover:underline mr-2"
-                        onClick={handleSave}
-                      >
-                        Save
-                      </button>
-                      <button
-                        className="text-gray-600 hover:underline"
-                        onClick={handleCancel}
-                      >
-                        Cancel
-                      </button>
-                    </>
-                  ) : (
-                    <button
-                      className="text-blue-600 hover:underline flex items-center gap-1"
-                      onClick={() => handleEdit(emp)}
-                    >
-                      <Pencil className="h-5 w-5" /> Edit
-                    </button>
-                  )}
-                </td>
+                {columns.map((col) => (
+                  <td key={col.accessor} className="p-3">
+                    {col.editable && editingId === emp.id ? (
+                      col.renderEdit ? (
+                        col.renderEdit(
+                          editForm[col.accessor],
+                          (value) =>
+                            setEditForm({
+                              ...editForm,
+                              [col.accessor]: value,
+                            })
+                        )
+                      ) : (
+                        <input
+                          className="border rounded px-2 py-1 w-full"
+                          value={editForm[col.accessor]}
+                          onChange={(e) =>
+                            setEditForm({
+                              ...editForm,
+                              [col.accessor]: e.target.value,
+                            })
+                          }
+                        />
+                      )
+                    ) : col.render ? (
+                      col.render(emp[col.accessor], emp.id)
+                    ) : (
+                      emp[col.accessor]
+                    )}
+                  </td>
+                ))}
               </tr>
             ))}
           </tbody>

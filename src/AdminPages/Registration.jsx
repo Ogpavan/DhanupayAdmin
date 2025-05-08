@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { fetchStatesList } from "../api/stateListApi";
 import { fetchCitiesByState } from "../api/CityListApi";
 import PreviewPane from "./PreviewPane";
+import Cookies from "js-cookie";
 
 // Steps array
 const steps = [
@@ -97,20 +98,21 @@ export default function Registration() {
   
     getStates();
   }, []);
-   
+
+ 
 
 
   useEffect(() => {
     // Check the user type in localStorage
-    const storedUserType = localStorage.getItem("userType");
-    if (storedUserType === "admin") {
+    const storedUserType = Cookies.get("role");
+    if (storedUserType === "Admin") {
       setIsAdmin(true);
     }
   }, []);
 
   const userTypeOptions = isAdmin
     ? ["Master Distributor", "Distributor", "Retailer", "White Label"]
-    : ["Master Distributor", "Retailer"];
+    : ["Master Distributor", "Retailer","Employee"];
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -204,7 +206,7 @@ export default function Registration() {
               />
               <Input
                 label="Residential Area"
-                name="area"
+                name="residentialarea"
                 value={formData.area}
                 onChange={handleChange}
                 className="w-full"
@@ -322,6 +324,16 @@ export default function Registration() {
           </button>
         )}
       </div>
+      {isPreviewOpen && (
+  <PreviewPane
+    formData={formData}
+    onClose={closePreview}
+    onSubmit={handleSubmit}
+    agreeTerms={agreeTerms}
+    setAgreeTerms={setAgreeTerms}
+  />
+)}
+
     </div>
   );
 }
@@ -387,16 +399,6 @@ function Selectlistbyapi({ label, name, value, onChange, options = [], className
           </option>
         ))}
       </select>
-
-      {isPreviewOpen && (
-        <PreviewPane
-          formData={formData}
-          onClose={closePreview}
-          onSubmit={handleSubmit}
-          agreeTerms={agreeTerms}
-          setAgreeTerms={setAgreeTerms}
-        />
-      )}
     </div>
   );
 }
