@@ -417,6 +417,7 @@ export default function ForgotPasswordPage() {
                   placeholder=" New Password"
                   className="w-full pl-10 pr-10 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500 outline-none"
                   value={newPassword}
+                  maxLength={50}
                   onChange={(e) => {
                     const sanitizedInput = e.target.value.replace(
                       /[^a-zA-Z0-9!@#$%^&*()_+={}[\]:;'"<>,.?/|]/g,
@@ -479,6 +480,8 @@ export default function ForgotPasswordPage() {
                   placeholder=" Confirm Password"
                   className="w-full pl-10 pr-10 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500 outline-none"
                   value={confirmPassword}
+                  maxLength={50}
+
                   onChange={(e) => {
                     const sanitizedInput = e.target.value.replace(
                       /[^a-zA-Z0-9!@#$%^&*()_+={}[\]:;'"<>,.?/|]/g,

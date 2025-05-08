@@ -69,28 +69,58 @@ export default function LoginPage() {
         }
       );
 
-
       const data = await response.json();
-      console.log("Data 1",data);
-       
+      console.log("Data 1", data);
+
       settempToken(data.Token);
-     
+
       settempUserId(data.UserId);
       if (response.ok && data?.Token) {
         // Save token and remember username if applicable
-        Cookies.set("token", data.Token, { secure: true, sameSite: "Strict", expires: 1 });
-        Cookies.set("loginid", data.loginid, { secure: true, sameSite: "Strict", expires: 1 });
-        Cookies.set("UserTypeName", data.UserTypeName, { secure: true, sameSite: "Strict", expires: 1 });
-        Cookies.set("UserName", data.UserName, { secure: true, sameSite: "Strict", expires: 1 });
-        Cookies.set("role", data.role, { secure: true, sameSite: "Strict", expires: 1 });
-        Cookies.set("UserId", data.UserId, { secure: true, sameSite: "Strict", expires: 1 });
-      
+        Cookies.set("token", data.Token, {
+          secure: true,
+          sameSite: "Strict",
+          expires: 1,
+        });
+        Cookies.set("loginid", data.loginid, {
+          secure: true,
+          sameSite: "Strict",
+          expires: 1,
+        });
+        Cookies.set("UserTypeName", data.UserTypeName, {
+          secure: true,
+          sameSite: "Strict",
+          expires: 1,
+        });
+        Cookies.set("UserName", data.UserName, {
+          secure: true,
+          sameSite: "Strict",
+          expires: 1,
+        });
+        Cookies.set("role", data.role, {
+          secure: true,
+          sameSite: "Strict",
+          expires: 1,
+        });
+        Cookies.set("UserId", data.UserId, {
+          secure: true,
+          sameSite: "Strict",
+          expires: 1,
+        });
 
         if (data?.IsMPINSet === "0") {
-          navigate("/setup-mpin", { state: { UserId: data.UserId, loginid: data.loginid, message: "Please set your MPIN to continue." } });
+          navigate("/setup-mpin", {
+            state: {
+              UserId: data.UserId,
+              loginid: data.loginid,
+              message: "Please set your MPIN to continue.",
+            },
+          });
         } else {
           // Redirect to OTP page if MPIN is set
-          navigate("/otp", { state: { message: data.Message, userId: data.UserId } });
+          navigate("/otp", {
+            state: { message: data.Message, userId: data.UserId },
+          });
         }
       } else {
         setError(data?.message || "Invalid credentials. Please try again.");
@@ -118,10 +148,10 @@ export default function LoginPage() {
                     }),
                   }
                 );
-        
+
                 const seconddata = await res.json();
                 console.log("ConfirmLogin Response:", seconddata);
-        
+
                 if (res.ok && seconddata?.Token) {
                   // Update cookies with the new token and details
                   Cookies.set("token", seconddata.Token, {
@@ -154,7 +184,7 @@ export default function LoginPage() {
                     sameSite: "Strict",
                     expires: 1,
                   });
-        
+
                   // Navigate based on the MPIN setup status
                   if (seconddata?.IsMPINSet === "0") {
                     navigate("/setup-mpin", {
@@ -173,10 +203,14 @@ export default function LoginPage() {
                     });
                   }
                 } else {
-                  setError(seconddata?.message || "Failed to proceed with login.");
+                  setError(
+                    seconddata?.message || "Failed to proceed with login."
+                  );
                 }
               } catch (err) {
-                setError("An error occurred while confirming login. Please try again.");
+                setError(
+                  "An error occurred while confirming login. Please try again."
+                );
                 console.error("ConfirmLogin Error:", err);
               }
             } else {
@@ -185,8 +219,6 @@ export default function LoginPage() {
             }
           });
         }
-        
-
       }
     } catch (err) {
       setError(
@@ -232,7 +264,7 @@ export default function LoginPage() {
             <div className="space-y-2">
               <label className="text-gray-700 font-medium">Login As:</label>
               <div className="flex justify-between text-sm">
-                {[ "Superdistributor", "Distributor", "Retailer"].map((type) => (
+                {["Superdistributor", "Distributor", "Retailer"].map((type) => (
                   <label key={type} className="flex items-center space-x-2">
                     <input
                       type="radio"
@@ -249,75 +281,84 @@ export default function LoginPage() {
             </div>
             {/* Phone Number */}
             <div className="relative">
-              <Phone className="absolute left-3 top-2.5 text-gray-400" size={20} />
-  <input
-    type="text"
-    placeholder="Enter your 10-digit phone number"
-    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 outline-none"
-    value={phoneNumber}
-    onChange={(e) => {
-      const input = e.target.value;
-      if (/^\d*$/.test(input) && input.length <= 10) {
-        setPhoneNumber(input);
-        setError(""); // Clear error when valid input
-      } else if (!/^\d*$/.test(input)) {
-        setError("Only numeric characters are allowed.");
-      } else {
-        setError("Phone number must be a maximum of 10 digits.");
-      }
-    }}
-    onPaste={(e) => {
-      e.preventDefault();
-      setError("Pasting is not allowed.");
-    }}
-    onKeyDown={(e) => {
-      const invalidChars = ["e", "E", "+", "-", ".", " "];
-      if (invalidChars.includes(e.key)) {
-        e.preventDefault();
-      }
-    }}
-  />
-</div>
+              <Phone
+                className="absolute left-3 top-2.5 text-gray-400"
+                size={20}
+              />
+              <input
+                type="text"
+                placeholder="Enter your 10-digit phone number"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 outline-none"
+                value={phoneNumber}
+                onChange={(e) => {
+                  const input = e.target.value;
+                  if (/^\d*$/.test(input) && input.length <= 10) {
+                    setPhoneNumber(input);
+                    setError(""); // Clear error when valid input
+                  } else if (!/^\d*$/.test(input)) {
+                    setError("Only numeric characters are allowed.");
+                  } else {
+                    setError("Phone number must be a maximum of 10 digits.");
+                  }
+                }}
+                onPaste={(e) => {
+                  e.preventDefault();
+                  setError("Pasting is not allowed.");
+                }}
+                onKeyDown={(e) => {
+                  const invalidChars = ["e", "E", "+", "-", ".", " "];
+                  if (invalidChars.includes(e.key)) {
+                    e.preventDefault();
+                  }
+                }}
+              />
+            </div>
 
             {/* Password */}
             <div className="relative">
-  <Lock className="absolute left-3 top-2.5 text-gray-400" size={20} />
-  <input
-    type={showPassword ? "text" : "password"}
-    placeholder="Password"
-    className="w-full pl-10 pr-10 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500 outline-none"
-    value={password}
-    onChange={(e) => {
-      const sanitizedInput = e.target.value.replace(/[^a-zA-Z0-9!@#$%^&*()_+={}[\]:;'"<>,.?/|\\-]/g, "");
-      if (sanitizedInput !== e.target.value) {
-        setError("Password contains invalid characters.");
-      } else {
-        setError("");
-      }
-      setPassword(sanitizedInput);
-    }}
-    onKeyDown={(e) => {
-      const invalidChars = ["'", "`", "~", "<", ">", "|", "\\"];
-      if (invalidChars.includes(e.key)) {
-        e.preventDefault(); // Block invalid character
-        setError(`The character ${e.key} is not allowed.`);
-      }
-    }}
-    onPaste={(e) => {
-      e.preventDefault();
-      setError("Pasting is not allowed in the password field.");
-    }}
-  />
-  <button
-    type="button"
-    onClick={() => setShowPassword(!showPassword)}
-    className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600 focus:outline-none"
-    tabIndex={-1}
-  >
-    {showPassword ? <EyeSlash size={20} /> : <Eye size={20} />}
-  </button>
-</div>
-
+              <Lock
+                className="absolute left-3 top-2.5 text-gray-400"
+                size={20}
+              />
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
+                className="w-full pl-10 pr-10 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500 outline-none"
+                value={password}
+                maxLength={32}
+                onChange={(e) => {
+                  const sanitizedInput = e.target.value.replace(
+                    /[^a-zA-Z0-9!@#$%^&*()_+={}[\]:;'"<>,.?/|\\-]/g,
+                    ""
+                  );
+                  if (sanitizedInput !== e.target.value) {
+                    setError("Password contains invalid characters.");
+                  } else {
+                    setError("");
+                  }
+                  setPassword(sanitizedInput);
+                }}
+                onKeyDown={(e) => {
+                  const invalidChars = ["'", "`", "~", "<", ">", "|", "\\"];
+                  if (invalidChars.includes(e.key)) {
+                    e.preventDefault(); // Block invalid character
+                    setError(`The character ${e.key} is not allowed.`);
+                  }
+                }}
+                onPaste={(e) => {
+                  e.preventDefault();
+                  setError("Pasting is not allowed in the password field.");
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600 focus:outline-none"
+                tabIndex={-1}
+              >
+                {showPassword ? <EyeSlash size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
 
             {/* Remember Me */}
             <div className="flex items-center justify-between text-sm text-gray-600">

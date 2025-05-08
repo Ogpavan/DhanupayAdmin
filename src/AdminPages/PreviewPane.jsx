@@ -1,54 +1,91 @@
 function PreviewPane({ formData, onClose, onSubmit, agreeTerms, setAgreeTerms }) {
-  // Sorting the formData entries to place "usertype" at the top
-  const sortedEntries = Object.entries(formData).sort(([keyA], [keyB]) => {
-    if (keyA.toLowerCase() === "usertype") return -1;
-    if (keyB.toLowerCase() === "usertype") return 1;
-    return 0;
-  });
+  const sections = {
+    "Basic Details": [
+      ["First Name", formData.firstName],
+      ["Last Name", formData.lastName],
+      ["Mobile", formData.mobile],
+      ["Alternate Mobile", formData.altMobile],
+      ["Email", formData.email],
+      ["User Type", formData.userType],
+    ],
+    "Residential Details": [
+      ["House No", formData.resHouseNo],
+      ["Area", formData.resArea],
+      ["Landmark", formData.resLandmark],
+      ["City", formData.resCity],
+      ["State", formData.resState],
+      ["Pincode", formData.resPincode],
+    ],
+    "Business Details": [
+      ["Shop Name", formData.shopName],
+      ["Shop Address", formData.shopAddress],
+      ["Landmark", formData.busLandmark],
+      ["City", formData.busCity],
+      ["State", formData.busState],
+      ["Pincode", formData.busPincode],
+    ],
+    "Aadhaar Details": [
+      ["Aadhaar Number", formData.aadhaar],
+      ["Aadhaar Front", formData.aadhaarFront],
+      ["Aadhaar Back", formData.aadhaarBack],
+    ],
+    "PAN Details": [
+      ["PAN Number", formData.pan],
+      ["Uploaded PAN", formData.PAN],
+    ],
+    "Video KYC": [
+      ["Profile Photo", formData.profilePhoto],
+      ["Shop Photo", formData.shopPhoto],
+      ["Video", formData.video],
+    ],
+  };
 
   return (
     <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
       <div className="bg-white rounded-lg shadow-lg p-6 w-3/4 max-w-xl">
         <h2 className="text-xl font-bold mb-4">Preview</h2>
-        <div className="max-h-64 overflow-y-auto border-t border-b border-gray-200 px-5 py-2">
-          <ul className="space-y-4">
-            {sortedEntries.map(([key, value]) => {
-              let content;
+        <div className="max-h-96 overflow-y-auto border-t border-b border-gray-200 px-5 py-2 space-y-6">
+          {Object.entries(sections).map(([sectionTitle, fields]) => (
+            <div key={sectionTitle}>
+              <h3 className="text-lg font-semibold mb-2">{sectionTitle}</h3>
+              <ul className="space-y-2">
+                {fields.map(([label, value]) => {
+                  let content;
+                  if (value instanceof File) {
+                    const fileType = value.type.split("/")[0];
+                    if (fileType === "image") {
+                      content = (
+                        <img
+                          src={URL.createObjectURL(value)}
+                          alt={value.name}
+                          className="w-32 h-32 object-cover rounded"
+                        />
+                      );
+                    } else if (fileType === "video") {
+                      content = (
+                        <video
+                          src={URL.createObjectURL(value)}
+                          controls
+                          className="w-48 h-32 object-cover rounded"
+                        />
+                      );
+                    } else {
+                      content = <span>{value.name}</span>;
+                    }
+                  } else {
+                    content = <span>{value || "N/A"}</span>;
+                  }
 
-              // Determine the content type
-              if (value instanceof File) {
-                const fileType = value.type.split("/")[0];
-                if (fileType === "image") {
-                  content = (
-                    <img
-                      src={URL.createObjectURL(value)}
-                      alt={value.name}
-                      className="w-32 h-32 object-cover rounded"
-                    />
+                  return (
+                    <li key={label} className="flex justify-between">
+                      <span className="font-medium">{label}:</span>
+                      <div className="ml-4">{content}</div>
+                    </li>
                   );
-                } else if (fileType === "video") {
-                  content = (
-                    <video
-                      src={URL.createObjectURL(value)}
-                      controls
-                      className="w-48 h-32 object-cover rounded"
-                    />
-                  );
-                } else {
-                  content = <span>{value.name}</span>;
-                }
-              } else {
-                content = <span>{value || "N/A"}</span>;
-              }
-
-              return (
-                <li key={key} className="flex items-start justify-between">
-                  <span className="font-medium capitalize">{key.replace(/([A-Z])/g, " $1")}:</span>
-                  <div className="ml-4">{content}</div>
-                </li>
-              );
-            })}
-          </ul>
+                })}
+              </ul>
+            </div>
+          ))}
         </div>
 
         {/* Terms & Conditions */}

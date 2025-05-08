@@ -25,12 +25,18 @@ export default function Registration() {
     mobile: "",
     altMobile: "",
     email: "",
-    houseNo: "",
-    area: "",
-    landmark: "",
-    pincode: "",
-    city: "",
-    state: "",
+    resHouseNo: "",
+    resArea: "",
+    resLandmark: "",
+    resPincode: "",
+    resCity: "",
+    resState: "",
+    shopName: "",
+    shopAddress: "",
+    busLandmark: "",
+    busPincode: "",
+    busCity: "",
+    busState: "",
     businessName: "",
     firmName: "",
     aadhaar: "",
@@ -49,12 +55,11 @@ export default function Registration() {
   const [agreeTerms, setAgreeTerms] = useState(false);
 
   useEffect(() => {
-    // Check if state is not empty before calling the API
-    if (formData.state) {
+    if (formData.resState) {
       const fetchCitiesForState = async () => {
         setLoading(true); // Set loading state to true while fetching
         try {
-          const response = await fetchCitiesByState(formData.state); // Call API with the selected state
+          const response = await fetchCitiesByState(formData.resState); // Call API with the selected state
           const cityOptions = response.map((city) => ({
             label: city.CityName, // Assuming each city object has CityName and CityId
             value: city.CityId, // Assuming each city object has CityId
@@ -71,14 +76,12 @@ export default function Registration() {
 
       fetchCitiesForState();
     }
-  }, [formData.state]); // This effect runs whenever `formData.state` changes
+  }, [formData.resState]); // This effect runs whenever `formData.resState` changes
 
-  // Fetch the list of states from API
   useEffect(() => {
     const getStates = async () => {
       try {
         const response = await fetchStatesList(); // Assuming API response is an array
-        // Mapping the response to create the expected options format
         const stateOptions = response.map((state) => ({
           label: state.StateName, // Assuming the state object has StateName and StateId
           value: state.StateId,
@@ -95,7 +98,6 @@ export default function Registration() {
   }, []);
 
   useEffect(() => {
-    // Check the user type in localStorage
     const storedUserType = Cookies.get("role");
     if (storedUserType === "Admin") {
       setIsAdmin(true);
@@ -128,13 +130,24 @@ export default function Registration() {
     }
   };
 
+  const copyResidentialToBusiness = () => {
+    setFormData((prevData) => ({
+      ...prevData,
+
+      shopAddress: prevData.resArea,
+      busLandmark: prevData.resLandmark,
+      busPincode: prevData.resPincode,
+      busState: prevData.resState,
+      busCity: prevData.resCity,
+    }));
+  };
+
   return (
-    <div className="max-w-3xl mx-auto px-6 py-5 bg-white rounded-xl border border-gray-200">
+    <div className="max-w-3xl mx-auto px-6 py-5 bg-white rounded-xl relative">
       <h1 className="text-2xl font-semibold mb-6 text-center pb-5">
         Registration
       </h1>
 
-      {/* Stepper */}
       <div className="flex items-center justify-between mb-10 relative">
         {steps.map((step, index) => {
           const isCompleted = index < currentStep;
@@ -179,12 +192,10 @@ export default function Registration() {
         })}
       </div>
 
-      {/* Forms */}
-      <div className="space-y-4">
+      <div className="space-y-4   h-80">
         {currentStep === 0 && (
           <>
             <div className="flex gap-4">
-              {/* New Select for User Type */}
               <Select
                 label="User Type"
                 name="userType"
@@ -198,14 +209,15 @@ export default function Registration() {
                 value={formData.firstName}
                 onChange={(e) => {
                   const value = e.target.value;
-                  // Allow only alphabets, spaces, hyphens, and apostrophes
-                  if (/^[a-zA-Z\s'-]*$/.test(value)) {
-                    handleChange(e); // Call your existing handler if valid
+
+                  // Only update if the value is valid and within the limit
+                  if (/^[a-zA-Z\s'-]*$/.test(value) && value.length <= 17) {
+                    handleChange(e); // Update formData when conditions are met
                   }
                 }}
                 className="w-1/2"
-                pattern="^[a-zA-Z\s'-]+$"
-                title="First name should only contain alphabets, spaces, hyphens, or apostrophes."
+                pattern="^[a-zA-Z\s'-]{1,17}$"
+                title="First name should only contain alphabets, spaces, hyphens, or apostrophes, and be up to 50 characters."
                 required
               />
 
@@ -215,14 +227,15 @@ export default function Registration() {
                 value={formData.lastName}
                 onChange={(e) => {
                   const value = e.target.value;
-                  // Allow only alphabets, spaces, hyphens, and apostrophes
-                  if (/^[a-zA-Z\s'-]*$/.test(value)) {
-                    handleChange(e); // Call your existing handler if valid
+
+                  // Only update if the value is valid and within the limit
+                  if (/^[a-zA-Z\s'-]*$/.test(value) && value.length <= 17) {
+                    handleChange(e); // Update formData when conditions are met
                   }
                 }}
                 className="w-1/2"
-                pattern="^[a-zA-Z\s'-]+$"
-                title="First name should only contain alphabets, spaces, hyphens, or apostrophes."
+                pattern="^[a-zA-Z\s'-]{1,17}$"
+                title="Last name should only contain alphabets, spaces, hyphens, or apostrophes, and be up to 50 characters."
                 required
               />
             </div>
@@ -232,16 +245,15 @@ export default function Registration() {
               value={formData.mobile}
               onChange={(e) => {
                 const value = e.target.value;
-                // Allow only digits and enforce max length of 10
                 if (/^\d{0,10}$/.test(value)) {
-                  handleChange(e); // Update state only if the input is valid
+                  handleChange(e);
                 }
               }}
               className="w-full"
-              inputMode="numeric" // Optimizes keyboard for mobile
-              pattern="^\d{10}$" // Requires exactly 10 digits on form submission
+              inputMode="numeric"
+              pattern="^\d{10}$"
               title="Mobile number must be exactly 10 digits."
-              maxLength={10} // Prevents more than 10 characters from being entered
+              maxLength={10}
               required
             />
 
@@ -251,23 +263,37 @@ export default function Registration() {
               value={formData.altMobile}
               onChange={(e) => {
                 const value = e.target.value;
-                // Allow only digits and enforce max length of 10
                 if (/^\d{0,10}$/.test(value)) {
-                  handleChange(e); // Update state only if the input is valid
+                  handleChange(e);
                 }
               }}
               className="w-full"
-              inputMode="numeric" // Optimizes keyboard for mobile
-              pattern="^\d{10}$" // Requires exactly 10 digits on form submission
+              inputMode="numeric"
+              pattern="^\d{10}$"
               title="Mobile number must be exactly 10 digits."
-              maxLength={10} // Prevents more than 10 characters from being entered
+              maxLength={10}
               required
             />
             <Input
               label="Email"
               name="email"
               value={formData.email}
-              onChange={handleChange}
+              onChange={(e) => {
+                let value = e.target.value;
+
+                // Regex to allow only valid email characters
+                const emailPattern = /^[a-zA-Z0-9@._-]*$/;
+
+                // Limit input length to 50 characters, ensure valid characters, and convert to lowercase
+                if (emailPattern.test(value) && value.length <= 50) {
+                  value = value.toLowerCase(); // Convert to lowercase
+                  handleChange({ target: { name: "email", value } }); // Pass updated value to handler
+                }
+              }}
+              pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+              title="Please enter a valid email address."
+              maxLength={50}
+              required
             />
           </>
         )}
@@ -277,50 +303,46 @@ export default function Registration() {
             <div className="flex gap-4">
               <Input
                 label="House No."
-                name="houseNo"
-                value={formData.houseNo}
+                name="resHouseNo"
+                value={formData.resHouseNo}
                 onChange={(e) => {
                   const value = e.target.value;
-                  // Allow only digits and enforce max length of 10
                   if (/^\d{0,5}$/.test(value)) {
-                    handleChange(e); // Update state only if the input is valid
+                    handleChange(e);
                   }
                 }}
                 className="w-1/4"
-                inputMode="numeric" // Optimizes keyboard for mobile
-                pattern="^\d{5}$" // Requires exactly 10 digits on form submission
+                inputMode="numeric"
+                pattern="^\d{5}$"
                 title="House No."
-                maxLength={10} // Prevents more than 10 characters from being entered
+                maxLength={10}
                 required
-              />{" "}
+              />
               <Input
-  label="Residential Area"
-  name="area"
-  value={formData.area}
-  onChange={(e) => {
-    const value = e.target.value;
-    // Sanitize input: Allow only letters, numbers, spaces, and common punctuation
-    if (/^[a-zA-Z0-9\s.,'-]*$/.test(value)) {
-      handleChange(e); // Update state only with safe input
-    }
-  }}
-  className="w-full"
-  pattern="^[a-zA-Z0-9\s.,'-]+$"
-  title="Please enter a valid residential area (letters, numbers, spaces, and basic punctuation only)."
-  required
-/>
-
+                label="Residential Area"
+                name="resArea"
+                value={formData.resArea}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (/^[a-zA-Z0-9\s.,'-]*$/.test(value)&& value.length <= 100) {
+                    handleChange(e);
+                  }
+                }}
+                className="w-full"
+                pattern="^[a-zA-Z\s'-]{1,17}$"
+                title="Please enter a valid residential area (letters, numbers, spaces, and basic punctuation only)."
+                required
+              />
             </div>
 
             <Input
-              label="Landmark"
-              name="landmark"
-              value={formData.landmark}
+              label="Landmark (optional)"
+              name="resLandmark"
+              value={formData.resLandmark}
               onChange={(e) => {
                 const value = e.target.value;
-                // Sanitize input: Allow only letters, numbers, spaces, and common punctuation
                 if (/^[a-zA-Z0-9\s.,'-]*$/.test(value)) {
-                  handleChange(e); // Update state only with safe input
+                  handleChange(e);
                 }
               }}
               className="w-full"
@@ -331,37 +353,35 @@ export default function Registration() {
 
             <Input
               label="Pincode"
-              name="pincode"
-              value={formData.pincode}
+              name="resPincode"
+              value={formData.resPincode}
               onChange={(e) => {
                 const value = e.target.value;
-                // Allow only digits and enforce max length of 10
                 if (/^\d{0,6}$/.test(value)) {
-                  handleChange(e); // Update state only if the input is valid
+                  handleChange(e);
                 }
               }}
               className="w-full"
-              inputMode="numeric" // Optimizes keyboard for mobile
-              pattern="^\d{6}$" // Requires exactly 10 digits on form submission
+              inputMode="numeric"
+              pattern="^\d{6}$"
               title="Pincode No."
-              maxLength={6} // Prevents more than 10 characters from being entered
+              maxLength={6}
               required
-        
             />
 
             <div className="flex gap-4">
               <Selectlistbyapi
-                label="state"
-                name="state"
-                value={formData.state}
+                label="State"
+                name="resState"
+                value={formData.resState}
                 onChange={handleChange}
                 options={states}
               />
 
               <Selectlistbyapi
                 label="City"
-                name="city"
-                value={formData.city}
+                name="resCity"
+                value={formData.resCity}
                 onChange={handleChange}
                 options={cities}
               />
@@ -373,94 +393,90 @@ export default function Registration() {
           <>
             <div className="flex gap-4">
               <Input
-                label="Business Name"
-                name="businessName"
-                value={formData.businessName}
+                label="Shop Name"
+                name="shopName"
+                value={formData.shopName}
                 onChange={(e) => {
                   const value = e.target.value;
-                  // Sanitize input: Allow only letters, numbers, spaces, and common punctuation
                   if (/^[a-zA-Z0-9\s.,'-]*$/.test(value)) {
-                    handleChange(e); // Update state only with safe input
+                    handleChange(e);
                   }
                 }}
                 className="w-full"
                 pattern="^[a-zA-Z0-9\s.,'-]+$"
-                title="Please enter a valid Landmark (letters, numbers, spaces, and basic punctuation only)."
+                title="Please enter a valid shop name (letters, numbers, spaces, and basic punctuation only)."
                 required
               />
-
               <Input
-                label="Firm or Shop Name"
-                name="firmName"
-                value={formData.firmName}
-                          onChange={(e) => {
-                const value = e.target.value;
-                // Sanitize input: Allow only letters, numbers, spaces, and common punctuation
-                if (/^[a-zA-Z0-9\s.,'-]*$/.test(value)) {
-                  handleChange(e); // Update state only with safe input
-                }
-              }}
-              className="w-full"
-              pattern="^[a-zA-Z0-9\s.,'-]+$"
-              title="Please enter a valid Landmark (letters, numbers, spaces, and basic punctuation only)."
-              required
-            />
+                label="Shop Address"
+                name="shopAddress"
+                value={formData.shopAddress}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (/^[a-zA-Z0-9\s.,'-]*$/.test(value)) {
+                    handleChange(e);
+                  }
+                }}
+                className="w-full"
+                pattern="^[a-zA-Z0-9\s.,'-]+$"
+                title="Please enter a valid shop address (letters, numbers, spaces, and basic punctuation only)."
+                required
+              />
             </div>
-            <div className="w-full">
+            <div className="w-full justify-end flex">
               <button
                 type="button"
-                className=" bg-blue-500 text-white px-4 py-2 rounded-md "
+                className="text-blue-500  rounded-md"
+                onClick={copyResidentialToBusiness}
               >
                 Same as Residential Address
               </button>
             </div>
             <Input
               label="Landmark"
-              name="landmark"
-              value={formData.landmark}
+              name="busLandmark"
+              value={formData.busLandmark}
               onChange={(e) => {
                 const value = e.target.value;
-                // Sanitize input: Allow only letters, numbers, spaces, and common punctuation
                 if (/^[a-zA-Z0-9\s.,'-]*$/.test(value)) {
-                  handleChange(e); // Update state only with safe input
+                  handleChange(e);
                 }
               }}
               className="w-full"
               pattern="^[a-zA-Z0-9\s.,'-]+$"
               title="Please enter a valid Landmark (letters, numbers, spaces, and basic punctuation only)."
               required
-            />            <Input
+            />
+            <Input
               label="Pincode"
-              name="pincode"
-              value={formData.pincode}
+              name="busPincode"
+              value={formData.busPincode}
               onChange={(e) => {
                 const value = e.target.value;
-                // Allow only digits and enforce max length of 10
                 if (/^\d{0,6}$/.test(value)) {
-                  handleChange(e); // Update state only if the input is valid
+                  handleChange(e);
                 }
               }}
               className="w-full"
-              inputMode="numeric" // Optimizes keyboard for mobile
-              pattern="^\d{6}$" // Requires exactly 10 digits on form submission
+              inputMode="numeric"
+              pattern="^\d{6}$"
               title="Pincode No."
-              maxLength={6} // Prevents more than 10 characters from being entered
+              maxLength={6}
               required
-        
             />
             <div className="flex gap-4 w-full">
               <Selectlistbyapi
                 label="State"
-                name="state"
-                value={formData.state}
+                name="busState"
+                value={formData.busState}
                 onChange={handleChange}
                 options={states}
                 className="w-1/2"
               />
               <Selectlistbyapi
                 label="City"
-                name="city"
-                value={formData.city}
+                name="busCity"
+                value={formData.busCity}
                 onChange={handleChange}
                 options={cities}
                 className="w-1/2"
@@ -477,19 +493,16 @@ export default function Registration() {
               value={formData.aadhaar}
               onChange={(e) => {
                 const value = e.target.value;
-                // Allow only digits and enforce max length of 10
                 if (/^\d{0,12}$/.test(value)) {
-                  handleChange(e); // Update state only if the input is valid
+                  handleChange(e);
                 }
               }}
               className="w-full"
-              inputMode="numeric" // Optimizes keyboard for mobile
-              pattern="^\d{12}$" // Requires exactly 10 digits on form submission
+              inputMode="numeric"
+              pattern="^\d{12}$"
               title=" No."
-              maxLength={12} // Prevents more than 10 characters from being entered
+              maxLength={12}
               required
-        
-             
             />
             <Input
               type="file"
@@ -508,26 +521,26 @@ export default function Registration() {
 
         {currentStep === 4 && (
           <>
-<Input
-  label="PAN Number"
-  name="pan"
-  value={formData.pan}
-  onChange={(e) => {
-    const value = e.target.value.toUpperCase(); // Ensure all characters are uppercase
-    // Allow only alphanumeric characters (uppercase alphabets and digits) and enforce max length of 10
-    if (/^[A-Z0-9]{0,10}$/.test(value)) {
-      handleChange({
-        target: { name: e.target.name, value }, // Update state only if the input is valid
-      });
-    }
-  }}
-  className="w-full"
-  inputMode="text" // Regular keyboard input mode (as PAN includes both letters and digits)
-  pattern="^[A-Z]{5}[0-9]{4}[A-Z]{1}$" // Enforces the PAN format (5 letters, 4 digits, 1 letter)
-  title="Pan No. (Format: ABCDE1234F)"
-  maxLength={10} // Prevents more than 10 characters from being entered
-  required
-/>
+            <Input
+              label="PAN Number"
+              name="pan"
+              value={formData.pan}
+              onChange={(e) => {
+                const value = e.target.value.toUpperCase(); // Ensure all characters are uppercase
+                // Allow only alphanumeric characters (uppercase alphabets and digits) and enforce max length of 10
+                if (/^[A-Z0-9]{0,10}$/.test(value)) {
+                  handleChange({
+                    target: { name: e.target.name, value }, // Update state only if the input is valid
+                  });
+                }
+              }}
+              className="w-full"
+              inputMode="text" // Regular keyboard input mode (as PAN includes both letters and digits)
+              pattern="^[A-Z]{5}[0-9]{4}[A-Z]{1}$" // Enforces the PAN format (5 letters, 4 digits, 1 letter)
+              title="Pan No. (Format: ABCDE1234F)"
+              maxLength={10} // Prevents more than 10 characters from being entered
+              required
+            />
 
             <Input
               type="file"
@@ -563,7 +576,7 @@ export default function Registration() {
       </div>
 
       {/* Buttons */}
-      <div className="flex justify-between mt-10">
+      <div className="flex justify-between mt-10 absolute w-[95%]">
         <button
           onClick={prevStep}
           disabled={currentStep === 0}
