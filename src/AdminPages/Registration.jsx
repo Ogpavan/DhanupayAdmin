@@ -3,7 +3,10 @@ import { fetchStatesList } from "../api/stateListApi";
 import { fetchCitiesByState } from "../api/CityListApi";
 import PreviewPane from "./PreviewPane";
 import Cookies from "js-cookie";
+import axios from "axios"; // Import axios for API calls
 
+const token = Cookies.get("token");
+const userId = Cookies.get("userId");
 // Steps array
 const steps = [
   "Basic Details",
@@ -15,9 +18,14 @@ const steps = [
 ];
 
 export default function Registration() {
-  const [states, setStates] = useState([]); // To store the fetched states
+  const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
+  const [userTypes, setUserTypes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [agreeTerms, setAgreeTerms] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState({
     firstName: "",
@@ -44,70 +52,79 @@ export default function Registration() {
     aadhaarBack: null,
     pan: "",
     PAN: null,
-    profilePhoto: null, // New
-    shopPhoto: null, // New
-    video: null, // New
-    userType: "", // Added userType here
+    profilePhoto: null,
+    shopPhoto: null,
+    video: null,
+    userType: "",
   });
 
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-  const [agreeTerms, setAgreeTerms] = useState(false);
-
+  // Fetch user types
   useEffect(() => {
-    if (formData.resState) {
-      const fetchCitiesForState = async () => {
-        setLoading(true); // Set loading state to true while fetching
-        try {
-          const response = await fetchCitiesByState(formData.resState); // Call API with the selected state
-          const cityOptions = response.map((city) => ({
-            label: city.CityName, // Assuming each city object has CityName and CityId
-            value: city.CityId, // Assuming each city object has CityId
-          }));
-
-          console.log(cityOptions);
-          setCities(cityOptions); // Assuming the API returns an array of cities
-        } catch (error) {
-          console.error("Error fetching cities:", error);
-        } finally {
-          setLoading(false); // Set loading state to false once the API call is done
-        }
-      };
-
-      fetchCitiesForState();
-    }
-  }, [formData.resState]); // This effect runs whenever `formData.resState` changes
-
-  useEffect(() => {
-    const getStates = async () => {
+    const fetchUserTypes = async () => {
       try {
-        const response = await fetchStatesList(); // Assuming API response is an array
-        const stateOptions = response.map((state) => ({
-          label: state.StateName, // Assuming the state object has StateName and StateId
-          value: state.StateId,
-        }));
-        setStates(stateOptions); // Set the formatted state options
-        setLoading(false); // Set loading to false once data is fetched
-      } catch (error) {
-        console.error("Error fetching states:", error);
+        const userId = Cookies.get("userId");
+        const response = await axios.post(
+          "https://gateway.dhanushop.com/api/TypeMaster/list",
+          { userid: userId }
+        );
+        setUserTypes(response.data);
+      } catch (err) {
+        setError("Failed to fetch user types.");
+      } finally {
         setLoading(false);
       }
     };
-
-    getStates();
+    fetchUserTypes();
   }, []);
 
+  // Fetch states
   useEffect(() => {
-    const storedUserType = Cookies.get("role");
-    if (storedUserType === "Admin") {
-      setIsAdmin(true);
-    }
+    const fetchStates = async () => {
+      try {
+        const response = await fetchStatesList();
+        setStates(
+          response.map((state) => ({
+            label: state.StateName,
+            value: state.StateId,
+          }))
+        );
+      } catch (err) {
+        console.error("Error fetching states:", err);
+      }
+    };
+    fetchStates();
   }, []);
 
-  const userTypeOptions = isAdmin
-    ? ["Master Distributor", "Distributor", "Retailer", "White Label"]
-    : ["Master Distributor", "Retailer", "Employee"];
+  // Fetch cities when state changes
+  useEffect(() => {
+    if (formData.resState) {
+      const fetchCities = async () => {
+        try {
+          setLoading(true);
+          const response = await fetchCitiesByState(formData.resState);
+          setCities(
+            response.map((city) => ({
+              label: city.CityName,
+              value: city.CityId,
+            }))
+          );
+        } catch (err) {
+          console.error("Error fetching cities:", err);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchCities();
+    }
+  }, [formData.resState]);
 
+  // Check admin role
+  useEffect(() => {
+    const role = Cookies.get("role");
+    setIsAdmin(role === "Admin");
+  }, []);
+
+  // Handlers
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     setFormData({ ...formData, [name]: files ? files[0] : value });
@@ -116,15 +133,48 @@ export default function Registration() {
   const nextStep = () =>
     setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1));
   const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 0));
-
   const openPreview = () => setIsPreviewOpen(true);
   const closePreview = () => setIsPreviewOpen(false);
 
-  const handleSubmit = () => {
+  // Conditional rendering
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>{error}</p>;
+
+  const handleSubmit = async () => {
     if (agreeTerms) {
-      console.log("Submitted Data:", formData);
-      closePreview();
-      alert("Form Submitted Successfully!");
+      const payload = {
+        UserID: userId, // Example user ID
+        UserTypeID: formData.userType,
+        RoleID: null,
+        FirstName: formData.firstName,
+        LastName: formData.lastName,
+        MobileNumber: formData.mobile,
+        Email: formData.email,
+        PersonalAddressLine1: formData.resHouseNo || "",
+        PersonalAddressLine2: formData.resArea || "",
+        PersonalCityID: formData.resCity || null,
+        PersonalStateID: formData.resState || null,
+        PersonalPincode: formData.resPincode || "",
+        ShopAddressLine1: formData.shopName || "",
+        ShopAddressLine2: formData.shopAddress || "",
+        ShopCityID: formData.busCity || null,
+        ShopStateID: formData.busState || null,
+        ShopPincode: formData.busPincode || "",
+      };
+
+      try {
+        console.log("API Payload:", payload);
+        const response = await axios.post(
+          "https://gateway.dhanushop.com/api/users/register", // Replace with your actual API endpoint
+          payload
+        );
+        console.log("API Response:", response.data);
+        alert("Form Submitted Successfully!");
+        closePreview();
+      } catch (error) {
+        console.error("Error submitting form:", error);
+        alert("Failed to submit the form. Please try again.");
+      }
     } else {
       alert("Please agree to the terms and conditions.");
     }
@@ -195,14 +245,30 @@ export default function Registration() {
       <div className="space-y-4   h-80">
         {currentStep === 0 && (
           <>
-            <div className="flex gap-4">
-              <Select
-                label="User Type"
-                name="userType"
-                value={formData.userType}
-                onChange={handleChange}
-                options={userTypeOptions}
-              />
+            <div className="flex gap-4 items-center">
+            <div>
+  <label className="block text-sm font-medium text-gray-700 mb-1">
+    User Type:
+  </label>
+  <select
+    name="userType"
+    value={formData.userType}
+    onChange={handleChange}
+    className="border border-gray-300 px-4 py-2.5 rounded-md"
+  >
+    <option value="">Select a User Type</option>
+    {userTypes.map((userType) => (
+      <option
+        key={userType.UserTypeID}
+        value={userType.UserTypeID}
+      >
+        {userType.UserTypeName}
+      </option>
+    ))}
+  </select>
+</div>
+
+
               <Input
                 label="First Name"
                 name="firstName"
@@ -220,7 +286,6 @@ export default function Registration() {
                 title="First name should only contain alphabets, spaces, hyphens, or apostrophes, and be up to 50 characters."
                 required
               />
-
               <Input
                 label="Last Name"
                 name="lastName"
@@ -324,7 +389,10 @@ export default function Registration() {
                 value={formData.resArea}
                 onChange={(e) => {
                   const value = e.target.value;
-                  if (/^[a-zA-Z0-9\s.,'-]*$/.test(value)&& value.length <= 100) {
+                  if (
+                    /^[a-zA-Z0-9\s.,'-]*$/.test(value) &&
+                    value.length <= 100
+                  ) {
                     handleChange(e);
                   }
                 }}

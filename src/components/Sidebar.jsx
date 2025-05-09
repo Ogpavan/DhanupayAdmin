@@ -8,7 +8,7 @@ export default function Sidebar() {
     { to: "/admin/profile", label: "My Profile", icon: <UserCircleGear size={24} weight="fill" /> },
     { to: "/admin/users", label: "Users & Account", icon: <Users size={24} weight="fill" /> },
     { to: "/admin/transactions", label: "Transactions", icon: <Wallet size={24} weight="fill" /> },
-    { to: "/admin/registration", label: "Registration", icon: <Users size={24} weight="fill" /> },
+    { to: "/admin/registration", label: "Manage Users", icon: <Users size={24} weight="fill" /> },
     { to: "/admin/settings", label: "Basic Settings", icon: <Gear size={24} weight="fill" /> },
     { to: "/admin/commission", label: "Commission", icon: <Gear size={24} weight="fill" /> },
     { to: "/admin/financial", label: "Financial", icon: <Gear size={24} weight="fill" /> },
@@ -17,6 +17,7 @@ export default function Sidebar() {
     { to: "/admin/UserTypeAndRoleManager", label: "User Master", icon: <Gear size={24} weight="fill" /> },
     { to: "/admin/ChangePassword", label: "Change Password", icon: <Gear size={24} weight="fill" /> },
     { to: "/admin/ServiceMaster", label: "Service Master", icon: <Gear size={24} weight="fill" /> },
+    // { to: "/admin/loadwallet", label: "Wallet", icon: <Gear size={24} weight="fill" /> },
   ];
 
   const usersidebarLinks = [

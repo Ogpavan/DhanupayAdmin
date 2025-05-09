@@ -1,14 +1,7 @@
 import Cookies from "js-cookie";
 import Swal from "sweetalert2";
 import React, { useState, useEffect } from "react";
-import {
-  Gear,
-  Bell,
-  MagnifyingGlass,
-  WarningCircle,
-  Plug,
-  Users,
-} from "phosphor-react";
+import { Bell } from "phosphor-react";
 
 export default function Navbar() {
   const userType = Cookies.get("UserTypeName");
@@ -20,11 +13,41 @@ export default function Navbar() {
     "System update available",
   ]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [adminBalance, setAdminBalance] = useState(300000);
+
+  // Fetch Admin Balance
+  // useEffect(() => {
+  //   const fetchAdminBalance = async () => {
+  //     if (!token) return;
+  //     try {
+  //       const response = await fetch("https://gateway.dhanushop.com/api/admin/balance", {
+  //         method: "GET",
+  //         headers: {
+  //           Authorization: `Bearer ${token}`,
+  //           "Content-Type": "application/json",
+  //         },
+  //       });
+  //       const data = await response.json();
+
+  //       if (response.ok && data.success) {
+  //         setAdminBalance(data.balance); // Assuming `data.balance` contains the admin balance
+  //       } else {
+  //         console.error("Failed to fetch admin balance:", data.message);
+  //         setAdminBalance("Error");
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching admin balance:", error);
+  //       setAdminBalance("Error");
+  //     }
+  //   };
+
+  //   fetchAdminBalance();
+  // }, [token]);
 
   const handleLogout = async () => {
     const userId = Cookies.get("UserId");
     const token = Cookies.get("token");
-  
+
     if (!userId || !token) {
       Swal.fire({
         title: "Error",
@@ -33,8 +56,7 @@ export default function Navbar() {
       });
       return;
     }
-  
-    // Confirmation dialog
+
     const result = await Swal.fire({
       title: "Are you sure?",
       text: "Do you want to logout?",
@@ -45,7 +67,7 @@ export default function Navbar() {
       confirmButtonText: "Yes, Logout",
       cancelButtonText: "No, Stay Logged In",
     });
-  
+
     if (result.isConfirmed) {
       try {
         const response = await fetch("https://gateway.dhanushop.com/api/users/Logout", {
@@ -56,9 +78,9 @@ export default function Navbar() {
           },
           body: JSON.stringify({ UserId: userId }),
         });
-  
+
         const data = await response.json();
-  
+
         if (response.ok && data.success) {
           Swal.fire({
             title: "Success",
@@ -67,14 +89,11 @@ export default function Navbar() {
             timer: 2000,
             showConfirmButton: false,
           }).then(() => {
-            // Clear cookies and local storage
             Cookies.remove("token");
             Cookies.remove("UserTypeName");
             Cookies.remove("UserName");
             Cookies.remove("UserId");
             localStorage.clear();
-  
-            // Navigate to home
             window.location.href = "/";
           });
         } else {
@@ -93,15 +112,14 @@ export default function Navbar() {
       }
     }
   };
-  
-  
+
   const toggleModal = () => setIsModalOpen(!isModalOpen);
   const clearNotifications = () => setNotifications([]);
   const removeNotification = (index) => setNotifications(notifications.filter((_, i) => i !== index));
 
   return (
     <nav className="bg-indigo-700 text-white px-8 py-4 flex items-center justify-between shadow-md">
-      <h1 className="text-2xl font-semibold">Dhanupay {userType}</h1>
+      <h1 className="text-2xl font-semibold">Dhanupay {UserName}</h1>
       <div className="flex items-center gap-6">
         {/* Notifications */}
         <div
@@ -114,7 +132,11 @@ export default function Navbar() {
           <span className="text-xs">Notifications</span>
         </div>
 
-        <span className="text-sm text-white">Hi, {UserName}</span>
+        <p className="flex flex-col">  Balance:       <span className="text-2xl text-white">
+          {adminBalance !== null ? `₹${adminBalance}` : "Loading..."}
+        </span>
+        </p>
+
         <button
           onClick={handleLogout}
           className="text-sm bg-white text-indigo-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-all duration-200"

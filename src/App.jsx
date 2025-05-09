@@ -37,6 +37,7 @@ import AdminLoginPage from "./auth/AdminLoginPage.jsx";
 import Home from "./auth/Home.jsx";
 import AdminForgotPasswordPage from "./auth/AdminForgotPasswordPage.jsx";
 import ServiceMaster from "./AdminPages/ServiceMaster.jsx";
+import LoadWallet from "./AdminPages/LoadWallet.jsx";
 
 function App() {
   return (
@@ -74,7 +75,8 @@ function App() {
             <Route path="UserTypeAndRoleManager" element={<UserTypeAndRoleManager />} />
             <Route path="ChangePassword" element={<ChangePassword />} />
             <Route path="ServiceMaster" element={<ServiceMaster />} />
-          </Route>
+            <Route path="loadwallet" element={<LoadWallet />} />
+           </Route>
 
           <Route
             path="/user"
