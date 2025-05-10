@@ -11,11 +11,18 @@ import { fetchDepartmentList } from '../api/DepartmentListApi.js';
 import DepartmentTable from './Tables/DepartmentTable.jsx';
 import DesingnationTable from '../AdminPages/Tables/DesingnationTable.jsx';
 import { fetchdesingnationList } from '../api/desingnationListApi .js';
+import Cookies from 'js-cookie';
+import { fetchUserTypeList } from '../api/FetchUserTypeList.jsx';
+import UserTypeTable from './Tables/UserTypeTable.jsx';
+import RoleTable from './Tables/RoleTable.jsx';
+import { fetchRoleList } from '../api/RoleList.jsx';
+
+
 
 function BasicSettings() {
 
-  const token = localStorage.getItem("token");
-  const userId = localStorage.getItem("userId");
+  const token = Cookies.get("token");
+  const userId = Cookies.get("UserId");
   const { showLoader, hideLoader } = useLoader();
 
   // Dummy data to simulate API response
@@ -78,15 +85,16 @@ function BasicSettings() {
 
   //for storing UserType
   const [UserType, setUserType] = useState([]);
-  const [UserTypeDesc, setUserTypeDesc] = useState([]);
-  const [UserTypelist, setUserTypelist] = useState('');
+  const [UserTypeDesc, setUserTypeDesc] = useState('');
+  const [UserTypelist, setUserTypelist] = useState([]);
 
   //for storing Role
   const [Role, setRole] = useState([]);
-  const [RoleDesc, setRoleDesc] = useState([]);
-  const [Rolelist, setRolelist] = useState('');
-   const [userTypes, setuserTypes] = useState([]);
-    const [selectedUserType, setselectedUserType] = useState('');
+  const [RoleDesc, setRoleDesc] = useState('');
+  const [Rolelist, setRolelist] = useState([]);
+
+  const [userTypes, setuserTypes] = useState([]);
+  const [selectedUserType, setselectedUserType] = useState('');
 
   useEffect(() => {
     showLoader();
@@ -131,7 +139,7 @@ function BasicSettings() {
       if (modalVisible !== null) {
         try {
           const data = await fetchStatesList();
-          console.log(data);
+          console.log("State list", data);
           setStates(data);
         } catch (error) {
           console.error('Error:', error);
@@ -143,8 +151,25 @@ function BasicSettings() {
   }, [modalVisible, loading]);
 
 
+  // for fething states list for city creation api
+  useEffect(() => {
+    const fetchRoles = async () => {
+      if (modalVisible !== null) {
+        try {
+          const data = await fetchRoleList();
+          console.log("Role list", data);
+          setRolelist(data);
+        } catch (error) {
+          console.error('Error:', error);
+        }
+      }
+    };
+    fetchRoles();
+  }, [modalVisible, loading]);
 
-  //handle city edit
+
+
+  //handle State edit
   const handlestateEdit = async (state) => {
     // const userId = localStorage.getItem('userId');
     // const token = localStorage.getItem('token');
@@ -177,7 +202,7 @@ function BasicSettings() {
 
       try {
         // Make the API call to update the state
-        const response = await fetch('http://gateway.dhanushop.com/api/state/update', {
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/state/update`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -236,7 +261,7 @@ function BasicSettings() {
 
       try {
         // Make the API call to update the city
-        const response = await fetch('http://gateway.dhanushop.com/api/city/update', {
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/city/update`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -271,7 +296,7 @@ function BasicSettings() {
 
     // Implement API call to delete state
     try {
-      const response = await fetch("http://gateway.dhanushop.com/api/state/delete", {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/state/delete`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -304,7 +329,7 @@ function BasicSettings() {
     console.log("Delete user id:", userId);
     // Implement API call to delete state
     try {
-      const response = await fetch("http://gateway.dhanushop.com/api/city/delete", {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/city/delete`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -351,7 +376,7 @@ function BasicSettings() {
     console.log(token, userId);
 
     try {
-      const response = await fetch("http://gateway.dhanushop.com/api/department/create", {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/department/create`, {
         method: "POST",
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -450,7 +475,7 @@ function BasicSettings() {
       try {
         setLoading(true);
         // Make the API call to update the department
-        const response = await fetch('http://gateway.dhanushop.com/api/department/update', {
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/department/update`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -487,7 +512,7 @@ function BasicSettings() {
     console.log("Delete user id:", userId);
     // Implement API call to delete state
     try {
-      const response = await fetch("http://gateway.dhanushop.com/api/department/delete", {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/department/delete`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -543,7 +568,7 @@ function BasicSettings() {
     console.log(token);
 
     try {
-      const response = await fetch("http://gateway.dhanushop.com/api/desingnation/create", {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/desingnation/create`, {
         method: "POST",
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -642,7 +667,7 @@ function BasicSettings() {
       try {
         setLoading(true);
         // Make the API call to update the department
-        const response = await fetch('http://gateway.dhanushop.com/api/desingnation/update', {
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/desingnation/update`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -676,7 +701,7 @@ function BasicSettings() {
     console.log("Delete user id:", userId);
     // Implement API call to delete state
     try {
-      const response = await fetch("http://gateway.dhanushop.com/api/desingnation/delete", {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/desingnation/delete`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -715,6 +740,369 @@ function BasicSettings() {
 
 
 
+
+
+
+
+  // handle USERtYPE UserType CRUD Operation start
+  // ***************************************************************************************
+  const handleUserTypeCreate = async () => {
+    setLoading(true);
+    // const token = localStorage.getItem("token");
+    // const userId = localStorage.getItem("userId");
+    console.log(token, userId);
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/TypeMaster/create`, {
+        method: "POST",
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+
+        },
+        body: JSON.stringify({
+          "userId": userId,
+          "UserTypeName": UserType,
+          "UserTypeDescription": UserTypeDesc
+        })
+
+
+
+      });
+
+      const data = await response.json();
+      console.log("usertype Created ", data);
+
+      if (data.success) {
+        Swal.fire('Success', JSON.stringify(data.message), 'success');
+        setUserType([]);
+        setUserTypeDesc([]);
+        // Maybe close the modal
+        setModalVisible(null);
+      } else {
+        // Handle login failure
+        Swal.fire('Error', JSON.stringify(data?.message) || 'Failed to create state', 'error');
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      Swal.fire('Error', JSON.stringify(error) || error.message || error || 'An error occurred during login.', 'error');
+    } finally {
+      setaddState('');
+      setLoading(false);
+    }
+  };
+
+
+  //for fetching Usertype list
+  useEffect(() => {
+    const fetchUserType = async () => {
+      if (modalVisible !== null) {
+        try {
+          const data = await fetchUserTypeList();
+          console.log("UserTpe List", data);
+          setUserTypelist(data);
+        } catch (error) {
+          console.error('Error fetching UserType list:', error);
+        }
+      }
+    };
+
+
+    fetchUserType();
+  }, [modalVisible, loading]);
+
+
+  //handle UserType edit/update
+  const handleUserTypeEdit = async (UserType) => {
+    if (!userId || !token) {
+      Swal.fire('Error', 'User is not authenticated. Please log in.', 'error');
+      return;
+    }
+    console.log(UserType);
+      Swal.fire('Error', 'API Under Development', 'error'); 
+
+    // // Prompt the user for the new department name and description
+    // const { value: UserTypeData } = await Swal.fire({
+    //   title: 'Enter New UserType Details',
+    //   html: `
+    //     <input id="swal-input-name" class="swal2-input" placeholder="New UserType Name" value="${UserType.UserTypeName || ''}" style=" margin-bottom: 10px;">
+    //     <input id="swal-input-description" class="swal2-input" placeholder="New UserType Description" value="${UserType.dUserTypeDescription || ''}" style=" margin-bottom: 10px;">
+    //   `,
+    //   showCancelButton: true,
+    //   confirmButtonText: 'Update',
+    //   cancelButtonText: 'Cancel',
+    //   preConfirm: () => {
+    //     const name = document.getElementById('swal-input-name').value;
+    //     const description = document.getElementById('swal-input-description').value;
+    //     if (!name || !description) {
+    //       Swal.showValidationMessage('Both fields are required!');
+    //       return false;
+    //     }
+    //     return { name, description };
+    //   }
+    // });
+
+    // if (UserTypeData) {
+    //   const { name, description } = UserTypeData;
+    //   const requestData = {
+    //     userId: parseInt(userId),
+    //     UserTypeId: UserType.UserTypeID,
+    //     UserTypeName: name,
+    //     UserTypeDescription: description
+    //   };
+    //   console.log(requestData);
+
+    //   try {
+    //     setLoading(true);
+    //     // Make the API call to update the department
+    //     const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/UserType/update`, {
+    //       method: 'POST',
+    //       headers: {
+    //         'Authorization': `Bearer ${token}`,
+    //         'Content-Type': 'application/json'
+    //       },
+    //       body: JSON.stringify(requestData)
+    //     });
+
+    //     const result = await response.json();
+
+    //     if (response.ok && result.success) {
+    //       setLoading(false);
+
+
+    //       Swal.fire('Success!', result.message, 'success');
+    //     } else {
+    //       Swal.fire('Error', result.message || 'Failed to update UserType.', 'error');
+    //       setLoading(false);
+    //     }
+    //   } catch (error) {
+    //     Swal.fire('Error', 'Something went wrong. Please try again.', 'error');
+    //     setLoading(false);
+    //   }
+    // }
+
+  };
+
+
+  //handle Usertype delete
+
+  const handleUserTypeDelete = async (UserTypeID) => {
+    setLoading(true);
+    console.log("Delete state with ID:", UserTypeID);
+    console.log("Delete user id:", userId);
+    Swal.fire('Error', 'API Under Development', 'error'); 
+    setLoading(false);
+
+
+    // Implement API call to delete state
+    // try {
+    //   const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/UserType/delete`, {
+    //     method: 'POST',
+    //     headers: {
+    //       'Authorization': `Bearer ${token}`,
+    //       'Content-Type': 'application/json'
+    //     },
+
+    //     body: JSON.stringify({
+    //       userId: parseInt(userId),
+    //       DepartmentID: parseInt(UserTypeID)
+    //     })
+    //   });
+    //   const result = await response.json();
+    //   console.log(result)
+    //   if (response.ok && result.success) {
+    //     setLoading(false);
+    //     Swal.fire('Success!', result.message, 'success');
+    //   } else {
+    //     setLoading(false);
+    //     Swal.fire('Error', result.message || 'Failed to delete UserType.', 'error');
+    //   }
+
+    // } catch (error) {
+    //   setLoading(false);
+    //   console.error('Error deleting state:', error);
+    //   Swal.fire('Error', 'An error occurred while deleting the UserType', 'error');
+    // }
+  };
+
+  //************************************************************************************* */  
+  // handle USERtYPE CRUD Operation end
+
+
+
+
+  // *****************************************************************
+  // handle Role CRUD Operation Staret 
+
+
+  //handle Role edit
+  const handleRoleEdit = async (Role) => {
+    // const userId = localStorage.getItem('userId');
+    // const token = localStorage.getItem('token');
+    console.log("Role", Role)
+
+    if (!userId || !token) {
+      Swal.fire('Error', 'User is not authenticated. Please log in.', 'error');
+      return;
+    }
+   
+    // Prompt the user for the new department name and description
+    const { value: UserTypeData } = await Swal.fire({
+      title: 'Enter New UserType Details',
+      html: `
+        <input id="swal-input-name" class="swal2-input" placeholder="New UserType Name" value="${Role.RoleName || ''}" style=" margin-bottom: 10px;">
+        <input id="swal-input-description" class="swal2-input" placeholder="New UserType Description" value="${Role.RoleDescription || ''}" style=" margin-bottom: 10px;">
+      `,
+      showCancelButton: true,
+      confirmButtonText: 'Update',
+      cancelButtonText: 'Cancel',
+      preConfirm: () => {
+        const name = document.getElementById('swal-input-name').value;
+        const description = document.getElementById('swal-input-description').value;
+        if (!name || !description) {
+          Swal.showValidationMessage('Both fields are required!');
+          return false;
+        }
+        return { name, description };
+      }
+    });
+
+    if (UserTypeData) {
+      const { name, description } = UserTypeData;
+      const requestData = {
+        userId: parseInt(userId),
+        RoleID:Role.RoleID,
+        RoleName: name ,
+        RoleDescription:description
+     
+      };
+      console.log(requestData);
+     
+
+      try {
+        setLoading(true);
+        // Make the API call to update the department
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/Role/update`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(requestData)
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+          setLoading(false);
+
+
+          Swal.fire('Success!', result.message, 'success');
+        } else {
+          Swal.fire('Error', result.message || 'Failed to update UserType.', 'error');
+          setLoading(false);
+        }
+      } catch (error) {
+        Swal.fire('Error', 'Something went wrong. Please try again.', 'error');
+        setLoading(false);
+      }
+    }
+
+  };
+
+
+
+  //   *************************************************************************
+  //Role delete handle
+  const handleRoleDelete = async (RoleId) => {
+    console.log("Delete state with ID:", RoleId);
+    console.log("Delete user id:", userId);
+    // Implement API call to delete state
+    try {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/role/delete`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+
+        body: JSON.stringify({
+          userId: parseInt(userId),
+          RoleId: parseInt(RoleId)
+        })
+      });
+      const result = await response.json();
+      console.log(result)
+    } catch (error) {
+      console.error('Error deleting state:', error);
+      Swal.fire('Error', 'An error occurred while deleting the state', 'error');
+    }
+  };
+
+
+
+  // **************************************************************************************
+
+  // for Role create api
+  const handleRoleCreate = async () => {
+    setLoading(true);
+    // const token = localStorage.getItem("token");
+    // const userId = localStorage.getItem("userId");
+    console.log(userId);
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/Role/create`, {
+        method: "POST",
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          UserId: (userId),
+          RoleName: Role,
+          RoleDescription: RoleDesc,
+          UserTypeID: selectedUserType
+
+          // "userId": 2,
+          // "RoleName": "New Role",
+          // "RoleDescription": "New Role Description",
+          // "UserTypeID": "1"
+        })
+
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        Swal.fire('Success', data.message, 'success');
+        // Maybe close the modal
+        setModalVisible(null);
+      } else {
+        // Handle login failure
+        Swal.fire('Error', data?.message || 'Failed to create state', 'error');
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      Swal.fire('Error', error || 'An error occurred during login.', 'error');
+    } finally {
+      // setaddRole('');
+      setLoading(false);
+    }
+  };
+
+
+
+  // ***************************************************************
+  // handle Role CRUD Operation end
+
+
+
+
+
+
+
+
+
   const handleStateCreate = async () => {
     setLoading(true);
     // const token = localStorage.getItem("token");
@@ -722,7 +1110,7 @@ function BasicSettings() {
     console.log(token, userId, addState);
 
     try {
-      const response = await fetch("http://gateway.dhanushop.com/api/state/create", {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/state/create`, {
         method: "POST",
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -763,7 +1151,7 @@ function BasicSettings() {
     console.log(userId, addCity, selectedState);
 
     try {
-      const response = await fetch("http://gateway.dhanushop.com/api/city/create", {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/city/create`, {
         method: "POST",
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -890,7 +1278,7 @@ function BasicSettings() {
       {/* city Section */}
       {modalVisible !== null && settingsData[modalVisible].title === 'Cities' && (
         <div className="fixed inset-0 flex justify-center items-center z-50 bg-gray-500 bg-opacity-75">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-full sm:w-[80vw] md:w-[60vw] lg:w-[50vw] max-w-4xl">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full h-[90vh] sm:w-[90vw] md:w-[70vw] lg:w-[80vw] max-w-4xl">
 
             <div className="flex flex-col lg:flex-row space-y-4 lg:space-x-8 lg:space-y-0">
 
@@ -965,7 +1353,7 @@ function BasicSettings() {
       {/*  state  Section */}
       {modalVisible !== null && settingsData[modalVisible].title == 'States' && (
         <div className="fixed inset-0 flex justify-center items-center z-50 bg-gray-500 bg-opacity-75">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-full sm:w-[90vw] md:w-[70vw] lg:w-[80vw] max-w-4xl">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full h-[90vh] sm:w-[90vw] md:w-[70vw] lg:w-[80vw] max-w-4xl">
 
             <div className="flex flex-col lg:flex-row space-y-4 lg:space-x-8 lg:space-y-0">
 
@@ -1006,7 +1394,7 @@ function BasicSettings() {
               {/* Right Side: Table of States */}
               <div className="w-full lg:w-1/2 p-4 overflow-auto" >
                 <h2 className="text-xl font-semibold mb-4">List of States</h2>
-                <div style={{ maxHeight: '60vh', overflowY: 'auto' }}>
+                <div style={{ maxHeight: '70vh', overflowY: 'auto' }}>
                   {loading ? (
                     <div className="text-center text-xl font-semibold text-gray-500">Please wait, States are loading...</div>
                   ) : (
@@ -1035,7 +1423,7 @@ function BasicSettings() {
 
       {modalVisible !== null && settingsData[modalVisible].title == 'Departments' && (
         <div className="fixed inset-0 flex justify-center items-center z-50 bg-gray-500 bg-opacity-75">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-full sm:w-[90vw] md:w-[70vw] lg:w-[80vw] max-w-4xl">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full h-[90vh] sm:w-[90vw] md:w-[70vw] lg:w-[80vw] max-w-4xl">
 
             <div className="flex flex-col lg:flex-row space-y-4 lg:space-x-8 lg:space-y-0">
 
@@ -1085,7 +1473,7 @@ function BasicSettings() {
               {/* Right Side: Table of States */}
               <div className="w-full lg:w-[70%] p-4 overflow-auto">
                 <h2 className="text-xl font-semibold mb-4">List of Departments</h2>
-                <div style={{ maxHeight: '60vh', overflowY: 'auto' }}>
+                <div style={{ maxHeight: '70vh', overflowY: 'auto' }}>
                   {loading ? (
                     <div className="text-center text-xl font-semibold text-gray-500">
                       Please wait, Departments are loading...
@@ -1115,7 +1503,7 @@ function BasicSettings() {
 
       {modalVisible !== null && settingsData[modalVisible].title == 'Designation' && (
         <div className="fixed inset-0 flex justify-center items-center z-50 bg-gray-500 bg-opacity-75">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-full sm:w-[90vw] md:w-[70vw] lg:w-[80vw] max-w-4xl">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full h-[90vh] sm:w-[90vw] md:w-[70vw] lg:w-[80vw] max-w-4xl">
 
             <div className="flex flex-col lg:flex-row space-y-4 lg:space-x-8 lg:space-y-0">
 
@@ -1165,7 +1553,7 @@ function BasicSettings() {
               {/* Right Side: Table of States */}
               <div className="w-full lg:w-[70%] p-4 overflow-auto">
                 <h2 className="text-xl font-semibold mb-4">List of designation</h2>
-                <div style={{ maxHeight: '60vh', overflowY: 'auto' }}>
+                <div style={{ maxHeight: '70vh', overflowY: 'auto' }}>
                   {loading ? (
                     <div className="text-center text-xl font-semibold text-gray-500">
                       Please wait, designation are loading...
@@ -1189,7 +1577,7 @@ function BasicSettings() {
       {/* //Role Section */}
       {modalVisible !== null && settingsData[modalVisible].title === 'Role' && (
         <div className="fixed inset-0 flex justify-center items-center z-50 bg-gray-500 bg-opacity-75">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-full h-[90vh] sm:w-[90vw] md:w-[70vw] lg:w-[80vw] max-w-4xl overflow-auto">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full h-[90vh] sm:w-[90vw] md:w-[70vw] lg:w-[80vw] max-w-4xl">
             <div className="flex flex-col lg:flex-row space-y-4 lg:space-x-8 lg:space-y-0">
               {/* Left: Role Form */}
               <div className="w-full lg:w-1/2">
@@ -1201,23 +1589,24 @@ function BasicSettings() {
                     onChange={(e) => setselectedUserType(e.target.value)}
                   >
                     <option value="">Select User Type</option>
-                    {userTypes.map((type) => (
+                    {UserTypelist.map((type) => (
                       <option key={type.UserTypeID} value={type.UserTypeID}>
                         {type.UserTypeName}
                       </option>
                     ))}
                   </select>
+
                   <input
                     type="text"
-                    value={Role.name}
-                    onChange={(e) => setRole({ ...newRole, name: e.target.value })}
+                    value={Role}
+                    onChange={(e) => setRole(e.target.value)}
                     className="w-full p-2 border border-gray-300 rounded"
                     placeholder="Enter Role Name"
                   />
                   <input
                     type="text"
-                    value={Role.description}
-                    onChange={(e) => setRole({ ...newRole, description: e.target.value })}
+                    value={RoleDesc}
+                    onChange={(e) => setRoleDesc(e.target.value )}
                     className="w-full p-2 border border-gray-300 rounded"
                     placeholder="Enter Role Description"
                   />
@@ -1227,7 +1616,7 @@ function BasicSettings() {
                     Cancel
                   </button>
                   <button
-                    // onClick={createRole}
+                    onClick={handleRoleCreate}
                     disabled={loading}
                     className={`${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500'} text-white py-2 px-4 rounded-lg hover:bg-blue-600`}
                   >
@@ -1238,40 +1627,18 @@ function BasicSettings() {
 
               {/* Right: Role List */}
               <div className="w-full lg:w-[70%] p-4 overflow-auto">
-                <h2 className="text-xl font-semibold mb-4">List of Roles</h2>
-                <div style={{ maxHeight: '60vh', overflowY: 'auto' }}>
+                <h2 className="text-xl font-semibold mb-4">List of UserType</h2>
+                <div style={{ maxHeight: '70vh', overflowY: 'auto' }}>
                   {loading ? (
                     <div className="text-center text-xl font-semibold text-gray-500">
-                      Loading roles...
+                      Please wait, Role are loading...
                     </div>
                   ) : (
-                    <table className="w-full border-collapse border border-gray-300 text-sm">
-                      <thead>
-                        <tr className="bg-gray-100">
-                          <th className="border border-gray-300 p-2">Role</th>
-                          <th className="border border-gray-300 p-2">Description</th>
-                          <th className="border border-gray-300 p-2">User Type</th>
-                          <th className="border border-gray-300 p-2 text-center">Action</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {Rolelist.map((role) => (
-                          <tr key={role.RoleID}>
-                            <td className="border border-gray-300 p-2">{role.RoleName}</td>
-                            <td className="border border-gray-300 p-2">{role.RoleDescription}</td>
-                            <td className="border border-gray-300 p-2">{role.UserType}</td>
-                            <td className="border border-gray-300 p-2 text-center">
-                              <button
-                                // onClick={() => confirmDeleteRole(role.RoleID)}
-                                className="bg-red-500 text-white py-1 px-3 rounded hover:bg-red-600"
-                              >
-                                Delete
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                    <RoleTable
+                      Rolelist={Rolelist} // Passing the departments list
+                      handleRoleEdit={handleRoleEdit} // Replace with your edit function
+                      handleRoleDelete={handleRoleDelete} // Replace with your delete function
+                    />
                   )}
                 </div>
               </div>
@@ -1303,16 +1670,16 @@ function BasicSettings() {
                     value={UserType}
                     onChange={(e) => setUserType(e.target.value)}
                     className="mt-1 w-full p-2 border border-gray-300 rounded-md"
-                    placeholder="Enter desingnation Name"
+                    placeholder="Enter User Type"
                   />
 
-                  <label className="block text-sm font-medium text-gray-600">Designation Description</label>
+                  <label className="block text-sm font-medium text-gray-600">User Type Description</label>
                   <input
                     type="text"
                     value={UserTypeDesc}
                     onChange={(e) => setUserTypeDesc(e.target.value)}
                     className="mt-1 w-full p-2 border border-gray-300 rounded-md"
-                    placeholder="Enter desingnation Description"
+                    placeholder="Enter User Type Description"
                   />
                 </div>
 
@@ -1325,30 +1692,30 @@ function BasicSettings() {
                     Cancel
                   </button>
                   <button
-                    // onClick={handleUserTypeCreate}
+                    onClick={handleUserTypeCreate}
                     disabled={loading}
                     className={`${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500'
                       } text-white py-2 px-4 rounded-lg hover:bg-blue-600`}
                   >
-                    {loading ? 'Updating...' : 'Add Designation'}
+                    {loading ? 'Updating...' : 'Add User Type'}
                   </button>
 
                 </div>
               </div>
 
-              {/* Right Side: Table of States */}
+              {/* Right Side: Table of Usertype */}
               <div className="w-full lg:w-[70%] p-4 overflow-auto">
                 <h2 className="text-xl font-semibold mb-4">List of UserType</h2>
-                <div style={{ maxHeight: '60vh', overflowY: 'auto' }}>
+                <div style={{ maxHeight: '70vh', overflowY: 'auto' }}>
                   {loading ? (
                     <div className="text-center text-xl font-semibold text-gray-500">
                       Please wait, UserType are loading...
                     </div>
                   ) : (
-                    <DesingnationTable
-                      designationList={UserTypelist} // Passing the departments list
-                      // handledesingnationEdit={handleUserTypeEdit} // Replace with your edit function
-                      // handleDesignationDelete={handleUserTypeDelete} // Replace with your delete function
+                    <UserTypeTable
+                      UserTypelist={UserTypelist} // Passing the departments list
+                      handleUserTypeEdit={handleUserTypeEdit} // Replace with your edit function
+                      handleUserTypeDelete={handleUserTypeDelete} // Replace with your delete function
                     />
                   )}
                 </div>
@@ -1358,16 +1725,6 @@ function BasicSettings() {
           </div>
         </div>
       )}
-
-
-
-
-
-
-
-
-
-
     </div>
   );
 }

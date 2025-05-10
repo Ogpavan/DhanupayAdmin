@@ -1,10 +1,12 @@
 import { useState, useRef } from "react";
 import "../../App.css";
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 
 
 export default function MobileRecharge({ activeLabel }) {
+    const navigate = useNavigate();
   const audioRef = useRef(null);
 
   const [transactions, setTransactions] = useState([
@@ -222,15 +224,14 @@ export default function MobileRecharge({ activeLabel }) {
             >
               Continue
             </button>
+            <h1 onClick={() => navigate("/user/rechargecomplaint")}
+             className="text-xs text-center cursor-pointer  font-bold text-blue-500 underline mb-4">Raise Complaint </h1>
           </form>
           <div className="bg-gray-200 rounded-t-3xl h-8 w-full flex justify-center items-center">
             <img src="/bharat-connect.png" alt="Bharat Connect" className="h-6" />
           </div>
-
         </div>
-
       </div>
-
       {/* Transactions Table and show plans */}
       {showPlans ? (
         <div className="bg-white shadow-md rounded-lg p-6 w-full">

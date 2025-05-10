@@ -37,15 +37,15 @@ const StateTable = ({ states, handlestateEdit, handlestateDelete }) => {
         <table className="w-full border-collapse">
           <thead>
             <tr>
-              <th className="border p-2">State ID</th>
+              <th className="border p-2">S No</th>
               <th className="border p-2">State Name</th>
               <th className="border p-2">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {states.map((state) => (
+            {states.map((state , index) => (
               <tr key={state.StateId}>
-                <td className="border p-2">{state.StateId}</td>
+                 <td className="border p-2">{index + 1}</td>
                 <td className="border p-2">{state.StateName}</td>
                 <td className="border p-2">
                   <div className="flex justify-around">

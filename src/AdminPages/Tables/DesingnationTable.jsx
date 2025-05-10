@@ -38,16 +38,16 @@ const DesignationTable = ({ designationList, handledesingnationEdit, handleDesig
         <table className="w-full border-collapse">
           <thead>
             <tr>
-              <th className="border p-2">Designation ID</th>
+              <th className="border p-2">S No</th>
               <th className="border p-2">Designation Name</th>
               <th className="border p-2">Designation Description</th>
               <th className="border p-2">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {designationList.map((designation) => (
+            {designationList.map((designation , index) => (
               <tr key={designation.DesignationID}>
-                <td className="border p-2">{designation.DesignationID}</td>
+                <td className="border p-2">{index + 1}</td>
                 <td className="border p-2">{designation.DesignationName}</td>
                 <td className="border p-2">{designation.DesignationDescription || 'No description available'}</td>
                 <td className="border p-2">
