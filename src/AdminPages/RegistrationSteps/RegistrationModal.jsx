@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { fetchStatesList } from "../api/stateListApi";
-import { fetchCitiesByState } from "../api/CityListApi";
-import PreviewPane from "./PreviewPane";
+import { fetchStatesList } from "../../api/stateListApi";
+import { fetchCitiesByState } from "../../api/CityListApi";
+import PreviewPane from "../PreviewPane";
 import Cookies from "js-cookie";
 import axios from "axios"; // Import axios for API calls
 
@@ -12,12 +12,12 @@ const steps = [
   "Basic Details",
   "Residential Details",
   "Business Details",
-  "Aadhaar Details",
+  "Documents Details",
   "PAN Details",
   "Video KYC", // New Step
 ];
 
-export default function Registration() {
+export default function RegistrationModal() {
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
   const [userTypes, setUserTypes] = useState([]);
@@ -392,7 +392,7 @@ export default function Registration() {
     name="userType"
     value={formData.userType}
     onChange={handleChange}
-    className="border border-gray-300 px-4 py-2.5 rounded-md"
+    className="border border-gray-300 px-2 py-1 rounded-md"
   >
     <option value="">Select a User Type</option>
     {userTypes.map((userType) => (
@@ -691,25 +691,71 @@ export default function Registration() {
           </>
         )}
 
-        {currentStep === 3 && (
+   {currentStep === 3 && (
+  <>
+    <Input
+      label="Aadhaar Number"
+      name="aadhaar"
+      value={formData.aadhaar}
+      onChange={(e) => {
+        const value = e.target.value;
+        if (/^\d{0,12}$/.test(value)) {
+          handleChange(e);
+        }
+      }}
+      className="w-full"
+      inputMode="numeric"
+      pattern="^\d{12}$"
+      title="Enter a valid 12-digit Aadhaar number"
+      maxLength={12}
+      required
+    />
+
+    <Input
+      label="PAN Number"
+      name="pan"
+      value={formData.pan}
+      onChange={(e) => {
+        const value = e.target.value.toUpperCase();
+        if (/^[A-Z0-9]{0,10}$/.test(value)) {
+          handleChange({
+            target: { name: e.target.name, value },
+          });
+        }
+      }}
+      className="w-full"
+      inputMode="text"
+      pattern="^[A-Z]{5}[0-9]{4}[A-Z]{1}$"
+      title="PAN No. (Format: ABCDE1234F)"
+      maxLength={10}
+      required
+    />
+
+    <Input
+      label="GST Number"
+      name="gst"
+      value={formData.gst}
+      onChange={(e) => {
+        const value = e.target.value.toUpperCase();
+        if (/^[0-9A-Z]{0,15}$/.test(value)) {
+          handleChange({
+            target: { name: e.target.name, value },
+          });
+        }
+      }}
+      className="w-full"
+      inputMode="text"
+      pattern="^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$"
+      title="GST No. (Format: 22ABCDE1234F1Z5)"
+      maxLength={15}
+      required
+    />
+  </>
+)}
+
+
+        {currentStep === 4 && (
           <>
-            <Input
-              label="Aadhaar Number"
-              name="aadhaar"
-              value={formData.aadhaar}
-              onChange={(e) => {
-                const value = e.target.value;
-                if (/^\d{0,12}$/.test(value)) {
-                  handleChange(e);
-                }
-              }}
-              className="w-full"
-              inputMode="numeric"
-              pattern="^\d{12}$"
-              title=" No."
-              maxLength={12}
-              required
-            />
             <Input
               type="file"
               label="Upload Aadhaar Front"
@@ -721,31 +767,6 @@ export default function Registration() {
               label="Upload Aadhaar Back"
               name="aadhaarBack"
               onChange={handleChange}
-            />
-          </>
-        )}
-
-        {currentStep === 4 && (
-          <>
-            <Input
-              label="PAN Number"
-              name="pan"
-              value={formData.pan}
-              onChange={(e) => {
-                const value = e.target.value.toUpperCase(); // Ensure all characters are uppercase
-                // Allow only alphanumeric characters (uppercase alphabets and digits) and enforce max length of 10
-                if (/^[A-Z0-9]{0,10}$/.test(value)) {
-                  handleChange({
-                    target: { name: e.target.name, value }, // Update state only if the input is valid
-                  });
-                }
-              }}
-              className="w-full"
-              inputMode="text" // Regular keyboard input mode (as PAN includes both letters and digits)
-              pattern="^[A-Z]{5}[0-9]{4}[A-Z]{1}$" // Enforces the PAN format (5 letters, 4 digits, 1 letter)
-              title="Pan No. (Format: ABCDE1234F)"
-              maxLength={10} // Prevents more than 10 characters from being entered
-              required
             />
 
             <Input
@@ -832,7 +853,7 @@ function Input({
         name={name}
         value={type !== "file" ? value : undefined}
         onChange={onChange}
-        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        className="w-full px-2 py-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
       />
     </div>
   );
