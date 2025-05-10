@@ -51,7 +51,7 @@ export default function MobileRecharge({ activeLabel }) {
 
   const [expandedTxId, setExpandedTxId] = useState(null);
 
-  <audio ref={audioRef} src="/BharatConnect.wav" preload="auto" />
+  
 
 
 
@@ -125,6 +125,7 @@ export default function MobileRecharge({ activeLabel }) {
 
   return (
     <div className="flex gap-4">
+        <audio ref={audioRef} src="/BharatConnect.wav" preload="auto" />
       {/* Form Section */}
       <div className="bg-white shadow-md rounded-lg p-6 max-w-md w-full">
         <h2 className="text-xl font-semibold mb-4">
