@@ -51,17 +51,27 @@ export default function MobileRecharge({ activeLabel }) {
 
   const [expandedTxId, setExpandedTxId] = useState(null);
 
+  <audio ref={audioRef} src="/BharatConnect.wav" preload="auto" />
+
 
 
 
   const handlePayment = () => {
-    setPaymentDone(true);
-    // Play audio
-    if (audioRef.current) {
-      audioRef.current.play();
-    }
-    setPaymentDone(true);
-  };
+  setPaymentDone(true);
+  console.log("Payment done, attempting to play sound...");
+
+  if (audioRef.current) {
+    console.log("Audio element found, trying to play...");
+    audioRef.current.play().then(() => {
+      console.log("Audio played successfully");
+    }).catch((error) => {
+      console.error("Failed to play audio:", error);
+    });
+  } else {
+    console.error("Audio element not found");
+  }
+};
+
 
   const closeModal = () => {
     setShowModal(false);
@@ -239,57 +249,57 @@ export default function MobileRecharge({ activeLabel }) {
           </ul>
         </div>
       ) : (
-       <div className="bg-white shadow-md rounded-lg p-6 w-full">
-  <h3 className="text-lg font-semibold mb-2">Recent Mobile Transactions</h3>
-  <div className="overflow-x-auto">
-    <table className="w-full text-sm text-left border">
-      <thead className="bg-gray-100">
-        <tr>
-          <th className="p-2 border">Operator</th>
-          <th className="p-2 border">Mobile No</th>
-          <th className="p-2 border">Amount</th>
-          <th className="p-2 border">Status</th>
-          <th className="p-2 border">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {transactions.map((tx) => {
-          const isExpanded = expandedTxId === tx.id;
-          return (
-            <React.Fragment key={tx.id}>
-              <tr>
-                <td className="p-2 border">{tx.operatorName}</td>
-                <td className="p-2 border">{tx.mobileNumber}</td>
-                <td className="p-2 border">₹{tx.amount}</td>
-                <td className="p-2 border">{tx.status}</td>
-                <td className="p-2 border">
-                  <button
-                    onClick={() => setExpandedTxId(isExpanded ? null : tx.id)}
-                    className="text-blue-500 hover:underline"
-                  >
-                    {isExpanded ? "Hide Details" : "View Details"}
-                  </button>
-                </td>
-              </tr>
-              {isExpanded && (
-                <tr className="bg-gray-50">
-                  <td colSpan={5} className="p-4 border border-t-0">
-                    <div className="text-sm space-y-1">
-                      <p><strong>Request ID:</strong> {tx.reqId}</p>
-                      <p><strong>Operator ID:</strong> {tx.operatorId}</p>
-                      <p><strong>Date & Time:</strong> {tx.date}</p>
-                      <p><strong>Status:</strong> {tx.status}</p>
-                    </div>
-                  </td>
+        <div className="bg-white shadow-md rounded-lg p-6 w-full">
+          <h3 className="text-lg font-semibold mb-2">Recent Mobile Transactions</h3>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left border">
+              <thead className="bg-gray-100">
+                <tr>
+                  <th className="p-2 border">Operator</th>
+                  <th className="p-2 border">Mobile No</th>
+                  <th className="p-2 border">Amount</th>
+                  <th className="p-2 border">Status</th>
+                  <th className="p-2 border">Actions</th>
                 </tr>
-              )}
-            </React.Fragment>
-          );
-        })}
-      </tbody>
-    </table>
-  </div>
-</div>
+              </thead>
+              <tbody>
+                {transactions.map((tx) => {
+                  const isExpanded = expandedTxId === tx.id;
+                  return (
+                    <React.Fragment key={tx.id}>
+                      <tr>
+                        <td className="p-2 border">{tx.operatorName}</td>
+                        <td className="p-2 border">{tx.mobileNumber}</td>
+                        <td className="p-2 border">₹{tx.amount}</td>
+                        <td className="p-2 border">{tx.status}</td>
+                        <td className="p-2 border">
+                          <button
+                            onClick={() => setExpandedTxId(isExpanded ? null : tx.id)}
+                            className="text-blue-500 hover:underline"
+                          >
+                            {isExpanded ? "Hide Details" : "View Details"}
+                          </button>
+                        </td>
+                      </tr>
+                      {isExpanded && (
+                        <tr className="bg-gray-50">
+                          <td colSpan={5} className="p-4 border border-t-0">
+                            <div className="text-sm space-y-1">
+                              <p><strong>Request ID:</strong> {tx.reqId}</p>
+                              <p><strong>Operator ID:</strong> {tx.operatorId}</p>
+                              <p><strong>Date & Time:</strong> {tx.date}</p>
+                              <p><strong>Status:</strong> {tx.status}</p>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
 
       )}
 
@@ -323,7 +333,6 @@ export default function MobileRecharge({ activeLabel }) {
                 <p><strong>Operator:</strong> {formData.operator}</p>
                 {/* <p><strong>Circle:</strong> {formData.circle}</p> */}
                 <p><strong>Amount:</strong> ₹{formData.amount}</p>
-                <audio ref={audioRef} src="/BharatConnect.wav" preload="auto" />
                 <button
                   className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
                   onClick={closeModal}
