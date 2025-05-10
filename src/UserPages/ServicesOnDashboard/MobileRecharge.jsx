@@ -1,7 +1,11 @@
-import { useState } from "react";
-import "../../App.css"
+import { useState, useRef } from "react";
+import "../../App.css";
+
+
 
 export default function MobileRecharge({ activeLabel }) {
+  const audioRef = useRef(null);
+
   const [transactions, setTransactions] = useState([
     {
       id: 1,
@@ -25,101 +29,288 @@ export default function MobileRecharge({ activeLabel }) {
     },
   ]);
 
+  const [formData, setFormData] = useState({
+    mobile: "",
+    type: "Prepaid",
+    operator: "",
+    circle: "",
+    amount: "",
+  });
+
+  const [showModal, setShowModal] = useState(false);
+  const [paymentDone, setPaymentDone] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [showPlans, setShowPlans] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState(null);
+  const [plans, setPlans] = useState([
+    { id: 1, amount: 199, description: "1.5GB/day for 28 days" },
+    { id: 2, amount: 299, description: "2GB/day + 100 SMS/day for 28 days" },
+    { id: 3, amount: 399, description: "3GB/day + OTT subscription for 56 days" },
+  ]);
+
+
+
+
+  const handlePayment = () => {
+    setPaymentDone(true);
+    // Play audio
+    if (audioRef.current) {
+      audioRef.current.play();
+    }
+    setPaymentDone(true);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    setPaymentDone(false);
+
+    // Stop audio
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0; // reset to start
+    }
+  };
+
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    // Only allow digits for mobile input
+    if (name === "mobile") {
+      const numericValue = value.replace(/\D/g, ""); // remove all non-digit characters
+      const mobileRegex = /^[6-9]\d{0,9}$/;
+
+      if (!mobileRegex.test(numericValue) && numericValue !== "") {
+        setErrors((prev) => ({
+          ...prev,
+          mobile: "Enter valid 10-digit Indian mobile number",
+        }));
+      } else {
+        setErrors((prev) => ({ ...prev, mobile: "" }));
+      }
+
+      setFormData({ ...formData, mobile: numericValue });
+      return;
+    }
+
+    setFormData({ ...formData, [name]: value });
+  };
+
+
+  const handleTypeSelect = (type) => {
+    setFormData({ ...formData, type });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setShowModal(true);
+  };
+
+
+
+
+
   return (
-    <div className="flex gap-4  " >
+    <div className="flex gap-4">
+      {/* Form Section */}
+      <div className="bg-white shadow-md rounded-lg p-6 max-w-md w-full">
+        <h2 className="text-xl font-semibold mb-4">
+          {activeLabel} Recharge & Bill Payment
+        </h2>
 
-    
-    <div className="bg-white shadow-md rounded-lg p-6 max-w-md">
-      <h2 className="text-xl font-semibold mb-4">{activeLabel} Recharge & Bill Payment</h2>
+        <form className="space-y-4 mb-8" onSubmit={handleSubmit}>
+          <div>
+            <input
+              type="text"
+              name="mobile"
+              placeholder="Enter Mobile Number"
+              className={`w-full p-2 border rounded ${errors.mobile ? "border-red-500" : ""}`}
+              value={formData.mobile}
+              onChange={handleChange}
+              maxLength={10}
+            />
+            {errors.mobile && (
+              <p className="text-red-500 text-sm mt-1">{errors.mobile}</p>
+            )}
+          </div>
 
-      {/* Recharge Form */}
-      <form className="space-y-4 mb-8">
-        <input
-          type="text"
-          placeholder="Enter Mobile Number"
-          className="w-full p-2 border rounded"
-        />
-        <div className="flex gap-4">
-          <button
-            type="button"
-            className="flex-1 p-2 border rounded bg-gray-100"
+
+          <div className="flex gap-4">
+            <button
+              type="button"
+              className={`flex-1 p-2 border rounded ${formData.type === "Prepaid" ? "bg-blue-100" : "bg-gray-100"
+                }`}
+              onClick={() => handleTypeSelect("Prepaid")}
+            >
+              Prepaid
+            </button>
+            <button
+              type="button"
+              className={`flex-1 p-2 border rounded ${formData.type === "Postpaid" ? "bg-blue-100" : "bg-gray-100"
+                }`}
+              onClick={() => handleTypeSelect("Postpaid")}
+            >
+              Postpaid
+            </button>
+          </div>
+
+          <select
+            name="operator"
+            className="w-full p-2 border rounded"
+            value={formData.operator}
+            onChange={handleChange}
           >
-            Prepaid
-          </button>
-          <button
-            type="button"
-            className="flex-1 p-2 border rounded bg-gray-100"
+            <option value="">Select Operator</option>
+            <option value="Airtel">Airtel</option>
+            <option value="Vi">Vi</option>
+            <option value="Jio">Jio</option>
+          </select>
+
+          <select
+            name="circle"
+            className="w-full p-2 border rounded"
+            value={formData.circle}
+            onChange={handleChange}
           >
-            Postpaid
+            <option value="">Select Circle</option>
+            <option value="Delhi">Delhi</option>
+            <option value="Mumbai">Mumbai</option>
+            <option value="Bangalore">Bangalore</option>
+          </select>
+
+          <div className="flex gap-4">
+            <input
+              type="number"
+              name="amount"
+              placeholder="Enter Amount"
+              className="w-full p-2 border rounded"
+              value={formData.amount}
+              onChange={handleChange}
+            />
+            <button
+              type="button"
+              className="text-nowrap p-2 border rounded bg-gray-100"
+              onClick={() => setShowPlans(true)}
+            >
+              View Plans
+            </button>
+
+          </div>
+          {selectedPlan && (
+            <p className="text-sm text-gray-600 mt-1">
+              Selected Plan: {selectedPlan.description}
+            </p>
+          )}
+
+
+
+          <button
+            type="submit"
+            className="w-full bg-blue-500 text-white p-2 rounded"
+          >
+            Continue
           </button>
-        </div>
-        <select className="w-full p-2 border rounded">
-          <option>Select Operator</option>
-          <option>Airtel</option>
-          <option>Vi</option>
-          <option>Jio</option>
-        </select>
-        <select className="w-full p-2 border rounded">
-          <option>Select Circle</option>
-          <option>Delhi</option>
-          <option>Mumbai</option>
-          <option>Bangalore</option>
-        </select>
-        <div className="flex gap-4 ">
-        <input
-          type="number"
-          placeholder="Enter Amount"
-          className="w-full p-2 border rounded"
-        />
-        <button
-          type="button"
-          className="text-nowrap p-2 border rounded bg-gray-100"
-        >
-          View Plans
-        </button>
-        </div>
-        <button
-          type="submit"
-          className="w-full bg-blue-500 text-white p-2 rounded"
-        >
-          Continue
-        </button>
-      </form>
+        </form>
       </div>
 
-      {/* Recent Mobile Transactions Table */}
-      <div className="bg-white shadow-md rounded-lg p-6">
-      <h3 className="text-lg font-semibold mb-2">Recent Mobile Transactions</h3>
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm text-left border">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="p-2 border">Operator</th>
-              <th className="p-2 border">Mobile No</th>
-              <th className="p-2 border">Amount</th>
-              <th className="p-2 border">ReqID</th>
-              <th className="p-2 border">Operator ID</th>
-              <th className="p-2 border">Date</th>
-              <th className="p-2 border">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {transactions.map((tx) => (
-              <tr key={tx.id}>
-                <td className="p-2 border">{tx.operatorName}</td>
-                <td className="p-2 border">{tx.mobileNumber}</td>
-                <td className="p-2 border">₹{tx.amount}</td>
-                <td className="p-2 border">{tx.reqId}</td>
-                <td className="p-2 border">{tx.operatorId}</td>
-                <td className="p-2 border">{tx.date}</td>
-                <td className="p-2 border">{tx.status}</td>
-              </tr>
+      {/* Transactions Table and show plans */}
+      {showPlans ? (
+        <div className="bg-white shadow-md rounded-lg p-6 w-full">
+          <h3 className="text-lg font-semibold mb-2">Available Plans</h3>
+          <ul className="space-y-3">
+            {plans.map((plan) => (
+              <li
+                key={plan.id}
+                className="border p-4 rounded hover:bg-blue-50 cursor-pointer"
+                onClick={() => {
+                  setFormData({ ...formData, amount: plan.amount.toString() });
+                  setSelectedPlan(plan);
+                  setShowPlans(false);
+                }}
+
+              >
+                <p className="font-medium">₹{plan.amount}</p>
+                <p className="text-sm text-gray-600">{plan.description}</p>
+              </li>
             ))}
-          </tbody>
-        </table>
-      </div>
+          </ul>
+        </div>
+      ) : (
+        <div className="bg-white shadow-md rounded-lg p-6 w-full">
+          <h3 className="text-lg font-semibold mb-2">Recent Mobile Transactions</h3>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left border">
+              <thead className="bg-gray-100">
+                <tr>
+                  <th className="p-2 border">Operator</th>
+                  <th className="p-2 border">Mobile No</th>
+                  <th className="p-2 border">Amount</th>
+                  <th className="p-2 border">ReqID</th>
+                  <th className="p-2 border">Operator ID</th>
+                  <th className="p-2 border">Date</th>
+                  <th className="p-2 border">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {transactions.map((tx) => (
+                  <tr key={tx.id}>
+                    <td className="p-2 border">{tx.operatorName}</td>
+                    <td className="p-2 border">{tx.mobileNumber}</td>
+                    <td className="p-2 border">₹{tx.amount}</td>
+                    <td className="p-2 border">{tx.reqId}</td>
+                    <td className="p-2 border">{tx.operatorId}</td>
+                    <td className="p-2 border">{tx.date}</td>
+                    <td className="p-2 border">{tx.status}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Modal */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded shadow-lg max-w-sm w-full text-center">
+            {!paymentDone ? (
+              <>
+                <h3 className="text-lg font-semibold mb-4">Confirm Details</h3>
+                <p><strong>Mobile:</strong> {formData.mobile}</p>
+                <p><strong>Type:</strong> {formData.type}</p>
+                <p><strong>Operator:</strong> {formData.operator}</p>
+                <p><strong>Circle:</strong> {formData.circle}</p>
+                <p><strong>Amount:</strong> ₹{formData.amount}</p>
+                <button
+                  className="mt-4 w-full bg-green-500 text-white p-2 rounded"
+                  onClick={handlePayment}
+                >
+                  Make Payment
+                </button>
+              </>
+            ) : (
+              <>
+                <div className="flex justify-center ">
+                  <img src="/bbpsassured.png" alt="Bharat Connect" className="h-full" />
+                </div>
+                <h2 className="text-2xl font-bold text-green-600">Payment Successful!</h2>
+                <p><strong>Mobile:</strong> {formData.mobile}</p>
+                {/* <p><strong>Type:</strong> {formData.type}</p> */}
+                <p><strong>Operator:</strong> {formData.operator}</p>
+                {/* <p><strong>Circle:</strong> {formData.circle}</p> */}
+                <p><strong>Amount:</strong> ₹{formData.amount}</p>
+                <audio ref={audioRef} src="/BharatConnect.wav" preload="auto" />
+                <button
+                  className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
+                  onClick={closeModal}
+                >
+                  Close
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
-    </div>
-    
   );
 }

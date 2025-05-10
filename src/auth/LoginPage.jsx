@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Phone, Lock, Eye, EyeSlash, User } from "phosphor-react";
+import { Phone, Lock, Eye, EyeSlash } from "phosphor-react";
 import loginpageimage from "/LoginPageImage.png"; // Replace with the correct image path
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
@@ -8,7 +8,7 @@ import Cookies from "js-cookie";
 import DOMPurify from "dompurify";
 
 export default function LoginPage() {
-  const [phoneNumber, setPhoneNumber] = useState(""); // Changed state from username to phoneNumber
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState("");
@@ -16,20 +16,21 @@ export default function LoginPage() {
   const [tempUserId, settempUserId] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [userType, setUserType] = useState("Admin"); // Default user type
+  const [userType, setUserType] = useState("Admin");
 
   const navigate = useNavigate();
+
+  const isPhoneValid = /^\d{10}$/.test(phoneNumber) && /^[6-9]/.test(phoneNumber);
+  const isFormValid = isPhoneValid && password.length > 0 && !error;
 
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    // Sanitize inputs
     const sanitizedPhoneNumber = DOMPurify.sanitize(phoneNumber.trim());
     const sanitizedPassword = DOMPurify.sanitize(password.trim());
 
-    // Validate phone number
-    if (!/^\d{10}$/.test(sanitizedPhoneNumber)) {
-      setError("Please enter a valid 10-digit phone number.");
+    if (!/^\d{10}$/.test(sanitizedPhoneNumber) || !/^[6-9]/.test(sanitizedPhoneNumber)) {
+      setError("Please enter a valid 10-digit Indian phone number.");
       return;
     }
 
@@ -40,8 +41,8 @@ export default function LoginPage() {
 
     setLoading(true);
     setError("");
+
     try {
-      // Get IP and browser details
       const ip = await fetch("https://api.ipify.org?format=json")
         .then((res) => res.json())
         .then((data) => data.ip)
@@ -70,13 +71,10 @@ export default function LoginPage() {
       );
 
       const data = await response.json();
-      console.log("Data 1", data);
-
       settempToken(data.Token);
-
       settempUserId(data.UserId);
+
       if (response.ok && data?.Token) {
-        // Save token and remember username if applicable
         Cookies.set("token", data.Token, {
           secure: true,
           sameSite: "Strict",
@@ -117,7 +115,6 @@ export default function LoginPage() {
             },
           });
         } else {
-          // Redirect to OTP page if MPIN is set
           navigate("/otp", {
             state: { message: data.Message, userId: data.UserId },
           });
@@ -128,7 +125,7 @@ export default function LoginPage() {
           Swal.fire({
             icon: "warning",
             title: "User Already Logged In",
-            text: "This user is already logged in on another device. Do you want to proceed and log in anyway? Proceeding will log out the user from the previous device.",
+            text: "This user is already logged in on another device. Do you want to proceed and log in anyway?",
             showCancelButton: true,
             confirmButtonText: "Yes, Proceed",
             cancelButtonText: "No, Cancel",
@@ -140,20 +137,17 @@ export default function LoginPage() {
                   {
                     method: "POST",
                     headers: {
-                      Authorization: `Bearer ${data.Token}`, // Use the temporary token from login response
+                      Authorization: `Bearer ${data.Token}`,
                       "Content-Type": "application/json",
                     },
                     body: JSON.stringify({
-                      UserId: tempUserId, // Use the temporary UserId from login response
+                      UserId: tempUserId,
                     }),
                   }
                 );
 
                 const seconddata = await res.json();
-                console.log("ConfirmLogin Response:", seconddata);
-
                 if (res.ok && seconddata?.Token) {
-                  // Update cookies with the new token and details
                   Cookies.set("token", seconddata.Token, {
                     secure: true,
                     sameSite: "Strict",
@@ -185,7 +179,6 @@ export default function LoginPage() {
                     expires: 1,
                   });
 
-                  // Navigate based on the MPIN setup status
                   if (seconddata?.IsMPINSet === "0") {
                     navigate("/setup-mpin", {
                       state: {
@@ -203,19 +196,11 @@ export default function LoginPage() {
                     });
                   }
                 } else {
-                  setError(
-                    seconddata?.message || "Failed to proceed with login."
-                  );
+                  setError(seconddata?.message || "Failed to proceed with login.");
                 }
               } catch (err) {
-                setError(
-                  "An error occurred while confirming login. Please try again."
-                );
-                console.error("ConfirmLogin Error:", err);
+                setError("An error occurred while confirming login.");
               }
-            } else {
-              // User canceled the confirmation
-              return;
             }
           });
         }
@@ -223,22 +208,16 @@ export default function LoginPage() {
     } catch (err) {
       setError(
         err.message.includes("Failed to fetch")
-          ? "Unable to connect to the server. Please check your internet connection."
-          : "An unexpected error occurred. Please try again."
+          ? "Unable to connect to the server."
+          : "An unexpected error occurred."
       );
     } finally {
       setLoading(false);
     }
   };
 
-  const handlePasswordPaste = (e) => {
-    e.preventDefault();
-    setError("Pasting is not allowed in the password field.");
-  };
-
   return (
     <div className="min-h-screen flex flex-col md:flex-row">
-      {/* Illustration Section */}
       <div className="w-full md:w-1/2 flex items-center justify-center p-8 bg-gray-100">
         <img
           src={loginpageimage}
@@ -247,12 +226,9 @@ export default function LoginPage() {
         />
       </div>
 
-      {/* Form Section */}
       <div className="w-full md:w-1/2 flex items-center justify-center p-8">
         <div className="bg-white rounded-2xl p-8 w-full max-w-md">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-1">
-            Welcome to
-          </h2>
+          <h2 className="text-2xl font-semibold text-gray-800 mb-1">Welcome to</h2>
           <h1 className="text-4xl font-bold text-indigo-600 mb-6">Dhanupay</h1>
 
           {error && (
@@ -260,7 +236,6 @@ export default function LoginPage() {
           )}
 
           <form onSubmit={handleLogin} className="space-y-5">
-            {/* User Type Selection */}
             <div className="space-y-2">
               <label className="text-gray-700 font-medium">Login As:</label>
               <div className="flex justify-between text-sm">
@@ -279,12 +254,9 @@ export default function LoginPage() {
                 ))}
               </div>
             </div>
-            {/* Phone Number */}
+
             <div className="relative">
-              <Phone
-                className="absolute left-3 top-2.5 text-gray-400"
-                size={20}
-              />
+              <Phone className="absolute left-3 top-2.5 text-gray-400" size={20} />
               <input
                 type="text"
                 placeholder="Enter your 10-digit phone number"
@@ -292,9 +264,15 @@ export default function LoginPage() {
                 value={phoneNumber}
                 onChange={(e) => {
                   const input = e.target.value;
+
                   if (/^\d*$/.test(input) && input.length <= 10) {
                     setPhoneNumber(input);
-                    setError(""); // Clear error when valid input
+
+                    if (input.length === 10 && !/^[6-9]/.test(input)) {
+                      setError("Please enter a valid Indian phone number.");
+                    } else {
+                      setError("");
+                    }
                   } else if (!/^\d*$/.test(input)) {
                     setError("Only numeric characters are allowed.");
                   } else {
@@ -314,12 +292,8 @@ export default function LoginPage() {
               />
             </div>
 
-            {/* Password */}
             <div className="relative">
-              <Lock
-                className="absolute left-3 top-2.5 text-gray-400"
-                size={20}
-              />
+              <Lock className="absolute left-3 top-2.5 text-gray-400" size={20} />
               <input
                 type={showPassword ? "text" : "password"}
                 placeholder="Password"
@@ -341,7 +315,7 @@ export default function LoginPage() {
                 onKeyDown={(e) => {
                   const invalidChars = ["'", "`", "~", "<", ">", "|", "\\"];
                   if (invalidChars.includes(e.key)) {
-                    e.preventDefault(); // Block invalid character
+                    e.preventDefault();
                     setError(`The character ${e.key} is not allowed.`);
                   }
                 }}
@@ -360,7 +334,6 @@ export default function LoginPage() {
               </button>
             </div>
 
-            {/* Remember Me */}
             <div className="flex items-center justify-between text-sm text-gray-600">
               <label className="flex items-center space-x-2">
                 <input
@@ -380,11 +353,10 @@ export default function LoginPage() {
               </button>
             </div>
 
-            {/* Submit */}
             <button
               type="submit"
               className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-md font-semibold transition"
-              disabled={loading}
+              disabled={loading || !isFormValid}
             >
               {loading ? "Logging in..." : "Login"}
             </button>

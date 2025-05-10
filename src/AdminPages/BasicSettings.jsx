@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useLoader } from '../context/LoaderContext.jsx';
-import { Buildings, ChartBar, CurrencyDollar, Users} from 'phosphor-react';
+import { Buildings, ChartBar, CurrencyDollar, Users } from 'phosphor-react';
 import Swal from 'sweetalert2'; // SweetAlert library for alerts
 import { fetchStatesList } from '../api/stateListApi.js';
 import { fetchCitiesByState } from "../api/CityListApi.js";
@@ -19,28 +19,38 @@ function BasicSettings() {
   const { showLoader, hideLoader } = useLoader();
 
   // Dummy data to simulate API response
-    const dummyData = [
-      {
-        title: 'States',
-        description: 'Manage States',
-        icon: ChartBar,
-      },
-      {
-        title: 'Cities',
-        description: 'Manage Cities',
-        icon: Buildings,
-      },
-      {
-        title: 'Departments',
-        description: 'Manage Departments',
-        icon: Users ,
-      },
-      {
-        title: 'Designation',
-        description: 'Manage Designation',
-        icon: Users,
-      },
-    ];
+  const dummyData = [
+    {
+      title: 'States',
+      description: 'Manage States',
+      icon: ChartBar,
+    },
+    {
+      title: 'Cities',
+      description: 'Manage Cities',
+      icon: Buildings,
+    },
+    {
+      title: 'Departments',
+      description: 'Manage Departments',
+      icon: Users,
+    },
+    {
+      title: 'Designation',
+      description: 'Manage Designation',
+      icon: Users,
+    },
+    {
+      title: 'User Type',
+      description: 'Manage User Types',
+      icon: Users,
+    },
+    {
+      title: 'Role',
+      description: 'Manage Roles',
+      icon: Users,
+    },
+  ];
 
   const [settingsData, setSettingsData] = useState([]);
   const [showPasswordForm, setShowPasswordForm] = useState(false); // To toggle password change form visibility
@@ -66,6 +76,18 @@ function BasicSettings() {
   const [desingnationDesc, setdesingnationDesc] = useState([]);
   const [desingnationlist, setdesingnationlist] = useState('');
 
+  //for storing UserType
+  const [UserType, setUserType] = useState([]);
+  const [UserTypeDesc, setUserTypeDesc] = useState([]);
+  const [UserTypelist, setUserTypelist] = useState('');
+
+  //for storing Role
+  const [Role, setRole] = useState([]);
+  const [RoleDesc, setRoleDesc] = useState([]);
+  const [Rolelist, setRolelist] = useState('');
+   const [userTypes, setuserTypes] = useState([]);
+    const [selectedUserType, setselectedUserType] = useState('');
+
   useEffect(() => {
     showLoader();
     const timer = setTimeout(() => {
@@ -83,7 +105,7 @@ function BasicSettings() {
       modalVisible !== null &&
       settingsData?.[modalVisible]?.title === 'Cities' &&
       selectedState;
-  
+
     if (shouldFetchCities) {
       const getCities = async () => {
         try {
@@ -97,11 +119,11 @@ function BasicSettings() {
           setLoading(false);
         }
       };
-  
+
       getCities();
     }
   }, [modalVisible, selectedState, settingsData]);
-  
+
 
   // for fething states list for city creation api
   useEffect(() => {
@@ -515,7 +537,7 @@ function BasicSettings() {
     setLoading(true);
     // const token = localStorage.getItem("token");
     // const userId = localStorage.getItem("userId");
-    console.log( userId);
+    console.log(userId);
     console.log(desingnation);
     console.log(desingnationDesc);
     console.log(token);
@@ -585,7 +607,7 @@ function BasicSettings() {
       return;
     }
     console.log(desingnation);
-  
+
     // Prompt the user for the new department name and description
     const { value: desingnationData } = await Swal.fire({
       title: 'Enter New Designation Details',
@@ -606,7 +628,7 @@ function BasicSettings() {
         return { desingnationname, desingnationdescription };
       }
     });
-  
+
     if (desingnationData) {
       const { desingnationname, desingnationdescription } = desingnationData;
       const requestData = {
@@ -616,7 +638,7 @@ function BasicSettings() {
         desingnationDescription: desingnationdescription
       };
       console.log(requestData);
-  
+
       try {
         setLoading(true);
         // Make the API call to update the department
@@ -628,9 +650,9 @@ function BasicSettings() {
           },
           body: JSON.stringify(requestData)
         });
-  
+
         const result = await response.json();
-  
+
         if (response.ok && result.success) {
           setLoading(false);
           Swal.fire('Success!', result.message, 'success');
@@ -645,7 +667,7 @@ function BasicSettings() {
       }
     }
   };
-  
+
   //handle department delete
 
   const handledesingnationDelete = async (desingnationID) => {
@@ -867,77 +889,77 @@ function BasicSettings() {
 
       {/* city Section */}
       {modalVisible !== null && settingsData[modalVisible].title === 'Cities' && (
-  <div className="fixed inset-0 flex justify-center items-center z-50 bg-gray-500 bg-opacity-75">
-    <div className="bg-white p-6 rounded-lg shadow-lg w-full sm:w-[80vw] md:w-[60vw] lg:w-[50vw] max-w-4xl">
+        <div className="fixed inset-0 flex justify-center items-center z-50 bg-gray-500 bg-opacity-75">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full sm:w-[80vw] md:w-[60vw] lg:w-[50vw] max-w-4xl">
 
-      <div className="flex flex-col lg:flex-row space-y-4 lg:space-x-8 lg:space-y-0">
+            <div className="flex flex-col lg:flex-row space-y-4 lg:space-x-8 lg:space-y-0">
 
-        {/* Left Side: Form */}
-        <div className="w-full lg:w-1/2">
-          <h2 className="text-xl font-semibold">{settingsData[modalVisible].title}</h2>
+              {/* Left Side: Form */}
+              <div className="w-full lg:w-1/2">
+                <h2 className="text-xl font-semibold">{settingsData[modalVisible].title}</h2>
 
-          {/* State Dropdown */}
-          <div className="mt-4">
-            <label className="block text-sm font-medium text-gray-600">State Name</label>
-            <select
-              value={selectedState}
-              onChange={(e) => setSelectedState(Number(e.target.value))}
-              className="mt-1 w-full p-2 border border-gray-300 rounded-md"
-            >
-              <option value="">Select a State</option>
-              {states.map((state) => (
-                <option key={state.StateId} value={state.StateId}>
-                  {state.StateName}
-                </option>
-              ))}
-            </select>
-          </div>
+                {/* State Dropdown */}
+                <div className="mt-4">
+                  <label className="block text-sm font-medium text-gray-600">State Name</label>
+                  <select
+                    value={selectedState}
+                    onChange={(e) => setSelectedState(Number(e.target.value))}
+                    className="mt-1 w-full p-2 border border-gray-300 rounded-md"
+                  >
+                    <option value="">Select a State</option>
+                    {states.map((state) => (
+                      <option key={state.StateId} value={state.StateId}>
+                        {state.StateName}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-          {/* City Name Input */}
-          <div className="mt-4">
-            <label className="block text-sm font-medium text-gray-600">City Name</label>
-            <input
-              type="text"
-              value={addCity}
-              onChange={(e) => setaddCity(e.target.value)}
-              className="mt-1 w-full p-2 border border-gray-300 rounded-md"
-              placeholder="Enter City Name"
-            />
-          </div>
+                {/* City Name Input */}
+                <div className="mt-4">
+                  <label className="block text-sm font-medium text-gray-600">City Name</label>
+                  <input
+                    type="text"
+                    value={addCity}
+                    onChange={(e) => setaddCity(e.target.value)}
+                    className="mt-1 w-full p-2 border border-gray-300 rounded-md"
+                    placeholder="Enter City Name"
+                  />
+                </div>
 
-          {/* Action Buttons */}
-          <div className="mt-6 flex justify-end space-x-4">
-            <button
-              onClick={closeModal}
-              className="text-gray-500 hover:text-gray-700"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleCityCreate}
-              disabled={loading}
-              className={`${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500'
-                } text-white py-2 px-4 rounded-lg hover:bg-blue-600`}
-            >
-              {loading ? 'Updating...' : 'Add city'}
-            </button>
+                {/* Action Buttons */}
+                <div className="mt-6 flex justify-end space-x-4">
+                  <button
+                    onClick={closeModal}
+                    className="text-gray-500 hover:text-gray-700"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleCityCreate}
+                    disabled={loading}
+                    className={`${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500'
+                      } text-white py-2 px-4 rounded-lg hover:bg-blue-600`}
+                  >
+                    {loading ? 'Updating...' : 'Add city'}
+                  </button>
+                </div>
+              </div>
+
+              {/* Right Side: Table of Cities */}
+              <div className="w-full lg:w-1/2 p-4 overflow-auto">
+                <h2 className="text-xl font-semibold mb-4">List of Cities</h2>
+                <CityTable
+                  cities={cities}
+                  handleCityEdit={handleCityEdit}
+                  handlecityDelete={handlecityDelete}
+                />
+              </div>
+
+            </div>
           </div>
         </div>
-
-        {/* Right Side: Table of Cities */}
-        <div className="w-full lg:w-1/2 p-4 overflow-auto">
-          <h2 className="text-xl font-semibold mb-4">List of Cities</h2>
-          <CityTable
-            cities={cities}
-            handleCityEdit={handleCityEdit}
-            handlecityDelete={handlecityDelete}
-          />
-        </div>
-
-      </div>
-    </div>
-  </div>
-)}
+      )}
 
 
       {/*  state  Section */}
@@ -1150,9 +1172,183 @@ function BasicSettings() {
                     </div>
                   ) : (
                     <DesingnationTable
-                    designationList={desingnationlist} // Passing the departments list
+                      designationList={desingnationlist} // Passing the departments list
                       handledesingnationEdit={handledesingnationEdit} // Replace with your edit function
                       handleDesignationDelete={handledesingnationDelete} // Replace with your delete function
+                    />
+                  )}
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+
+      {/* //Role Section */}
+      {modalVisible !== null && settingsData[modalVisible].title === 'Role' && (
+        <div className="fixed inset-0 flex justify-center items-center z-50 bg-gray-500 bg-opacity-75">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full h-[90vh] sm:w-[90vw] md:w-[70vw] lg:w-[80vw] max-w-4xl overflow-auto">
+            <div className="flex flex-col lg:flex-row space-y-4 lg:space-x-8 lg:space-y-0">
+              {/* Left: Role Form */}
+              <div className="w-full lg:w-1/2">
+                <h2 className="text-xl font-semibold">Role Management</h2>
+                <div className="mt-4 space-y-4">
+                  <select
+                    className="w-full p-2 border border-gray-300 rounded"
+                    value={selectedUserType}
+                    onChange={(e) => setselectedUserType(e.target.value)}
+                  >
+                    <option value="">Select User Type</option>
+                    {userTypes.map((type) => (
+                      <option key={type.UserTypeID} value={type.UserTypeID}>
+                        {type.UserTypeName}
+                      </option>
+                    ))}
+                  </select>
+                  <input
+                    type="text"
+                    value={Role.name}
+                    onChange={(e) => setRole({ ...newRole, name: e.target.value })}
+                    className="w-full p-2 border border-gray-300 rounded"
+                    placeholder="Enter Role Name"
+                  />
+                  <input
+                    type="text"
+                    value={Role.description}
+                    onChange={(e) => setRole({ ...newRole, description: e.target.value })}
+                    className="w-full p-2 border border-gray-300 rounded"
+                    placeholder="Enter Role Description"
+                  />
+                </div>
+                <div className="mt-6 flex justify-end space-x-4">
+                  <button onClick={closeModal} className="text-gray-500 hover:text-gray-700">
+                    Cancel
+                  </button>
+                  <button
+                    // onClick={createRole}
+                    disabled={loading}
+                    className={`${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500'} text-white py-2 px-4 rounded-lg hover:bg-blue-600`}
+                  >
+                    {loading ? 'Saving...' : 'Add Role'}
+                  </button>
+                </div>
+              </div>
+
+              {/* Right: Role List */}
+              <div className="w-full lg:w-[70%] p-4 overflow-auto">
+                <h2 className="text-xl font-semibold mb-4">List of Roles</h2>
+                <div style={{ maxHeight: '60vh', overflowY: 'auto' }}>
+                  {loading ? (
+                    <div className="text-center text-xl font-semibold text-gray-500">
+                      Loading roles...
+                    </div>
+                  ) : (
+                    <table className="w-full border-collapse border border-gray-300 text-sm">
+                      <thead>
+                        <tr className="bg-gray-100">
+                          <th className="border border-gray-300 p-2">Role</th>
+                          <th className="border border-gray-300 p-2">Description</th>
+                          <th className="border border-gray-300 p-2">User Type</th>
+                          <th className="border border-gray-300 p-2 text-center">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {Rolelist.map((role) => (
+                          <tr key={role.RoleID}>
+                            <td className="border border-gray-300 p-2">{role.RoleName}</td>
+                            <td className="border border-gray-300 p-2">{role.RoleDescription}</td>
+                            <td className="border border-gray-300 p-2">{role.UserType}</td>
+                            <td className="border border-gray-300 p-2 text-center">
+                              <button
+                                // onClick={() => confirmDeleteRole(role.RoleID)}
+                                className="bg-red-500 text-white py-1 px-3 rounded hover:bg-red-600"
+                              >
+                                Delete
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+
+
+
+
+
+      {/* //User Type Section */}
+
+      {modalVisible !== null && settingsData[modalVisible].title == 'User Type' && (
+        <div className="fixed inset-0 flex justify-center items-center z-50 bg-gray-500 bg-opacity-75">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full h-[90vh] sm:w-[90vw] md:w-[70vw] lg:w-[80vw] max-w-4xl">
+
+            <div className="flex flex-col lg:flex-row space-y-4 lg:space-x-8 lg:space-y-0">
+
+              {/* Left Side: Form */}
+              <div className="w-full lg:w-1/2">
+                <h2 className="text-xl font-semibold">{settingsData[modalVisible].title}</h2>
+                <div className="mt-4">
+                  <label className="block text-sm font-medium text-gray-600">User Type</label>
+                  <input
+                    type="text"
+                    value={UserType}
+                    onChange={(e) => setUserType(e.target.value)}
+                    className="mt-1 w-full p-2 border border-gray-300 rounded-md"
+                    placeholder="Enter desingnation Name"
+                  />
+
+                  <label className="block text-sm font-medium text-gray-600">Designation Description</label>
+                  <input
+                    type="text"
+                    value={UserTypeDesc}
+                    onChange={(e) => setUserTypeDesc(e.target.value)}
+                    className="mt-1 w-full p-2 border border-gray-300 rounded-md"
+                    placeholder="Enter desingnation Description"
+                  />
+                </div>
+
+
+                <div className="mt-6 flex justify-end space-x-4">
+                  <button
+                    onClick={closeModal}
+                    className="text-gray-500 hover:text-gray-700"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    // onClick={handleUserTypeCreate}
+                    disabled={loading}
+                    className={`${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500'
+                      } text-white py-2 px-4 rounded-lg hover:bg-blue-600`}
+                  >
+                    {loading ? 'Updating...' : 'Add Designation'}
+                  </button>
+
+                </div>
+              </div>
+
+              {/* Right Side: Table of States */}
+              <div className="w-full lg:w-[70%] p-4 overflow-auto">
+                <h2 className="text-xl font-semibold mb-4">List of UserType</h2>
+                <div style={{ maxHeight: '60vh', overflowY: 'auto' }}>
+                  {loading ? (
+                    <div className="text-center text-xl font-semibold text-gray-500">
+                      Please wait, UserType are loading...
+                    </div>
+                  ) : (
+                    <DesingnationTable
+                      designationList={UserTypelist} // Passing the departments list
+                      // handledesingnationEdit={handleUserTypeEdit} // Replace with your edit function
+                      // handleDesignationDelete={handleUserTypeDelete} // Replace with your delete function
                     />
                   )}
                 </div>
