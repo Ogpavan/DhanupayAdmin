@@ -51,26 +51,26 @@ export default function MobileRecharge({ activeLabel }) {
 
   const [expandedTxId, setExpandedTxId] = useState(null);
 
-  
+
 
 
 
 
   const handlePayment = () => {
-  setPaymentDone(true);
-  console.log("Payment done, attempting to play sound...");
+    setPaymentDone(true);
+    console.log("Payment done, attempting to play sound...");
 
-  if (audioRef.current) {
-    console.log("Audio element found, trying to play...");
-    audioRef.current.play().then(() => {
-      console.log("Audio played successfully");
-    }).catch((error) => {
-      console.error("Failed to play audio:", error);
-    });
-  } else {
-    console.error("Audio element not found");
-  }
-};
+    if (audioRef.current) {
+      console.log("Audio element found, trying to play...");
+      audioRef.current.play().then(() => {
+        console.log("Audio played successfully");
+      }).catch((error) => {
+        console.error("Failed to play audio:", error);
+      });
+    } else {
+      console.error("Audio element not found");
+    }
+  };
 
 
   const closeModal = () => {
@@ -125,106 +125,110 @@ export default function MobileRecharge({ activeLabel }) {
 
   return (
     <div className="flex gap-4">
-        <audio ref={audioRef} src="/BharatConnect.wav" preload="auto" />
+      <audio ref={audioRef} src="/BharatConnect.wav" preload="auto" />
       {/* Form Section */}
-      <div className="bg-white shadow-md rounded-lg p-6 max-w-md w-full">
-        <h2 className="text-xl font-semibold mb-4">
-          {activeLabel} Recharge & Bill Payment
-        </h2>
+      <div className="bg-white  rounded-lg px-6 pt-6  w-full ">
+        <div className="shadow-md  max-w-md ">
+          <h2 className="text-xl font-semibold mb-4">
+            {activeLabel} Recharge & Bill Payment
+          </h2>
 
-        <form className="space-y-4 mb-8" onSubmit={handleSubmit}>
-          <div>
-            <input
-              type="text"
-              name="mobile"
-              placeholder="Enter Mobile Number"
-              className={`w-full p-2 border rounded ${errors.mobile ? "border-red-500" : ""}`}
-              value={formData.mobile}
-              onChange={handleChange}
-              maxLength={10}
-            />
-            {errors.mobile && (
-              <p className="text-red-500 text-sm mt-1">{errors.mobile}</p>
-            )}
-          </div>
+          <form className="space-y-4 px-6 mb-8" onSubmit={handleSubmit}>
+            <div>
+              <input
+                type="text"
+                name="mobile"
+                placeholder="Enter Mobile Number"
+                className={`w-full p-2 border rounded ${errors.mobile ? "border-red-500" : ""}`}
+                value={formData.mobile}
+                onChange={handleChange}
+                maxLength={10}
+              />
+              {errors.mobile && (
+                <p className="text-red-500 text-sm mt-1">{errors.mobile}</p>
+              )}
+            </div>
 
 
-          <div className="flex gap-4">
-            <button
-              type="button"
-              className={`flex-1 p-2 border rounded ${formData.type === "Prepaid" ? "bg-blue-100" : "bg-gray-100"
-                }`}
-              onClick={() => handleTypeSelect("Prepaid")}
-            >
-              Prepaid
-            </button>
-            <button
-              type="button"
-              className={`flex-1 p-2 border rounded ${formData.type === "Postpaid" ? "bg-blue-100" : "bg-gray-100"
-                }`}
-              onClick={() => handleTypeSelect("Postpaid")}
-            >
-              Postpaid
-            </button>
-          </div>
+            <div className="flex gap-4">
+              <button
+                type="button"
+                className={`flex-1 p-2 border rounded ${formData.type === "Prepaid" ? "bg-blue-100" : "bg-gray-100"
+                  }`}
+                onClick={() => handleTypeSelect("Prepaid")}
+              >
+                Prepaid
+              </button>
+              <button
+                type="button"
+                className={`flex-1 p-2 border rounded ${formData.type === "Postpaid" ? "bg-blue-100" : "bg-gray-100"
+                  }`}
+                onClick={() => handleTypeSelect("Postpaid")}
+              >
+                Postpaid
+              </button>
+            </div>
 
-          <select
-            name="operator"
-            className="w-full p-2 border rounded"
-            value={formData.operator}
-            onChange={handleChange}
-          >
-            <option value="">Select Operator</option>
-            <option value="Airtel">Airtel</option>
-            <option value="Vi">Vi</option>
-            <option value="Jio">Jio</option>
-          </select>
-
-          <select
-            name="circle"
-            className="w-full p-2 border rounded"
-            value={formData.circle}
-            onChange={handleChange}
-          >
-            <option value="">Select Circle</option>
-            <option value="Delhi">Delhi</option>
-            <option value="Mumbai">Mumbai</option>
-            <option value="Bangalore">Bangalore</option>
-          </select>
-
-          <div className="flex gap-4">
-            <input
-              type="number"
-              name="amount"
-              placeholder="Enter Amount"
+            <select
+              name="operator"
               className="w-full p-2 border rounded"
-              value={formData.amount}
+              value={formData.operator}
               onChange={handleChange}
-            />
-            <button
-              type="button"
-              className="text-nowrap p-2 border rounded bg-gray-100"
-              onClick={() => setShowPlans(true)}
             >
-              View Plans
+              <option value="">Select Operator</option>
+              <option value="Airtel">Airtel</option>
+              <option value="Vi">Vi</option>
+              <option value="Jio">Jio</option>
+            </select>
+
+            <select
+              name="circle"
+              className="w-full p-2 border rounded"
+              value={formData.circle}
+              onChange={handleChange}
+            >
+              <option value="">Select Circle</option>
+              <option value="Delhi">Delhi</option>
+              <option value="Mumbai">Mumbai</option>
+              <option value="Bangalore">Bangalore</option>
+            </select>
+
+            <div className="flex gap-4">
+              <input
+                type="number"
+                name="amount"
+                placeholder="Enter Amount"
+                className="w-full p-2 border rounded"
+                value={formData.amount}
+                onChange={handleChange}
+              />
+              <button
+                type="button"
+                className="text-nowrap p-2 border rounded bg-gray-100"
+                onClick={() => setShowPlans(true)}
+              >
+                View Plans
+              </button>
+
+            </div>
+            {selectedPlan && (
+              <p className="text-sm text-gray-600 mt-1">
+                Selected Plan: {selectedPlan.description}
+              </p>
+            )}
+            <button
+              type="submit"
+              className="w-full bg-blue-500 text-white p-2 rounded"
+            >
+              Continue
             </button>
-
+          </form>
+          <div className="bg-gray-200 rounded-t-3xl h-8 w-full flex justify-center items-center">
+            <img src="/bharat-connect.png" alt="Bharat Connect" className="h-6" />
           </div>
-          {selectedPlan && (
-            <p className="text-sm text-gray-600 mt-1">
-              Selected Plan: {selectedPlan.description}
-            </p>
-          )}
 
+        </div>
 
-
-          <button
-            type="submit"
-            className="w-full bg-blue-500 text-white p-2 rounded"
-          >
-            Continue
-          </button>
-        </form>
       </div>
 
       {/* Transactions Table and show plans */}
@@ -328,7 +332,12 @@ export default function MobileRecharge({ activeLabel }) {
                 <div className="flex justify-center ">
                   <img src="/bbpsassured.png" alt="Bharat Connect" className="h-full" />
                 </div>
-                <h2 className="text-2xl font-bold text-green-600">Payment Successful!</h2>
+                <div className="flex items-center justify-center">
+                  <img src="/check.png" alt="Payment Successful" className="h-8 w-8 mr-2 " />
+                  <span className="text-2xl font-bold text-green-600">Payment Successful!</span>
+                </div>
+
+                <p><strong> Date & Time:</strong>28 Apr 2025 02:30 PM</p>
                 <p><strong>Mobile:</strong> {formData.mobile}</p>
                 {/* <p><strong>Type:</strong> {formData.type}</p> */}
                 <p><strong>Operator:</strong> {formData.operator}</p>
