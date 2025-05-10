@@ -38,6 +38,7 @@ import Home from "./auth/Home.jsx";
 import AdminForgotPasswordPage from "./auth/AdminForgotPasswordPage.jsx";
 import ServiceMaster from "./AdminPages/ServiceMaster.jsx";
 import LoadWallet from "./AdminPages/LoadWallet.jsx";
+import RegistrationForm from "./AdminPages/RegistrationSteps/RegistrationForm.jsx";
 
 function App() {
   return (
@@ -68,7 +69,7 @@ function App() {
             <Route path="settings" element={<BasicSettings />} />
             <Route path="profile" element={<Profile />} />
             <Route path="commission" element={<Commision />} />
-            <Route path="registration" element={<Registration />} />
+            <Route path="registration" element={<RegistrationForm />} />
             <Route path="financial" element={<Financial />} />
             <Route path="employeemaster" element={<EmployeeMaster />} />
             <Route path="fundtransfer" element={<FundTransfer />} />
