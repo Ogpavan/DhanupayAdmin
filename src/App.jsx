@@ -40,6 +40,7 @@ import ServiceMaster from "./AdminPages/ServiceMaster.jsx";
 import LoadWallet from "./AdminPages/LoadWallet.jsx";
 import RegistrationForm from "./AdminPages/RegistrationSteps/RegistrationForm.jsx";
 import RegistrationModal from "./AdminPages/RegistrationSteps/RegistrationModal.jsx";
+import BBPSComplaint from "./UserPages/ServicesOnDashboard/BBPSComplaint.jsx";
 
 function App() {
   return (
@@ -90,6 +91,7 @@ function App() {
             }
           >
             <Route index element={<UserDashboard />} />
+            <Route  path="rechargecomplaint" element={<BBPSComplaint/>} />
             <Route path="users" element={<UserUsers />} />
             <Route path="transactions" element={<UserTransaction />} />
             <Route path="settings" element={<UserBasicSettings />} />

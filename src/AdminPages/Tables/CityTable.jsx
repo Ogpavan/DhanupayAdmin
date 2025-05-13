@@ -36,15 +36,15 @@ const CityTable = ({ cities, handleCityEdit, handlecityDelete }) => {
         <table className="w-full border-collapse">
           <thead>
             <tr>
-              <th className="border p-2">City ID</th>
+              <th className="border p-2">S No</th>
               <th className="border p-2">City Name</th>
               <th className="border p-2">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {cities.map((city) => (
+            {cities.map((city,  index) => (
               <tr key={city.CityId}>
-                <td className="border p-2">{city.CityId}</td>
+                 <td className="border p-2">{index + 1}</td>
                 <td className="border p-2">{city.CityName}</td>
                 <td className="border p-2">
                   <div className="flex justify-around">
