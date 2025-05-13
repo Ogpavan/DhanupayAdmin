@@ -3,10 +3,15 @@ import UserDetailsModal from "./UserDetailsModal";
 import KycDetailsModal from "./KycDetailsModal";
 import RegistrationModal from "./RegistrationModal";
 import { X } from "phosphor-react";
+import { useNavigate } from "react-router-dom";
+
+
 
 const UserSummaryTable = ({ formData = {} }) => {
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showKycModal, setShowKycModal] = useState(false);   const [isRegistrationVisible, setIsRegistrationVisible] = useState(false);
+
+  const navigate = useNavigate();
 
   const data = {
     userType: formData.userType || "Retailer",
@@ -38,7 +43,7 @@ const UserSummaryTable = ({ formData = {} }) => {
       <div className="flex justify-between items-center p-4">
         <h2 className="text-2xl font-semibold">User Summary</h2>
       <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-      onClick={() => setIsRegistrationVisible(true)}>
+      onClick={() => navigate("/admin/registrationmodal")}>
   Create New User
 </button>
 
@@ -101,25 +106,7 @@ const UserSummaryTable = ({ formData = {} }) => {
         <KycDetailsModal formData={formData} onClose={() => setShowKycModal(false)} />
       )}
 
-       {isRegistrationVisible && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-  <div className="bg-white rounded-lg w-full max-w-2xl relative h-[650px]"> {/* Set a fixed height */}
-    <button
-      className="absolute top-2 right-2 text-gray-500 hover:text-gray-800"
-      onClick={() => setIsRegistrationVisible(false)}
-    >
-      <X size={24} />
-    </button>
-    <div className="h-full overflow-y-auto"> {/* This ensures content scrolls if it's too long */}
-      <RegistrationModal
         
-      />
-    </div>
-  </div>
-</div>
-
-      )}
-
  </div>
   );
 };

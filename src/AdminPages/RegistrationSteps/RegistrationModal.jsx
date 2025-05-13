@@ -5,14 +5,17 @@ import PreviewPane from "../PreviewPane";
 import Cookies from "js-cookie";
 import axios from "axios"; // Import axios for API calls
 
+
+///////////////////////////
+
 const token = Cookies.get("token");
-const userId = Cookies.get("userId");
+const userId = Cookies.get("UserId");
 // Steps array
 const steps = [
   "Basic Details",
   "Residential Details",
   "Business Details",
-  "Documents Details",
+  "Aadhaar Details",
   "PAN Details",
   "Video KYC", // New Step
 ];
@@ -27,6 +30,25 @@ export default function RegistrationModal() {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
+  const [openPreview, setOpenPreview] = useState(false);
+
+  const [profilePhoto, setProfilePhoto] = useState(null);
+const [shopPhoto, setShopPhoto] = useState(null);
+const [videoFile, setVideoFile] = useState(null);
+
+const [profilePhotoUploaded, setProfilePhotoUploaded] = useState(false);
+const [shopPhotoUploaded, setShopPhotoUploaded] = useState(false);
+const [videoUploaded, setVideoUploaded] = useState(false);
+
+const [formDatatwo, setFormDatatwo] = useState({ aadhaar: "", pan: "" });
+const [aadhaarFront, setAadhaarFront] = useState(null);
+const [aadhaarBack, setAadhaarBack] = useState(null);
+const [panImage, setPanImage] = useState(null);
+const [aadhaarUploaded, setAadhaarUploaded] = useState(false);
+const [panUploaded, setPanUploaded] = useState(false);
+const [video, setVideo] = useState(null);
+
+
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -57,6 +79,7 @@ export default function RegistrationModal() {
     video: null,
     userType: "",
   });
+
 
   // Fetch user types
   useEffect(() => {
@@ -144,179 +167,124 @@ export default function RegistrationModal() {
   if (loading) return <p>Loading...</p>;
   if (error) return <p>{error}</p>;
 
-  const handleSubmit = async () => {
-    if (!agreeTerms) {
-      alert("Please agree to the terms and conditions.");
-      return;
-    }
+  // const handleSubmit = async () => {
+  //   if (!agreeTerms) {
+  //     alert("Please agree to the terms and conditions.");
+  //     return;
+  //   }
   
-    const payload = {
-      UserID: userId,
-      UserTypeID: formData.userType,
-      RoleID: null,
-      FirstName: formData.firstName,
-      LastName: formData.lastName,
-      MobileNumber: formData.mobile,
-      Email: formData.email,
-      PersonalAddressLine1: formData.resHouseNo || "",
-      PersonalAddressLine2: formData.resArea || "",
-      PersonalCityID: formData.resCity || null,
-      PersonalStateID: formData.resState || null,
-      PersonalPincode: formData.resPincode || "",
-      ShopAddressLine1: formData.shopName || "",
-      ShopAddressLine2: formData.shopAddress || "",
-      ShopCityID: formData.busCity || null,
-      ShopStateID: formData.busState || null,
-      ShopPincode: formData.busPincode || "",
-    };
+  //   const payload = {
+  //     UserID: userId,
+  //     UserTypeID: formData.userType,
+  //     RoleID: null,
+  //     FirstName: formData.firstName,
+  //     LastName: formData.lastName,
+  //     MobileNumber: formData.mobile,
+  //     Email: formData.email,
+  //     PersonalAddressLine1: formData.resHouseNo || "",
+  //     PersonalAddressLine2: formData.resArea || "",
+  //     PersonalCityID: formData.resCity || null,
+  //     PersonalStateID: formData.resState || null,
+  //     PersonalPincode: formData.resPincode || "",
+  //     ShopAddressLine1: formData.shopName || "",
+  //     ShopAddressLine2: formData.shopAddress || "",
+  //     ShopCityID: formData.busCity || null,
+  //     ShopStateID: formData.busState || null,
+  //     ShopPincode: formData.busPincode || "",
+  //   };
   
-    try {
-      // Step 1: Register the user
+  //   try {
+  //     // Step 1: Register the user
       
-      const response = await axios.post(
-        "https://gateway.dhanushop.com/api/users/register",
-        payload
-      );
+  //     const response = await axios.post(
+  //       "https://gateway.dhanushop.com/api/users/register",
+  //       payload
+  //     );
   
-      const { newUserId } = response.data;
+  //     const { newUserId } = response.data;
+  //     console.log("API Payload after request:", payload);
+  //     console.log("New User ID:", response.data); // Adjust if response format is different
+  //     if (!userId) {
+  //       throw new Error("No newUserId received from registration API.");
+  //     }
+  
+  //     // Step 2: Upload documents
+  //     const formData = new FormData();
+  //     formData.append("UserId", userId);
+  //     formData.append("newUserId", newUserId);
+  //     formData.append("DocumentType", "Aadhaar"); // or dynamically from form
+  //     formData.append("DocumentNumber", formData.documentNumber);
+  //     formData.append("FrontImage", formData.frontImage); // must be File object
+  //     formData.append("BackImage", formData.backImage);
+  //     formData.append("VideoFile", formData.videoFile);
+  
+  //     const uploadRes = await axios.post(
+  //       "https://gateway.dhanushop.com/api/users/uploadDocuments",
+  //       formData,
+  //       {
+  //         headers: {
+  //           "Content-Type": "multipart/form-data",
+  //         },
+  //       }
+  //     );
+  
+  //     console.log("Document Upload Response:", uploadRes.data);
+  //     alert("Form and documents submitted successfully!");
+  //     closePreview();
+  //   } catch (error) {
+  //     console.error("Error submitting form or documents:", error);
+  //     alert("Failed to complete registration. Please try again.");
+  //   }
+  // };
+
+
+const submitStepData = async (step) => {
+  try {
+    if (step === 2) {
+      const payload = {
+        UserID: userId,
+        UserTypeID: formData.userType,
+        FirstName: formData.firstName,
+        LastName: formData.lastName,
+        MobileNumber: formData.mobile,
+        AltMobileNumber: formData.altMobile,
+        Email: formData.email,
+        PersonalAddressLine1: formData.resHouseNo,
+        PersonalAddressLine2: formData.resArea,
+        PersonalLandmark: formData.resLandmark,
+        PersonalPincode: formData.resPincode,
+        PersonalStateID: formData.resState,
+        PersonalCityID: formData.resCity,
+        ShopName: formData.shopName,
+        ShopAddressLine1: formData.shopAddress,
+        ShopLandmark: formData.busLandmark,
+        ShopPincode: formData.busPincode,
+        ShopStateID: formData.busState,
+        ShopCityID: formData.busCity,
+      };
+
+      const response = await axios.post("https://gateway.dhanushop.com/api/users/register", payload);
+
       console.log("API Payload after request:", payload);
-      console.log("New User ID:", response.data); // Adjust if response format is different
-      if (!userId) {
-        throw new Error("No newUserId received from registration API.");
-      }
-  
-      // Step 2: Upload documents
-      const formData = new FormData();
-      formData.append("UserId", userId);
-      formData.append("newUserId", newUserId);
-      formData.append("DocumentType", "Aadhaar"); // or dynamically from form
-      formData.append("DocumentNumber", formData.documentNumber);
-      formData.append("FrontImage", formData.frontImage); // must be File object
-      formData.append("BackImage", formData.backImage);
-      formData.append("VideoFile", formData.videoFile);
-  
-      const uploadRes = await axios.post(
-        "https://gateway.dhanushop.com/api/users/uploadDocuments",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-  
-      console.log("Document Upload Response:", uploadRes.data);
-      alert("Form and documents submitted successfully!");
-      closePreview();
-    } catch (error) {
-      console.error("Error submitting form or documents:", error);
-      alert("Failed to complete registration. Please try again.");
-    }
-  };
+      console.log("Response from API:", response.data);
 
+      const newUserId = response.data?.newUserId || response.data?.data?.newUserId;
 
-  const submitStepData = async (step) => {
-    try {
-      const payload = { UserID: userId };
-  
-      switch (step) {
-        case 0: // Basic Details
-          Object.assign(payload, {
-            UserTypeID: formData.userType,
-            FirstName: formData.firstName,
-            LastName: formData.lastName,
-            MobileNumber: formData.mobile,
-            AltMobileNumber: formData.altMobile,
-            Email: formData.email,
-          });
-          break;
-  
-        case 1: // Residential Details
-          Object.assign(payload, {
-            PersonalAddressLine1: formData.resHouseNo,
-            PersonalAddressLine2: formData.resArea,
-            PersonalLandmark: formData.resLandmark,
-            PersonalPincode: formData.resPincode,
-            PersonalStateID: formData.resState,
-            PersonalCityID: formData.resCity,
-          });
-          break;
-  
-        case 2: // Business Details
-          Object.assign(payload, {
-            ShopName: formData.shopName,
-            ShopAddressLine1: formData.shopAddress,
-            ShopLandmark: formData.busLandmark,
-            ShopPincode: formData.busPincode,
-            ShopStateID: formData.busState,
-            ShopCityID: formData.busCity,
-          });
-          break;
-  
-        case 3: // Aadhaar
-          const aadhaarForm = new FormData();
-          aadhaarForm.append("UserId", userId);
-          aadhaarForm.append("DocumentType", "Aadhaar");
-          aadhaarForm.append("DocumentNumber", formData.aadhaar);
-          aadhaarForm.append("FrontImage", formData.aadhaarFront);
-          aadhaarForm.append("BackImage", formData.aadhaarBack);
-  
-          await axios.post(
-            "https://gateway.dhanushop.com/api/users/uploadDocuments",
-            aadhaarForm,
-            { headers: { "Content-Type": "multipart/form-data" } }
-          );
-          return true;
-  
-        case 4: // PAN
-          const panForm = new FormData();
-          panForm.append("UserId", userId);
-          panForm.append("DocumentType", "PAN");
-          panForm.append("DocumentNumber", formData.pan);
-          panForm.append("FrontImage", formData.PAN);
-  
-          await axios.post(
-            "https://gateway.dhanushop.com/api/users/uploadDocuments",
-            panForm,
-            { headers: { "Content-Type": "multipart/form-data" } }
-          );
-          return true;
-  
-        case 5: // Video KYC
-          const kycForm = new FormData();
-          kycForm.append("UserId", userId);
-          kycForm.append("DocumentType", "KYC");
-          kycForm.append("ProfilePhoto", formData.profilePhoto);
-          kycForm.append("ShopPhoto", formData.shopPhoto);
-          kycForm.append("VideoFile", formData.video);
-  
-          await axios.post(
-            "https://gateway.dhanushop.com/api/users/uploadDocuments",
-            kycForm,
-            { headers: { "Content-Type": "multipart/form-data" } }
-          );
-          return true;
-  
-        default:
-          break;
+      if (newUserId) {
+        Cookies.set("newUserId", newUserId);
+        console.log("Stored newUserId in cookies:", newUserId);
+      } else {
+        console.warn("newUserId not found in response");
       }
-  
-      // POST for all steps except file uploads
-      if (step < 3) {
-        await axios.post(
-          "https://gateway.dhanushop.com/api/users/register",
-          payload
-        );
-      }
-  
-      return true;
-    } catch (error) {
-      console.error(`Step ${step + 1} submission failed:`, error);
-      alert(`Failed to save data for step ${step + 1}.`);
-      return false;
     }
-  };
-  
+
+    return true;
+  } catch (error) {
+    console.error(`Step ${step + 1} submission failed:`, error);
+    alert(`Failed to save data for step ${step + 1}.`);
+    return false;
+  }
+};
   
   const copyResidentialToBusiness = () => {
     setFormData((prevData) => ({
@@ -330,11 +298,159 @@ export default function RegistrationModal() {
     }));
   };
 
+
+
+const handleAadhaarUpload = async () => {
+  const form = new FormData();
+  form.append("UserId", userId);
+  form.append("newUserId", Cookies.get("newUserId"));
+  form.append("DocumentType", "Aadhaar");
+  form.append("DocumentNumber", formData.aadhaar);
+  form.append("FrontImage", aadhaarFront);
+  form.append("BackImage", aadhaarBack);
+  form.append("VideoFile", null);
+
+  try {
+    console.log("Aadhaar Upload Form Data:", form);
+    const res = await fetch("https://gateway.dhanushop.com/api/users/uploadDocuments", {
+      method: "POST",
+      body: form,
+    });
+
+    const data = await res.json();
+    
+    if (data?.success) {
+      setAadhaarUploaded(true);
+      console.log("Aadhaar Upload Success:", data);
+      alert("Aadhaar uploaded successfully!");
+    }
+  } catch (error) {
+    console.error("Aadhaar Upload Error:", error);
+        alert("Aadhaar upload unsuccessful",error)
+  }
+};
+
+
+const handlePanUpload = async () => {
+  const form = new FormData();
+  form.append("UserId", userId);
+  form.append("newUserId", Cookies.get("newUserId"));
+  form.append("DocumentType", "PAN");
+  form.append("DocumentNumber", formData.pan);
+  form.append("FrontImage", panImage);
+  form.append("BackImage", null); // Required by API schema, use empty blob if not needed
+  form.append("VideoFile", null); // Optional
+
+  try {
+    const res = await fetch("https://gateway.dhanushop.com/api/users/uploadDocuments", {
+      method: "POST",
+      body: form,
+    });
+
+    const data = await res.json();
+     if (data?.success) {
+      setPanUploaded(true);
+      console.log("PAN Upload Success:", data);
+      alert("PAN uploaded successfully!");
+    }
+  } catch (error) {
+    
+    console.error("PAN Upload Error:", error);
+    alert("Pan upload error",error)
+  }
+};
+
+const handleProfilePhotoUpload = async () => {
+   const form = new FormData();
+  form.append("UserId", userId);
+  form.append("newUserId", Cookies.get("newUserId"));
+  form.append("DocumentType", "ProfilePhoto");
+  form.append("DocumentNumber", null);
+  form.append("FrontImage", profilePhoto);
+  form.append("BackImage", null); // Required by API schema, use empty blob if not needed
+  form.append("VideoFile", null); // Optional
+
+  try {
+    const res = await fetch("https://gateway.dhanushop.com/api/users/uploadDocuments", {
+      method: "POST",
+      body: form,
+    });
+
+    const data = await res.json();
+     if (data?.success) {
+      setProfilePhotoUploaded(true);
+      console.log("Profile Upload Success:", data);
+      alert("Profile uploaded successfully!");
+    }
+  } catch (error) {
+    
+    console.error("PAN Upload Error:", error);
+    alert("Pan upload error",error)
+  }
+};
+
+
+const handleShopPhotoUpload = async () => {
+     const form = new FormData();
+  form.append("UserId", userId);
+  form.append("newUserId", Cookies.get("newUserId"));
+  form.append("DocumentType", "Shop Photo");
+  form.append("DocumentNumber", null);
+  form.append("FrontImage", profilePhoto);
+  form.append("BackImage", null); // Required by API schema, use empty blob if not needed
+  form.append("VideoFile", null); // Optional
+
+  try {
+    const res = await fetch("https://gateway.dhanushop.com/api/users/uploadDocuments", {
+      method: "POST",
+      body: form,
+    });
+
+    const data = await res.json();
+     if (data?.success) {
+      setShopPhotoUploaded(true);
+      console.log("shop photo Upload Success:", data);
+      alert("Shop photo uploaded successfully!");
+    }
+  } catch (error) {
+    
+    console.error("Shop Photp Upload Error:", error);
+    alert("Shop Photo  upload error",error)
+  }
+};
+
+const handleVideoUpload = async () => {
+      const form = new FormData();
+  form.append("UserId", userId);
+  form.append("newUserId", Cookies.get("newUserId"));
+  form.append("DocumentType", "Video");
+  form.append("DocumentNumber", null);
+  form.append("FrontImage", null);
+  form.append("BackImage", null); // Required by API schema, use empty blob if not needed
+  form.append("VideoFile", video); // Optional
+
+  try {
+    const res = await fetch("https://gateway.dhanushop.com/api/users/uploadDocuments", {
+      method: "POST",
+      body: form,
+    });
+
+    const data = await res.json();
+     if (data?.success) {
+       setVideoUploaded(true);
+      console.log("Video Upload Success:", data);
+      alert("Video uploaded successfully!");
+    }
+  } catch (error) {
+    
+    console.error("Video Upload Error:", error);
+    alert("Video  upload error",error)
+  }
+};
+
   return (
     <div className="max-w-3xl mx-auto px-6 py-5 bg-white rounded-xl relative">
-      <h1 className="text-2xl font-semibold mb-6 text-center pb-5">
-        Registration
-      </h1>
+ 
 
       <div className="flex items-center justify-between mb-10 relative">
         {steps.map((step, index) => {
@@ -691,115 +807,214 @@ export default function RegistrationModal() {
           </>
         )}
 
-   {currentStep === 3 && (
-  <>
-    <Input
-      label="Aadhaar Number"
-      name="aadhaar"
-      value={formData.aadhaar}
-      onChange={(e) => {
-        const value = e.target.value;
-        if (/^\d{0,12}$/.test(value)) {
-          handleChange(e);
-        }
-      }}
-      className="w-full"
-      inputMode="numeric"
-      pattern="^\d{12}$"
-      title="Enter a valid 12-digit Aadhaar number"
-      maxLength={12}
-      required
-    />
-
-    <Input
-      label="PAN Number"
-      name="pan"
-      value={formData.pan}
-      onChange={(e) => {
-        const value = e.target.value.toUpperCase();
-        if (/^[A-Z0-9]{0,10}$/.test(value)) {
-          handleChange({
-            target: { name: e.target.name, value },
-          });
-        }
-      }}
-      className="w-full"
-      inputMode="text"
-      pattern="^[A-Z]{5}[0-9]{4}[A-Z]{1}$"
-      title="PAN No. (Format: ABCDE1234F)"
-      maxLength={10}
-      required
-    />
-
-    <Input
-      label="GST Number"
-      name="gst"
-      value={formData.gst}
-      onChange={(e) => {
-        const value = e.target.value.toUpperCase();
-        if (/^[0-9A-Z]{0,15}$/.test(value)) {
-          handleChange({
-            target: { name: e.target.name, value },
-          });
-        }
-      }}
-      className="w-full"
-      inputMode="text"
-      pattern="^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$"
-      title="GST No. (Format: 22ABCDE1234F1Z5)"
-      maxLength={15}
-      required
-    />
-  </>
+ {currentStep === 3 && (
+  <div className=" max-w-3xl mx-auto mt-4">
+    {/* Aadhaar Upload */}
+    <div className="border rounded-xl p-6 shadow-sm bg-white   ">
+      
+      <div className="">
+        {/* Aadhaar Number */}
+        <div className="flex flex-col w-full  gap-4">
+        <div>
+          <label className="block mb-1 font-medium">Aadhaar Number</label>
+          <input
+            type="text"
+            name="aadhaar"
+            value={formData.aadhaar}
+            onChange={(e) => {
+              const value = e.target.value;
+              if (/^\d{0,12}$/.test(value)) {
+                handleChange(e);
+                setAadhaarUploaded(false);
+              }
+            }}
+            maxLength={12}
+            className="w-full border px-3 py-2 rounded"
+            placeholder="Enter Aadhaar"
+          />
+        </div>
+        {/* Aadhaar Front Image */}
+        <div className="flex mb-3 gap-x-4">
+        <div>
+          <label className="block mb-1 font-medium">Front Image</label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => {
+              setAadhaarFront(e.target.files[0]);
+              setAadhaarUploaded(false);
+            }}
+            className="w-full border px-3 py-2 rounded"
+          />
+        </div>
+        {/* Aadhaar Back Image */}
+        <div>
+          <label className="block mb-1 font-medium">Back Image</label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => {
+              setAadhaarBack(e.target.files[0]);
+              setAadhaarUploaded(false);
+            }}
+            className="w-full border px-3 py-2 rounded"
+          />
+        </div>
+        </div>
+        </div>
+        {/* Upload Button */}
+        <div className="col-span-2 flex items-end">
+          <button
+            onClick={handleAadhaarUpload}
+            disabled={aadhaarUploaded}
+            className={`w-full py-2 rounded text-white ${
+              aadhaarUploaded
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-indigo-700 hover:bg-indigo-800"
+            }`}
+          >
+            {aadhaarUploaded ? "Uploaded" : "Upload"}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 )}
+
 
 
         {currentStep === 4 && (
           <>
-            <Input
-              type="file"
-              label="Upload Aadhaar Front"
-              name="aadhaarFront"
-              onChange={handleChange}
-            />
-            <Input
-              type="file"
-              label="Upload Aadhaar Back"
-              name="aadhaarBack"
-              onChange={handleChange}
-            />
-
-            <Input
-              type="file"
-              label="Upload PAN"
-              name="PAN"
-              onChange={handleChange}
-            />
+     {/* PAN Upload */}
+    <div className="border rounded-xl p-6 shadow-sm bg-white">
+     
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        {/* PAN Number */}
+        <div>
+          <label className="block mb-1 font-medium">PAN Number</label>
+          <input
+            type="text"
+            name="pan"
+            value={formData.pan}
+            onChange={(e) => {
+              const value = e.target.value.toUpperCase();
+              if (/^[A-Z0-9]{0,10}$/.test(value)) {
+                handleChange({
+                  target: { name: e.target.name, value },
+                });
+                setPanUploaded(false);
+              }
+            }}
+            maxLength={10}
+            className="w-full border px-3 py-2 rounded"
+            placeholder="Enter PAN"
+          />
+        </div>
+        {/* PAN Image */}
+        <div>
+          <label className="block mb-1 font-medium">PAN Image</label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => {
+              setPanImage(e.target.files[0]);
+              setPanUploaded(false);
+            }}
+            className="w-full border px-3 py-2 rounded"
+          />
+        </div>
+        {/* Upload Button */}
+        <div className=" flex justify-end w-full">
+          <button
+            onClick={handlePanUpload}
+            disabled={panUploaded}
+            className={`w-64 py-2 rounded text-white ${
+              panUploaded
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-indigo-700 hover:bg-indigo-800"
+            }`}
+          >
+            {panUploaded ? "Uploaded" : "Upload"}
+          </button>
+        </div>
+      </div>
+    </div>
           </>
         )}
 
-        {currentStep === 5 && (
-          <>
-            <Input
-              type="file"
-              label="Upload Profile Photo"
-              name="profilePhoto"
-              onChange={handleChange}
-            />
-            <Input
-              type="file"
-              label="Upload Shop Photo"
-              name="shopPhoto"
-              onChange={handleChange}
-            />
-            <Input
-              type="file"
-              label="Upload 30-sec Video"
-              name="video"
-              onChange={handleChange}
-            />
-          </>
-        )}
+{currentStep === 5 && (
+  <div className="space-y-6 mt-6">
+    {/* Profile Photo Upload */}
+    <div className="space-y-2">
+      <label className="block font-medium">Upload Profile Photo</label>
+      <input
+        type="file"
+        name="profilePhoto"
+        accept="image/*"
+        onChange={(e) => setProfilePhoto(e.target.files[0])}
+        className="w-full border px-3 py-2 rounded"
+      />
+      <button
+        onClick={handleProfilePhotoUpload}
+        disabled={profilePhotoUploaded}
+        className={`w-full py-2 rounded text-white ${
+          profilePhotoUploaded
+            ? "bg-gray-400 cursor-not-allowed"
+            : "bg-blue-500 hover:bg-blue-600"
+        }`}
+      >
+        {profilePhotoUploaded ? "Uploaded" : "Upload"}
+      </button>
+    </div>
+
+    {/* Shop Photo Upload */}
+    <div className="space-y-2">
+      <label className="block font-medium">Upload Shop Photo</label>
+      <input
+        type="file"
+        name="shopPhoto"
+        accept="image/*"
+        onChange={(e) => setShopPhoto(e.target.files[0])}
+        className="w-full border px-3 py-2 rounded"
+      />
+      <button
+        onClick={handleShopPhotoUpload}
+        disabled={shopPhotoUploaded}
+        className={`w-full py-2 rounded text-white ${
+          shopPhotoUploaded
+            ? "bg-gray-400 cursor-not-allowed"
+            : "bg-blue-500 hover:bg-blue-600"
+        }`}
+      >
+        {shopPhotoUploaded ? "Uploaded" : "Upload"}
+      </button>
+    </div>
+
+    {/* 30-sec Video Upload */}
+    <div className="space-y-2">
+      <label className="block font-medium">Upload 30-sec Video</label>
+      <input
+        type="file"
+        name="video"
+        accept="video/*"
+        onChange={(e) => setVideoFile(e.target.files[0])}
+        className="w-full border px-3 py-2 rounded"
+      />
+      <button
+        onClick={handleVideoUpload}
+        disabled={videoUploaded}
+        className={`w-full py-2 rounded text-white ${
+          videoUploaded
+            ? "bg-gray-400 cursor-not-allowed"
+            : "bg-blue-500 hover:bg-blue-600"
+        }`}
+      >
+        {videoUploaded ? "Uploaded" : "Upload"}
+      </button>
+    </div>
+  </div>
+)}
+
       </div>
 
       {/* Buttons */}

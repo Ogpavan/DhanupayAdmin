@@ -39,6 +39,7 @@ import AdminForgotPasswordPage from "./auth/AdminForgotPasswordPage.jsx";
 import ServiceMaster from "./AdminPages/ServiceMaster.jsx";
 import LoadWallet from "./AdminPages/LoadWallet.jsx";
 import RegistrationForm from "./AdminPages/RegistrationSteps/RegistrationForm.jsx";
+import RegistrationModal from "./AdminPages/RegistrationSteps/RegistrationModal.jsx";
 
 function App() {
   return (
@@ -77,6 +78,7 @@ function App() {
             <Route path="ChangePassword" element={<ChangePassword />} />
             <Route path="ServiceMaster" element={<ServiceMaster />} />
             <Route path="loadwallet" element={<LoadWallet />} />
+            <Route path="registrationmodal" element={<RegistrationModal />} />
            </Route>
 
           <Route
