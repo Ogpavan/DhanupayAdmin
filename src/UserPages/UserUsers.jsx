@@ -112,7 +112,7 @@ export default function UserUsers() {
         </div>
       </div>
 
-      <div className="overflow-x-auto max-h-[calc(100vh-40vh)]">
+      <div className="overflow-x-auto max-h-[calc(100vh-40vh)] overflow-scroll hide-scrollbar">
         <table className="w-full table-auto border-collapse border border-gray-200  ">
           <thead>
             {/* First row with main headers and spanning headers */}

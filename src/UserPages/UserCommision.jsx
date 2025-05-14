@@ -148,7 +148,7 @@ const UserCommission = () => {
         </div>
 
         </div>
-      <div className="h-full overflow-y-auto overflow-x-auto max-h-[calc(100vh-42vh)]">
+      <div className="h-full overflow-y-auto overflow-x-auto max-h-[calc(100vh-42vh)] overflow-scroll hide-scrollbar">
         <table className="min-w-full table-auto border-collapse border border-gray-300">
           <thead>
             <tr className="bg-gray-200 ">
