@@ -1,4 +1,10 @@
-function PreviewPane({ formData, onClose, onSubmit, agreeTerms, setAgreeTerms }) {
+function PreviewPane({
+  formData,
+  onClose,
+  onSubmit,
+  agreeTerms,
+  setAgreeTerms,
+}) {
   const sections = {
     "Basic Details": [
       ["First Name", formData.firstName],
@@ -23,8 +29,14 @@ function PreviewPane({ formData, onClose, onSubmit, agreeTerms, setAgreeTerms })
       ["City", formData.busCity],
       ["State", formData.busState],
       ["Pincode", formData.busPincode],
-    ]
-    
+    ],
+    "Account Details": [
+      ["Bank Name", formData.bankName],
+      ["Branch Name", formData.branchName],
+      ["Account Holder Name", formData.accountHolderName],
+      ["Account Number", formData.accountNumber],
+      ["IFSC Code", formData.ifscCode],
+    ],
   };
 
   return (
@@ -98,12 +110,21 @@ function PreviewPane({ formData, onClose, onSubmit, agreeTerms, setAgreeTerms })
             Close
           </button>
           <button
-            onClick={() => {
-              if (agreeTerms) onSubmit(2);
-              else alert("Please agree to the terms and conditions.");
+            onClick={async () => {
+              if (!agreeTerms) {
+                alert("Please agree to the terms and conditions.");
+                return;
+              }
+
+              const success = await onSubmit(3); // ✅ This triggers the actual final submission
+              if (success) {
+                onClose(); // ✅ Close the modal if submission is successful
+              }
             }}
             className={`px-4 py-2 rounded-lg shadow ${
-              agreeTerms ? "bg-blue-500 text-white hover:bg-blue-600" : "bg-gray-400 text-gray-200"
+              agreeTerms
+                ? "bg-blue-500 hover:bg-blue-600 text-white"
+                : "bg-gray-300 text-gray-500 cursor-not-allowed"
             }`}
             disabled={!agreeTerms}
           >

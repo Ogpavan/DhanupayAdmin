@@ -239,7 +239,7 @@ export default function LoginPage() {
             <div className="space-y-2">
               <label className="text-gray-700 font-medium">Login As:</label>
               <div className="flex justify-between text-sm">
-                {["Superdistributor", "Distributor", "Retailer"].map((type) => (
+                {["Super Distributor", "Distributor", "Retailer"].map((type) => (
                   <label key={type} className="flex items-center space-x-2">
                     <input
                       type="radio"
@@ -360,7 +360,15 @@ export default function LoginPage() {
             >
               {loading ? "Logging in..." : "Login"}
             </button>
+          
           </form>
+            <button
+            onClick={() => navigate("/registerretailer")}
+               className="w-full  mt-10  text-indigo-600 hover:text-indigo-700  underline"
+               
+            >
+              Register as Retailer
+            </button> 
         </div>
       </div>
     </div>

@@ -29,7 +29,7 @@ import Broadband from "../UserPages/ServicesOnDashboard/Broadband";
 import LoanPayment from "../UserPages/ServicesOnDashboard/LoanPayment";
 import Fastag from "../UserPages/ServicesOnDashboard/Fastag";
 import CableTV from "../UserPages/ServicesOnDashboard/CableTV";
-import { Bank, DeviceMobileCamera,DeviceMobile,TelevisionSimple, DropHalf, GasPump, LightningSlash, Monitor, Television } from "phosphor-react";
+import { Bank, DeviceMobileCamera, DeviceMobile, TelevisionSimple, DropHalf, GasPump, LightningSlash, Monitor } from "phosphor-react";
 
 const services = [
   { id: "recharge", label: "Recharge", icon: <DeviceMobile size={24} /> },
@@ -43,19 +43,18 @@ const services = [
   { id: "book_cylinder", label: "Book Cylinder", icon: <FlameIcon size={24} /> },
   { id: "credit_card", label: "Credit Card", icon: <CreditCard size={24} /> },
 ];
+
 const moreServices = [
   { id: "landline_postpaid", label: "Landline Postpaid", icon: <Phone size={24} /> },
   { id: "data_card", label: "Data Card", icon: <DeviceMobile size={24} /> },
   { id: "subscription", label: "Subscription", icon: <Newspaper size={24} /> },
-  { id: "cable_tv", label: "Cable TV", icon: <TelevisionSimple
-     size={24} /> },
-  { id: "clubs", label: "Clubs and Associations", icon: <HeartPulse size={24} /> },
-  { id: "credit_card", label: "Credit Card", icon: <CreditCard size={24} /> },
+  { id: "cable_tv", label: "Cable TV", icon: <TelevisionSimple size={24} /> },
+  { id: "clubs", label: "Clubs ", icon: <HeartPulse size={24} /> },
   { id: "donation", label: "Donation", icon: <HandCoins size={24} /> },
   { id: "education", label: "Education Fees", icon: <Book size={24} /> },
   { id: "broadband_postpaid", label: "Broadband Postpaid", icon: <WifiHigh size={24} /> },
   { id: "health_insurance", label: "Health Insurance", icon: <Shield size={24} /> },
-  { id: "hospital", label: "Hospital and Pathology", icon: <TestTube size={24} /> },
+  { id: "hospital", label: " Pathology", icon: <TestTube size={24} /> },
   { id: "housing", label: "Housing Society", icon: <Home size={24} /> },
   { id: "life_insurance", label: "Life Insurance", icon: <Shield size={24} /> },
   { id: "loan_repayment", label: "Loan Repayment", icon: <Bank size={24} /> },
@@ -99,10 +98,11 @@ function RenderForm({ activeService }) {
     case "broadband":
       return <Broadband activeLabel={activeLabel} />;
     case "loan":
+    case "loan_repayment":
       return <LoanPayment activeLabel={activeLabel} />;
     case "fastag":
       return <Fastag activeLabel={activeLabel} />;
-    case "cable":
+    case "cable_tv":
       return <CableTV activeLabel={activeLabel} />;
     default:
       return (
@@ -119,59 +119,30 @@ function RenderForm({ activeService }) {
 }
 
 export default function ServiceSelector({ activeService, setActiveService }) {
-  const [showMore, setShowMore] = useState(false);
-
   return (
-    <div className=" w-full h-full   bg-white rounded-xl p-4  ">
-      <div className="flex justify-end ">
-        <img src="/bharat-connect.png" alt="Bharat Connect" className="h-6" />
+    <div className="  w-full h-full bg-white rounded-xl p-4">
+      <div className="flex justify-end absolute right-10 ">
+        <img src="/bharat-connect.png" alt="Bharat Connect" className="h-10" />
       </div>
 
-      <div className="flex items-center gap-4 ">
-        {services.map((service) => (
+      <div className="flex flex-wrap pr-20 gap-3 mb-6">
+        {allServices.map((service) => (
           <button
             key={service.id}
             onClick={() => setActiveService(service.id)}
-            className={`flex flex-col items-center text-sm min-w-[70px] px-2 py-1 rounded-lg ${activeService === service.id
-              ? "text-indigo-600 font-semibold border-b-2 border-orange-500"
-              : "text-gray-700 hover:text-indigo-500"
-              }`}
+            className={`flex flex-col items-center text-sm p-2 rounded-lg transition-all ${
+              activeService === service.id
+                ? "text-indigo-600 font-semibold border-b-2 border-orange-500"
+                : "text-gray-700 hover:text-indigo-500"
+            }`}
           >
             {service.icon}
-            <span className="mt-1">{service.label}</span>
+            <span className="mt-1 text-center">{service.label}</span>
           </button>
         ))}
-
-        <div className="relative">
-          <button
-            onClick={() => setShowMore(!showMore)}
-            className="flex flex-col items-center text-sm min-w-[70px] px-2 py-1 rounded-lg text-gray-700 hover:text-indigo-500"
-          >
-            <div className="w-6 h-6 bg-blue-200 text-blue-600 rounded-full flex items-center justify-center">+</div>
-            <span className="mt-1">More</span>
-          </button>
-
-          {showMore && (
-            <div className="absolute top-14 right-0 z-20 bg-white border border-gray-200 rounded-lg shadow-xl p-4 grid grid-cols-3 gap-4 w-80">
-              {moreServices.map((service) => (
-                <button
-                  key={service.id}
-                  onClick={() => {
-                    setActiveService(service.id);
-                    setShowMore(false);
-                  }}
-                  className="flex flex-col items-center text-sm text-gray-700 hover:text-indigo-600"
-                >
-                  {service.icon}
-                  <span className="mt-1 text-center">{service.label}</span>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
       </div>
 
-      <div className="py-4 ">
+      <div className="py-4">
         <RenderForm activeService={activeService} />
       </div>
     </div>

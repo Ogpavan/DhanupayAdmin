@@ -155,6 +155,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Swal from "sweetalert2";
+import bharatconnects from "/bharat-connect.png";
 
 // FASTag provider logos
 const fastagLogos = {
@@ -209,7 +210,7 @@ function FastagDropdown({ value, onChange }) {
       </div>
 
       {isOpen && (
-        <ul className="absolute z-10 w-full bg-white border mt-1 rounded shadow-md max-h-60 overflow-y-auto">
+        <ul className="absolute z-10 min-w-md bg-white border mt-1 rounded shadow-md max-h-60 overflow-y-auto">
           {fastagProviders.map((provider) => (
             <li
               key={provider.id}
@@ -366,7 +367,13 @@ export default function Fastag({ activeLabel }) {
       {/* FASTag Recharge Form */}
       <audio ref={audioRef} src="/BharatConnect.wav" preload="auto" />
       <div className="bg-white shadow-md rounded-lg p-6 max-w-md w-full">
-        <h2 className="text-xl font-semibold mb-4">{activeLabel || "FASTag Recharge"}</h2>
+               <div className="flex justify-between ">
+                        <h2 className="text-xl    mb-4">
+                          {activeLabel}   Bill Payment
+                        </h2>
+                        <span><img src={bharatconnects} alt="Bharat Connect" className="h-6" /></span>
+                        </div>
+       
 
         <form className="space-y-4 mb-8" onSubmit={handleSubmit}>
           <FastagDropdown value={formData.operator} onChange={handleChange} />
@@ -486,7 +493,7 @@ export default function Fastag({ activeLabel }) {
           <div className=" p-6 rounded shadow-lg max-w-sm  text-center ">
             {!paymentDone ? (
               <>
-                <div className="p-6 bg-white shadow-lg rounded-lg max-w-md mx-auto ">
+                <div className="p-6 bg-white shadow-lg rounded-lg w-96 mx-auto ">
                   {/* Logo */}
                   <div className="flex justify-center mb-5">
                     <img src="/bharat-connect.png" alt="Bharat Connect" className="h-7" />

@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import "../../App.css";
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import bharatconnects from "/bharat-connect.png";
 
 
 
@@ -169,12 +170,14 @@ export default function MobileRecharge({ activeLabel }) {
     <div className="flex gap-4">
       <audio ref={audioRef} src="/BharatConnect.wav" preload="auto" />
       {/* Form Section */}
-      <div className="bg-white  rounded-lg px-6 pt-6  w-full ">
+      <div className="bg-white  rounded-lg px-6   w-full ">
         <div className="shadow-md  max-w-md ">
-          <h2 className="text-xl font-semibold ml-6 mb-4">
-            {activeLabel} Recharge & Bill Payment
+          <div className="flex justify-between pr-6">
+          <h2 className="text-xl   ml-6 mb-4">
+            {activeLabel}  & Bill Payment
           </h2>
-
+          <span><img src={bharatconnects} alt="Bharat Connect" className="h-6" /></span>
+          </div>
           <form className="space-y-4 px-6 mb-8" onSubmit={handleSubmit}>
             <div>
               <input
@@ -390,8 +393,8 @@ export default function MobileRecharge({ activeLabel }) {
           </ul>
         </div>
       ) : (
-        <div className="bg-white shadow-md rounded-lg p-6 w-full">
-          <h3 className="text-lg font-semibold mb-2">Recent Mobile Transactions</h3>
+        <div className="bg-white  w-full ">
+          <h3 className="text-xl   mb-2">Recent Mobile Transactions</h3>
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left border">
               <thead className="bg-gray-100">

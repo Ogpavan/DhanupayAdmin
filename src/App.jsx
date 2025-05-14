@@ -44,6 +44,7 @@ import Services from "./UserPages/Services.jsx";
 import OtherServices from "./UserPages/OtherServices.jsx";
 import AEPSServices from "./UserPages/AEPSServices.jsx";
 import RechargesAndBillPay from "./UserPages/RechargesAndBillPay.jsx";
+import RegisterRetailer from "./auth/RegisterRetailer.jsx";
 
 function App() {
   return (
@@ -60,6 +61,7 @@ function App() {
 
           <Route path="/admin-forgot-password" element={<AdminForgotPasswordPage />} />
           <Route path="/setup-mpin" element={<SetupMpinPage />} />
+          <Route path="/registerretailer" element={<RegisterRetailer />} />
           <Route
             path="/admin"
             element={

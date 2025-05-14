@@ -146,6 +146,7 @@
 
 import { useRef, useState } from "react";
 import Swal from "sweetalert2";
+import bharatconnects from "/bharat-connect.png";
 
 // Logo mapping for display
 const operatorLogos = {
@@ -333,9 +334,12 @@ export default function Electricity({ activeLabel }) {
       {/* Electricity Recharge Form */}
       <audio ref={audioRef} src="/BharatConnect.wav" preload="auto" />
       <div className="bg-white shadow-md rounded-lg p-6 max-w-md w-full">
-        <h2 className="text-xl font-semibold mb-4">
-          {activeLabel} Recharge & Bill Payment
-        </h2>
+        <div className="flex justify-between ">
+                 <h2 className="text-xl    mb-4">
+                   {activeLabel}  & Bill Payment
+                 </h2>
+                 <span><img src={bharatconnects} alt="Bharat Connect" className="h-6" /></span>
+                 </div>
 
         <form className="space-y-4 mb-8" onSubmit={handleSubmit}>
           {/* Operator Dropdown */}
@@ -474,7 +478,7 @@ export default function Electricity({ activeLabel }) {
 
       {/* Recent Electricity Transactions Table */}
       <div className="bg-white shadow-md rounded-lg p-6 w-full">
-        <h3 className="text-lg font-semibold mb-2">Recent Electricity Transactions</h3>
+        <h3 className="text-lg   mb-2">Recent Electricity Transactions</h3>
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left border">
             <thead className="bg-gray-100">

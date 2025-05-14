@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Swal from "sweetalert2";
-import { Eye, EyeSlash, Lock, LockKey } from "phosphor-react"; // Import the icons
+import Cookies from "js-cookie";
+import { Eye, EyeSlash, Lock } from "phosphor-react";
 
 export default function ChangePasswordModal({ onClose }) {
   const [oldPassword, setOldPassword] = useState("");
@@ -11,10 +12,10 @@ export default function ChangePasswordModal({ onClose }) {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Basic validation
+    // Validation
     if (newPassword.length < 8) {
       setError("New password must be at least 8 characters long.");
       return;
@@ -24,15 +25,64 @@ export default function ChangePasswordModal({ onClose }) {
       return;
     }
 
-    // Perform password change logic here
-    Swal.fire({
-      title: "Success!",
-      text: "Your password has been changed.",
-      icon: "success",
-      confirmButtonText: "OK",
-    }).then(() => {
-      onClose(); // Close the modal after successful change
-    });
+    const userId = Cookies.get("UserId");
+    const token = Cookies.get("token"); // Make sure your token is stored with this key
+
+    if (!userId || !token) {
+      Swal.fire("Error", "User not logged in or token missing.", "error");
+      return;
+    }
+
+    try {
+      const response = await fetch("https://gateway.dhanushop.com/api/users/Change_password", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          UserId: userId,
+          Password: oldPassword,
+          NewPassword: newPassword
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        Swal.fire("Success", data.message || "Password Changed successfully.", "success").then(() => {
+          onClose();
+        });
+      } else {
+        Swal.fire("Failed", data.message || "Something went wrong.", "error");
+      }
+    } catch (error) {
+      console.error("Error changing password:", error);
+      Swal.fire("Error", "Network error or server issue.", "error");
+    }
+  };
+
+  const handlePasswordInput = (setter) => (e) => {
+    const sanitizedInput = e.target.value.replace(/[^a-zA-Z0-9!@#$%^&*()_+={}[\]:;'"<>,.?/|\\-]/g, "");
+    if (sanitizedInput !== e.target.value) {
+      setError("Password contains invalid characters.");
+    } else {
+      setError("");
+    }
+    setter(sanitizedInput);
+  };
+
+  const preventPaste = (e) => {
+    e.preventDefault();
+    setError("Pasting is not allowed in the password field.");
+  };
+
+  const preventInvalidChars = (e) => {
+    const invalidChars = ["'", "`", "~", "<", ">", "|", "\\"];
+    if (invalidChars.includes(e.key)) {
+      e.preventDefault();
+      setError(`The character ${e.key} is not allowed.`);
+    }
   };
 
   return (
@@ -42,37 +92,17 @@ export default function ChangePasswordModal({ onClose }) {
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Old Password Input */}
           <div className="relative">
-             <Lock className="absolute left-3 top-2.5 text-gray-400" size={20} />
-              <input
-                type={showOldPassword ? "text" : "password"}
-                placeholder="Old Password"
-                className="w-full pl-10 pr-10 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500 outline-none"
-                value={oldPassword}
-                maxLength={32}
-                onChange={(e) => {
-                  const sanitizedInput = e.target.value.replace(
-                    /[^a-zA-Z0-9!@#$%^&*()_+={}[\]:;'"<>,.?/|\\-]/g,
-                    ""
-                  );
-                  if (sanitizedInput !== e.target.value) {
-                    setError("Password contains invalid characters.");
-                  } else {
-                    setError("");
-                  }
-                  setOldPassword(sanitizedInput);
-                }}
-                onKeyDown={(e) => {
-                  const invalidChars = ["'", "`", "~", "<", ">", "|", "\\"];
-                  if (invalidChars.includes(e.key)) {
-                    e.preventDefault();
-                    setError(`The character ${e.key} is not allowed.`);
-                  }
-                }}
-                onPaste={(e) => {
-                  e.preventDefault();
-                  setError("Pasting is not allowed in the password field.");
-                }}
-              />
+            <Lock className="absolute left-3 top-2.5 text-gray-400" size={20} />
+            <input
+              type={showOldPassword ? "text" : "password"}
+              placeholder="Old Password"
+              className="w-full pl-10 pr-10 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500 outline-none"
+              value={oldPassword}
+              maxLength={32}
+              onChange={handlePasswordInput(setOldPassword)}
+              onKeyDown={preventInvalidChars}
+              onPaste={preventPaste}
+            />
             <button
               type="button"
               className="absolute right-3 top-3 text-gray-500"
@@ -85,36 +115,16 @@ export default function ChangePasswordModal({ onClose }) {
           {/* New Password Input */}
           <div className="relative">
             <Lock className="absolute left-3 top-3 text-gray-500" />
-                          <input
-                type={showNewPassword ? "text" : "password"}
-                placeholder="New Password"
-                className="w-full pl-10 pr-10 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500 outline-none"
-                value={newPassword}
-                maxLength={32}
-                onChange={(e) => {
-                  const sanitizedInput = e.target.value.replace(
-                    /[^a-zA-Z0-9!@#$%^&*()_+={}[\]:;'"<>,.?/|\\-]/g,
-                    ""
-                  );
-                  if (sanitizedInput !== e.target.value) {
-                    setError("Password contains invalid characters.");
-                  } else {
-                    setError("");
-                  }
-                  setNewPassword(sanitizedInput);
-                }}
-                onKeyDown={(e) => {
-                  const invalidChars = ["'", "`", "~", "<", ">", "|", "\\"];
-                  if (invalidChars.includes(e.key)) {
-                    e.preventDefault();
-                    setError(`The character ${e.key} is not allowed.`);
-                  }
-                }}
-                onPaste={(e) => {
-                  e.preventDefault();
-                  setError("Pasting is not allowed in the password field.");
-                }}
-              />
+            <input
+              type={showNewPassword ? "text" : "password"}
+              placeholder="New Password"
+              className="w-full pl-10 pr-10 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500 outline-none"
+              value={newPassword}
+              maxLength={32}
+              onChange={handlePasswordInput(setNewPassword)}
+              onKeyDown={preventInvalidChars}
+              onPaste={preventPaste}
+            />
             <button
               type="button"
               className="absolute right-3 top-2 text-gray-500"
@@ -127,36 +137,16 @@ export default function ChangePasswordModal({ onClose }) {
           {/* Confirm New Password Input */}
           <div className="relative">
             <Lock className="absolute left-3 top-3 text-gray-500" />
-                         <input
-                type={showConfirmPassword ? "text" : "password"}
-                placeholder="Confirm Password"
-                className="w-full pl-10 pr-10 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500 outline-none"
-                value={confirmPassword}
-                maxLength={32}
-                onChange={(e) => {
-                  const sanitizedInput = e.target.value.replace(
-                    /[^a-zA-Z0-9!@#$%^&*()_+={}[\]:;'"<>,.?/|\\-]/g,
-                    ""
-                  );
-                  if (sanitizedInput !== e.target.value) {
-                    setError("Password contains invalid characters.");
-                  } else {
-                    setError("");
-                  }
-                  setConfirmPassword(sanitizedInput);
-                }}
-                onKeyDown={(e) => {
-                  const invalidChars = ["'", "`", "~", "<", ">", "|", "\\"];
-                  if (invalidChars.includes(e.key)) {
-                    e.preventDefault();
-                    setError(`The character ${e.key} is not allowed.`);
-                  }
-                }}
-                onPaste={(e) => {
-                  e.preventDefault();
-                  setError("Pasting is not allowed in the password field.");
-                }}
-              />
+            <input
+              type={showConfirmPassword ? "text" : "password"}
+              placeholder="Confirm Password"
+              className="w-full pl-10 pr-10 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500 outline-none"
+              value={confirmPassword}
+              maxLength={32}
+              onChange={handlePasswordInput(setConfirmPassword)}
+              onKeyDown={preventInvalidChars}
+              onPaste={preventPaste}
+            />
             <button
               type="button"
               className="absolute right-3 top-2 text-gray-500"
@@ -171,7 +161,7 @@ export default function ChangePasswordModal({ onClose }) {
             <p className="text-red-500 text-sm mt-2">{error}</p>
           )}
 
-          {/* Submit Button */}
+          {/* Submit & Cancel Buttons */}
           <div className="flex justify-between">
             <button
               type="button"
