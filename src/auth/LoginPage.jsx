@@ -269,7 +269,7 @@ export default function LoginPage() {
                     setPhoneNumber(input);
 
                     if (input.length === 10 && !/^[6-9]/.test(input)) {
-                      setError("Please enter a valid Indian phone number.");
+                      setError("Please enter  valid Indian phone number.");
                     } else {
                       setError("");
                     }

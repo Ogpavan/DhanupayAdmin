@@ -32,10 +32,9 @@ import ForgotMpin from "./auth/ForgotMpin.jsx";
 import SetupMpinPage from "./auth/SetupMpinPage.jsx";
 import ReportViewer from "./UserPages/ReportViewer/Reportviewer.jsx";
 import UserTypeAndRoleManager from "./AdminPages/UserTypeAndRoleManager.jsx";
-import ChangePassword from "./AdminPages/ChangePassword.jsx";
+ 
 import AdminLoginPage from "./auth/AdminLoginPage.jsx";
-import Home from "./auth/Home.jsx";
-import AdminForgotPasswordPage from "./auth/AdminForgotPasswordPage.jsx";
+ import AdminForgotPasswordPage from "./auth/AdminForgotPasswordPage.jsx";
 import ServiceMaster from "./AdminPages/ServiceMaster.jsx";
 import LoadWallet from "./AdminPages/LoadWallet.jsx";
 import RegistrationForm from "./AdminPages/RegistrationSteps/RegistrationForm.jsx";
@@ -48,7 +47,7 @@ function App() {
       <GlobalLoader />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Navigate to="/login" />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/administrator" element={<AdminLoginPage />} />
           <Route path="/otp" element={<OTPForm />} />
@@ -75,8 +74,7 @@ function App() {
             <Route path="financial" element={<Financial />} />
             <Route path="employeemaster" element={<EmployeeMaster />} />
             <Route path="fundtransfer" element={<FundTransfer />} />
-            <Route path="UserTypeAndRoleManager" element={<UserTypeAndRoleManager />} />
-            <Route path="ChangePassword" element={<ChangePassword />} />
+            <Route path="UserTypeAndRoleManager" element={<UserTypeAndRoleManager />} /> 
             <Route path="ServiceMaster" element={<ServiceMaster />} />
             <Route path="loadwallet" element={<LoadWallet />} />
             <Route path="registrationmodal" element={<RegistrationModal />} />

@@ -15,7 +15,7 @@ export default function Sidebar() {
     { to: "/admin/employeemaster", label: "Employee Master", icon: <Gear size={24} weight="fill" /> },
     { to: "/admin/fundtransfer", label: "Fund Transfer", icon: <Gear size={24} weight="fill" /> },
     // { to: "/admin/UserTypeAndRoleManager", label: "User Master", icon: <Gear size={24} weight="fill" /> },
-    { to: "/admin/ChangePassword", label: "Change Password", icon: <Gear size={24} weight="fill" /> },
+     
     { to: "/admin/ServiceMaster", label: "Service Master", icon: <Gear size={24} weight="fill" /> },
     // { to: "/admin/loadwallet", label: "Wallet", icon: <Gear size={24} weight="fill" /> },
   ];

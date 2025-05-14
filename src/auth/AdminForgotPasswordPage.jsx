@@ -5,8 +5,8 @@ import Cookies from "js-cookie";
 
 export default function AdminForgotPasswordPage() {
   const [phone, setPhone] = useState("");
-  const [otp, setOtp] = useState(["", "", "", ""]);
-  const [userType, setUserType] = useState(""); // New state for user type
+  const [otp, setOtp] = useState(Array(4).fill("")); // Set OTP length here
+  const [userType, setUserType] = useState("Employee"); // New state for user type
 
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -48,7 +48,7 @@ export default function AdminForgotPasswordPage() {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ Username: phone, UserType: 'Admin' }),
+          body: JSON.stringify({ Username: phone, UserType: "Admin" }),
         }
       );
 
@@ -212,9 +212,9 @@ export default function AdminForgotPasswordPage() {
 
       if (response.ok && data?.success) {
         setResendTimer(30);
-        alert(data.message || "OTP resent successfully!");
+        swal.fire(data.message || "OTP resent successfully!");
       } else {
-        setError(data?.message || "Failed to resend OTP. Please try again.");
+        swal(data?.message || "Failed to resend OTP. Please try again.");
       }
     } catch {
       setError(
@@ -226,14 +226,37 @@ export default function AdminForgotPasswordPage() {
   };
 
   const handleOtpChange = (e, index) => {
-    const newOtp = [...otp];
-    newOtp[index] = e.target.value;
-    setOtp(newOtp);
+    const input = e.target.value;
 
-    if (e.target.value && index < otp.length - 1) {
-      otpRefs.current[index + 1].focus();
-    } else if (e.target.value === "" && index > 0) {
-      otpRefs.current[index - 1].focus();
+    if (/^\d$/.test(input)) {
+      const newOtp = [...otp];
+      newOtp[index] = input;
+      setOtp(newOtp);
+
+      // Focus the next input if not last
+      if (index < otp.length - 1) {
+        otpRefs.current[index + 1]?.focus();
+      }
+    } else if (input === "") {
+      const newOtp = [...otp];
+      newOtp[index] = "";
+      setOtp(newOtp);
+    }
+  };
+
+  // Handles keydown events for OTP inputs
+  const handleOtpKeyDown = (e, index) => {
+    if (e.key === "Backspace") {
+      e.preventDefault();
+      const newOtp = [...otp];
+      if (newOtp[index]) {
+        newOtp[index] = "";
+        setOtp(newOtp);
+      } else if (index > 0) {
+        otpRefs.current[index - 1]?.focus();
+      }
+    } else if (!/^\d$/.test(e.key)) {
+      e.preventDefault(); // Block non-numeric characters
     }
   };
 
@@ -262,7 +285,7 @@ export default function AdminForgotPasswordPage() {
       <div className="w-full md:w-1/2 flex items-center justify-center p-8">
         <div className="bg-white rounded-2xl p-8 w-full max-w-md">
           <h2 className="text-2xl font-semibold text-gray-800 mb-1">
-            Forgot your password?
+            Forgot password?
           </h2>
           <h1 className="text-4xl font-bold text-indigo-600 mb-6">Dhanupay</h1>
 
@@ -286,15 +309,21 @@ export default function AdminForgotPasswordPage() {
                   placeholder="Enter your 10-digit phone number"
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 outline-none"
                   value={phone}
+                  maxLength={10}
                   onChange={(e) => {
                     const input = e.target.value;
+
                     if (/^\d*$/.test(input)) {
                       setPhone(input);
 
                       if (input.length === 10) {
-                        setError(""); // Clear error
+                        if (!/^[6-9]\d{9}$/.test(input)) {
+                          setError("Enter a valid Indian phone number.");
+                        } else {
+                          setError(""); // Valid number
+                        }
                       } else if (input.length < 10 && input.length > 0) {
-                        setError("Phone number must be at least 10 digits.");
+                        setError("Phone number must be 10 digits.");
                       } else {
                         setError(""); // Clear error for empty input
                       }
@@ -317,8 +346,12 @@ export default function AdminForgotPasswordPage() {
 
               <button
                 type="submit"
-                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-md font-semibold transition"
-                disabled={loading}
+                className={`w-full py-2 rounded-md font-semibold transition text-white ${
+                  /^[6-9]\d{9}$/.test(phone)
+                    ? "bg-indigo-600 hover:bg-indigo-700"
+                    : "bg-gray-400 cursor-not-allowed"
+                }`}
+                disabled={!/^[6-9]\d{9}$/.test(phone) || loading}
               >
                 {loading ? "Sending OTP..." : "Send OTP"}
               </button>
@@ -337,16 +370,14 @@ export default function AdminForgotPasswordPage() {
                       key={index}
                       type="text"
                       maxLength="1"
-                      className="w-12 h-12 text-center border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 outline-none"
+                      inputMode="numeric"
+                      className="w-12 h-12 text-center border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 outline-none caret-transparent"
                       value={value}
                       onChange={(e) => handleOtpChange(e, index)}
-                      onKeyDown={(e) => {
-                        if (!/^\d$/.test(e.key) && e.key !== "Backspace") {
-                          e.preventDefault(); // Prevent non-numeric input
-                        }
-                      }}
-                      autoFocus={index === 0}
-                      ref={(el) => (otpRefs.current[index] = el)} // Assign ref dynamically
+                      onFocus={(e) => e.target.select()} // Select all on focus
+                      onKeyDown={(e) => handleOtpKeyDown(e, index)}
+                      ref={(el) => (otpRefs.current[index] = el)}
+                      aria-label={`OTP input ${index + 1}`}
                     />
                   ))}
                 </div>
@@ -354,6 +385,7 @@ export default function AdminForgotPasswordPage() {
                 <button
                   type="submit"
                   className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-md font-semibold transition"
+                  disabled={otp.some((digit) => digit === "")} // Disable submit if OTP is incomplete
                 >
                   Verify OTP
                 </button>
@@ -397,6 +429,7 @@ export default function AdminForgotPasswordPage() {
                   placeholder=" New Password"
                   className="w-full pl-10 pr-10 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500 outline-none"
                   value={newPassword}
+                  maxLength={30}
                   onChange={(e) => {
                     const sanitizedInput = e.target.value.replace(
                       /[^a-zA-Z0-9!@#$%^&*()_+={}[\]:;'"<>,.?/|]/g,
@@ -433,13 +466,6 @@ export default function AdminForgotPasswordPage() {
                   }}
                 />
 
-                {/* <input
-                  type={showNewPassword ? "text" : "password"}
-                  placeholder="New Password"
-                  className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 outline-none"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                /> */}
                 <button
                   type="button"
                   className="absolute right-3 top-2.5 text-indigo-500"
@@ -459,6 +485,7 @@ export default function AdminForgotPasswordPage() {
                   placeholder=" Confirm Password"
                   className="w-full pl-10 pr-10 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500 outline-none"
                   value={confirmPassword}
+                  maxLength={30}
                   onChange={(e) => {
                     const sanitizedInput = e.target.value.replace(
                       /[^a-zA-Z0-9!@#$%^&*()_+={}[\]:;'"<>,.?/|]/g,
