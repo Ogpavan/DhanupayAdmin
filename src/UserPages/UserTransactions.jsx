@@ -116,14 +116,14 @@ export default function TransactionList() {
 
   return (
     <div>
-      <div className="flex justify-between items-center pb-5">
+      <div className="flex justify-between items-center pb-5 ">
         <h2 className="text-2xl font-semibold">Transactions</h2>
         <div className="text-sm text-gray-500">
           Showing {filteredData.length} transactions
         </div>
       </div>
 
-      <div className="overflow-x-auto max-h-[calc(100vh-40vh)]">
+      <div className="overflow-x-auto max-h-[calc(100vh-40vh)] overflow-scroll hide-scrollbar">
         <table className="w-full table-auto border-collapse border border-gray-200">
           <thead>
             {/* Header row */}

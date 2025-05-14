@@ -119,7 +119,11 @@ export default function Navbar() {
 
   return (
     <nav className="bg-indigo-700 text-white px-8 py-4 flex items-center justify-between shadow-md">
-      <h1 className="text-2xl font-semibold">Dhanupay {UserName}</h1>
+      <h1 className="text-2xl font-semibold flex items-center gap-2">
+  <img src="/logo-DhanuPay.png" alt="DhanuPay Logo" className=" h-16 object-contain" />
+  {/* Dhanupay {UserName} */}
+</h1>
+
       <div className="flex items-center gap-6">
         {/* Notifications */}
         <div

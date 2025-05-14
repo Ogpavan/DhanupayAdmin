@@ -20,7 +20,7 @@ import UserTransaction from "./UserPages/UserTransactions";
 import UserUsers from "./UserPages/UserUsers";
 import UserRegistration from "./UserPages/UserRegistration";
 import Financial from "./AdminPages/Financial";
-import { LoaderProvider  } from "./context/LoaderContext.jsx";
+import { LoaderProvider } from "./context/LoaderContext.jsx";
 import GlobalLoader from "./components/GlobalLoader";
 import UserReports from "./UserPages/UserReports";
 import EmployeeMaster from "./AdminPages/EmployeeMaster.jsx";
@@ -40,6 +40,10 @@ import LoadWallet from "./AdminPages/LoadWallet.jsx";
 import RegistrationForm from "./AdminPages/RegistrationSteps/RegistrationForm.jsx";
 import RegistrationModal from "./AdminPages/RegistrationSteps/RegistrationModal.jsx";
 import BBPSComplaint from "./UserPages/ServicesOnDashboard/BBPSComplaint.jsx";
+import Services from "./UserPages/Services.jsx";
+import OtherServices from "./UserPages/OtherServices.jsx";
+import AEPSServices from "./UserPages/AEPSServices.jsx";
+import RechargesAndBillPay from "./UserPages/RechargesAndBillPay.jsx";
 
 function App() {
   return (
@@ -53,7 +57,7 @@ function App() {
           <Route path="/otp" element={<OTPForm />} />
           <Route path="/forgot-mpin" element={<ForgotMpin />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-          
+
           <Route path="/admin-forgot-password" element={<AdminForgotPasswordPage />} />
           <Route path="/setup-mpin" element={<SetupMpinPage />} />
           <Route
@@ -78,7 +82,7 @@ function App() {
             <Route path="ServiceMaster" element={<ServiceMaster />} />
             <Route path="loadwallet" element={<LoadWallet />} />
             <Route path="registrationmodal" element={<RegistrationModal />} />
-           </Route>
+          </Route>
 
           <Route
             path="/user"
@@ -89,8 +93,17 @@ function App() {
             }
           >
             <Route index element={<UserDashboard />} />
-            <Route  path="rechargecomplaint" element={<BBPSComplaint/>} />
+            <Route path="rechargecomplaint" element={<BBPSComplaint />} />
             <Route path="users" element={<UserUsers />} />
+            {/* <Route path="services" element={<Services />} /> */}
+
+            <Route path="services" element={<Services />}>
+              <Route path="recharges" element={<RechargesAndBillPay />} />
+              <Route path="aeps" element={<Financials />} />
+              {/* <Route path="aeps" element={<AEPSServices />} /> */}
+              <Route path="OthersServices" element={<OtherServices />} />
+            </Route>
+
             <Route path="transactions" element={<UserTransaction />} />
             <Route path="settings" element={<UserBasicSettings />} />
             <Route path="profile" element={<UserProfile />} />
