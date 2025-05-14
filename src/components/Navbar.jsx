@@ -13,7 +13,7 @@ export default function Navbar() {
     "System update available",
   ]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [adminBalance, setAdminBalance] = useState(300000);
+  const [adminBalance, setAdminBalance] = useState(3000);
 
   // Fetch Admin Balance
   // useEffect(() => {

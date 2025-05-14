@@ -2,21 +2,33 @@ import React, { useEffect, useState } from "react";
 import { fetchStatesList } from "../api/stateListApi";
 import { fetchCitiesByState } from "../api/CityListApi";
 import PreviewPane from "./PreviewPane";
-import Swal from 'sweetalert2';
+import Swal from "sweetalert2";
 
 import Cookies from "js-cookie";
 import axios from "axios"; // Import axios for API calls
 import { data, useNavigate } from "react-router-dom";
- 
+
 ///////////////////////////
 
 const token = Cookies.get("token");
 const userId = Cookies.get("UserId");
 // Steps array
+
+const bankList = [
+  "SBI",
+  "HDFC",
+  "ICICI",
+  "AXIS",
+  "KOTAK",
+  "YES BANK",
+  "CITI BANK",
+  "OTHERS",
+];
 const steps = [
   "Basic Details",
   "Residential Details",
   "Business Details",
+  "Bank Details",
   // New Step
 ];
 
@@ -32,10 +44,10 @@ export default function EmployeeRegistration() {
   const [closePreview, setClosePreview] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [openPreview, setOpenPreview] = useState(false);
- const [roles, setRoles] = useState([]);
-  const [selectedRole, setSelectedRole] = useState('');
+  const [roles, setRoles] = useState([]);
+  const [selectedRole, setSelectedRole] = useState("");
 
-const handlePreviewClose = () => setIsPreviewOpen(false);
+  const handlePreviewClose = () => setIsPreviewOpen(false);
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -61,43 +73,50 @@ const handlePreviewClose = () => setIsPreviewOpen(false);
     userType: "Employee",
   });
 
- 
+  const isStepValid = () => {
+    if (currentStep === 0) {
+      return (
+        formData.firstName.trim() !== "" &&
+        formData.lastName.trim() !== "" &&
+        formData.mobile.length === 10 &&
+        /^[0-9]{10}$/.test(formData.mobile) &&
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email) &&
+        formData.roleid !== "" &&
+        formData.userType !== ""
+      );
+    }
 
-const isStepValid = () => {
-  if (currentStep === 0) {
-    return (
-      formData.firstName.trim() !== '' &&
-      formData.lastName.trim() !== '' &&
-      formData.mobile.length === 10 &&
-      /^[0-9]{10}$/.test(formData.mobile) &&
-      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email) &&
-      formData.roleid !== '' &&
-      formData.userType !== ''
-    );
-  }
+    if (currentStep === 1) {
+      return (
+        formData.resArea.trim() !== "" &&
+        formData.resPincode.length === 6 &&
+        formData.resState !== "" &&
+        formData.resCity !== ""
+      );
+    }
 
-  if (currentStep === 1) {
-    return (
-    
-      formData.resArea.trim() !== '' &&
-      formData.resPincode.length === 6 &&
-      formData.resState !== '' &&
-      formData.resCity !== ''
-    );
-  }
+    if (currentStep === 2) {
+      return (
+        formData.shopName.trim() !== "" &&
+        formData.shopAddress.trim() !== "" &&
+        formData.busPincode.length === 6 &&
+        formData.busState !== "" &&
+        formData.busCity !== ""
+      );
 
-  if (currentStep === 2) {
-    return (
-      formData.shopName.trim() !== '' &&
-      formData.shopAddress.trim() !== '' &&
-      formData.busPincode.length === 6 &&
-      formData.busState !== '' &&
-      formData.busCity !== ''
-    );
-  }
+      if (currentStep === 3) {
+        return (
+          formData.accountHolderName.trim() !== "" &&
+          formData.accountNumber.length === 10 &&
+          formData.ifscCode.length === 11 &&
+          formData.bankName.trim() !== "" &&
+          formData.branchName.trim() !== ""
+        );
+      }
+    }
 
-  return false;
-};
+    return false;
+  };
 
   // Fetch user types
   useEffect(() => {
@@ -159,38 +178,34 @@ const isStepValid = () => {
     }
   }, [formData.resState]);
 
- useEffect(() => {
+  useEffect(() => {
     const fetchRoles = async () => {
       try {
         const response = await axios.post(
-          'https://gateway.dhanushop.com/api/role/list',
+          "https://gateway.dhanushop.com/api/role/list",
           { userId: userId },
           {
             headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            }
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
           }
         );
         console.log(response.data);
         setRoles(response.data); // Assuming response.data is the array of roles
       } catch (error) {
-        console.error('Error fetching roles:', error);
+        console.error("Error fetching roles:", error);
       }
     };
 
     fetchRoles();
   }, [token]);
 
- const handleroleChange = (e) => {
-  const role = e.target.value;
-  setSelectedRole(role);
-  setFormData((prev) => ({ ...prev, roleid: role }));
-};
-
-
-
-
+  const handleroleChange = (e) => {
+    const role = e.target.value;
+    setSelectedRole(role);
+    setFormData((prev) => ({ ...prev, roleid: role }));
+  };
 
   // Check admin role
   useEffect(() => {
@@ -204,132 +219,127 @@ const isStepValid = () => {
     setFormData({ ...formData, [name]: files ? files[0] : value });
   };
 
- 
-
   const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 0));
 
-  
   // Conditional rendering
   if (loading) return <p>Loading...</p>;
   if (error) return <p>{error}</p>;
 
-   
-const submitStepData = async (step) => {
-  try {
-    if (step === 2) {
-      const payload = {
-        UserID: userId,
-        UserTypeID: formData.userType,
-        RoleID: formData.roleid,
-        FirstName: formData.firstName,
-        LastName: formData.lastName,
-        MobileNumber: formData.mobile,
-        AltMobileNumber: formData.altMobile,
-        Email: formData.email,
-        PersonalAddressLine1: formData.resHouseNo,
-        PersonalAddressLine2: formData.resArea,
-        PersonalLandmark: formData.resLandmark,
-        PersonalPincode: formData.resPincode,
-        PersonalStateID: formData.resState,
-        PersonalCityID: formData.resCity,
-        ShopName: formData.shopName,
-        ShopAddressLine1: formData.shopAddress,
-        ShopLandmark: formData.busLandmark,
-        ShopPincode: formData.busPincode,
-        ShopStateID: formData.busState,
-        ShopCityID: formData.busCity,
-      };
+  const submitStepData = async (step) => {
+    try {
+      if (step === 3) {
+        const payload = {
+          UserID: userId,
+          UserTypeID: formData.userType,
+          RoleID: formData.roleid,
+          FirstName: formData.firstName,
+          LastName: formData.lastName,
+          MobileNumber: formData.mobile,
+          AltMobileNumber: formData.altMobile,
+          Email: formData.email,
+          PersonalAddressLine1: formData.resHouseNo,
+          PersonalAddressLine2: formData.resArea,
+          PersonalLandmark: formData.resLandmark,
+          PersonalPincode: formData.resPincode,
+          PersonalStateID: formData.resState,
+          PersonalCityID: formData.resCity,
+          ShopName: formData.shopName,
+          ShopAddressLine1: formData.shopAddress,
+          ShopLandmark: formData.busLandmark,
+          ShopPincode: formData.busPincode,
+          ShopStateID: formData.busState,
+          ShopCityID: formData.busCity,
+          AccountHolderName: formData.accountHolderName,
+          AccountNumber: formData.accountNumber,
+          IFSCCode: formData.ifscCode,
+          BankName: formData.bankName,
+          BranchName: formData.branchName,
+        };
 
-     
-      const response = await axios.post(
-        "https://gateway.dhanushop.com/api/users/register",
-        payload
-      );
+        const response = await axios.post(
+          "https://gateway.dhanushop.com/api/users/register",
+          payload
+        );
 
-      
-
-      // Check for duplicate email
-      if (response.data?.message === "EmailExists") {
-        Swal.fire({
-          icon: "error",
-          title: "Email already exists",
-          text: "The email address you entered is already registered. Please use a different one.",
-        });
-        return false;
-      }
-
-      // Check for duplicate mobile
-      if (response.data?.message === "MobileExists") {
-        Swal.fire({
-          icon: "error",
-          title: "Mobile number already exists",
-          text: "The mobile number you entered is already registered. Please use a different one.",
-        });
-        return false;
-      }
-
-      const newUserId = response.data?.newUserId || response.data?.data?.newUserId;
-
-      if (response.data?.suc || newUserId) {
-       
-        if (newUserId) {
-          Cookies.set("newUserId", newUserId);
-          console.log("Stored newUserId in cookies:", newUserId);
+        // Check for duplicate email
+        if (response.data?.message === "EmailExists") {
+          Swal.fire({
+            icon: "error",
+            title: "Email already exists",
+            text: "The email address you entered is already registered. Please use a different one.",
+          });
+          return false;
         }
 
-        // ✅ Show success alert
+        // Check for duplicate mobile
+        if (response.data?.message === "MobileExists") {
           Swal.fire({
-      icon: "success",
-      title: "Registration Successful",
-      text: "Your registration has been completed successfully!",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        // After the user clicks OK, navigate to the registration page
-        
+            icon: "error",
+            title: "Mobile number already exists",
+            text: "The mobile number you entered is already registered. Please use a different one.",
+          });
+          return false;
+        }
+
+        const newUserId =
+          response.data?.newUserId || response.data?.data?.newUserId;
+
+        if (response.data?.suc || newUserId) {
+          if (newUserId) {
+            Cookies.set("newUserId", newUserId);
+            console.log("Stored newUserId in cookies:", newUserId);
+          }
+
+          // ✅ Show success alert
+          Swal.fire({
+            icon: "success",
+            title: "Registration Successful",
+            text: "Your registration has been completed successfully!",
+          }).then((result) => {
+            if (result.isConfirmed) {
+              // After the user clicks OK, navigate to the registration page
+            }
+          });
+          return true;
+        } else {
+          console.warn("newUserId not found in response");
+          Swal.fire({
+            icon: "warning",
+            title: "Unexpected Response",
+            text: "Your data was submitted, but no user ID was returned.",
+          });
+          return true; // depending on your app logic
+        }
       }
-    });
-        return true;
-      } else {
-        console.warn("newUserId not found in response");
-        Swal.fire({
-          icon: "warning",
-          title: "Unexpected Response",
-          text: "Your data was submitted, but no user ID was returned.",
-        });
-        return true; // depending on your app logic
-      }
+
+      return true;
+    } catch (error) {
+      console.error(`Step ${step + 1} submission failed:`, error);
+      Swal.fire({
+        icon: "error",
+        title: "Submission Failed",
+        text: `Failed to save data for step ${step + 1}. Please try again.`,
+      });
+      return false;
+    }
+  };
+
+  const nextStep = async () => {
+    if (!isStepValid()) {
+      Swal.fire({
+        icon: "warning",
+        title: "Validation Error",
+        text: "Please complete all required fields correctly before continuing.",
+      });
+      return;
     }
 
-    return true;
-  } catch (error) {
-    console.error(`Step ${step + 1} submission failed:`, error);
-    Swal.fire({
-      icon: "error",
-      title: "Submission Failed",
-      text: `Failed to save data for step ${step + 1}. Please try again.`,
-    });
-    return false;
-  }
-};
+    const isSuccess = await submitStepData(currentStep);
+    if (isSuccess) {
+      setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1));
+    }
+  };
 
-
-const nextStep = async () => {
-  if (!isStepValid()) {
-    Swal.fire({
-      icon: 'warning',
-      title: 'Validation Error',
-      text: 'Please complete all required fields correctly before continuing.',
-    });
-    return;
-  }
-
-  const isSuccess = await submitStepData(currentStep);
-  if (isSuccess) {
-    setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1));
-  }
-};
-
-  
   const copyResidentialToBusiness = () => {
     setFormData((prevData) => ({
       ...prevData,
@@ -342,11 +352,11 @@ const nextStep = async () => {
     }));
   };
 
-
- 
   return (
     <div className="max-w-3xl mx-auto px-6 py-5 bg-white rounded-xl relative">
- 
+      <h1 className="text-center text-2xl font-bold mb-10 text-gray-800">
+        Create Employee
+      </h1>
 
       <div className="flex items-center justify-between mb-10 relative">
         {steps.map((step, index) => {
@@ -396,41 +406,53 @@ const nextStep = async () => {
         {currentStep === 0 && (
           <>
             <div className="flex gap-4 items-center">
-            <div>
-  <label className="block text-sm font-medium text-gray-700 mb-1">
-    User Type *
-  </label>
-  <select
-    name="userType"
-    value={formData.userType}
-    onChange={handleChange}
-    className="border border-gray-300 px-2 py-2 rounded-md"
-    disabled
-  >
-    <option value="" disabled>Select a User Type </option>
-    {userTypes.map((userType) => (
-      <option
-        key={userType.UserTypeID}
-        value={userType.UserTypeID}
-      >
-        {userType.UserTypeName}
-      </option>
-    ))}
-  </select>
-</div>
-    <div>
-      <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1">Select Role *</label>
-        <select id="role" value={selectedRole} onChange={handleroleChange}
-            className="border border-gray-300 px-2 py-2 rounded-md"
->
-          <option value="" disabled>Select Role</option>
-          {roles.map((role) => (
-            <option key={role.RoleID} value={role.RoleID}>
-              {role.RoleName}
-            </option>
-          ))}
-        </select>
-    </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  User Type *
+                </label>
+                <select
+                  name="userType"
+                  value={formData.userType}
+                  onChange={handleChange}
+                  className="border border-gray-300 px-2 py-2 rounded-md"
+                  disabled
+                >
+                  <option value="" disabled>
+                    Select a User Type{" "}
+                  </option>
+                  {userTypes.map((userType) => (
+                    <option
+                      key={userType.UserTypeID}
+                      value={userType.UserTypeID}
+                    >
+                      {userType.UserTypeName}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label
+                  htmlFor="role"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Select Role *
+                </label>
+                <select
+                  id="role"
+                  value={selectedRole}
+                  onChange={handleroleChange}
+                  className="border border-gray-300 px-2 py-2 rounded-md"
+                >
+                  <option value="" disabled>
+                    Select Role
+                  </option>
+                  {roles.map((role) => (
+                    <option key={role.RoleID} value={role.RoleID}>
+                      {role.RoleName}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
               <Input
                 label="First Name *"
@@ -467,6 +489,18 @@ const nextStep = async () => {
                 required
               />
             </div>
+            <div>
+                 
+
+
+
+
+
+
+
+                 
+            </div>
+            <div className="flex gap-4 items-center">
             <Input
               label="Mobile Number *"
               name="mobile"
@@ -502,6 +536,7 @@ const nextStep = async () => {
               maxLength={10}
               required
             />
+            </div>
             <Input
               label="Email *"
               name="email"
@@ -715,39 +750,123 @@ const nextStep = async () => {
             </div>
           </>
         )}
+
+        {currentStep === 3 && (
+          <>
+            <div className="flex gap-4">
+              <Input
+                label="Account Holder Name *"
+                name="accountHolderName"
+                value={formData.accountHolderName}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (/^[a-zA-Z\s.']*$/.test(value)) {
+                    handleChange(e);
+                  }
+                }}
+                className="w-full"
+                pattern="^[a-zA-Z\s.']+$"
+                title="Only letters, spaces, and periods are allowed."
+                required
+              />
+              <Selectlistbyapi
+                label="Bank Name *"
+                name="bankName"
+                value={formData.bankName}
+                onChange={handleChange}
+                options={bankList} // assume this is a list of banks from API or static
+                className="w-full"
+                required
+              />
+            </div>
+
+            <Input
+              label="Bank Branch *"
+              name="bankBranch"
+              value={formData.bankBranch}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (/^[a-zA-Z0-9\s.,'-]*$/.test(value)) {
+                  handleChange(e);
+                }
+              }}
+              className="w-full"
+              maxLength={40}
+              pattern="^[a-zA-Z0-9\s.,'-]+$"
+              title="Please enter a valid branch name."
+              required
+            />
+
+            <div className="flex gap-4">
+              <Input
+                label="Account Number *"
+                name="accountNumber"
+                value={formData.accountNumber}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (/^\d{0,20}$/.test(value)) {
+                    handleChange(e);
+                  }
+                }}
+                inputMode="numeric"
+                className="w-full"
+                pattern="^\d{8,20}$"
+                title="Account number must be between 8 and 20 digits."
+                maxLength={20}
+                required
+              />
+              <Input
+                label="Confirm Account Number *"
+                name="confirmAccountNumber"
+                value={formData.confirmAccountNumber}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (/^\d{0,20}$/.test(value)) {
+                    handleChange(e);
+                  }
+                }}
+                inputMode="numeric"
+                className="w-full"
+                pattern="^\d{8,20}$"
+                title="Must match the account number above."
+                maxLength={20}
+                required
+              />
+            </div>
+          </>
+        )}
       </div>
 
       {/* Buttons */}
-  <div className="flex justify-between mt-10 absolute w-[95%]">
-  {currentStep !== 0 ? (
-    <button onClick={prevStep} className="btn-outline">
-      Previous
-    </button>
-  ) : (
-    <div className="w-[120px]"></div> // Placeholder
-  )}
+      <div className="flex justify-between mt-10 absolute w-[95%]">
+        {currentStep !== 0 ? (
+          <button onClick={prevStep} className="btn-outline">
+            Previous
+          </button>
+        ) : (
+          <div className="w-[120px]"></div> // Placeholder
+        )}
 
-  {currentStep < steps.length - 1 ? (
-    <button
-      onClick={nextStep}
-      className="btn"
-      style={{ backgroundColor: isStepValid() ? '#007bff' : '#cccccc' }}
-      disabled={!isStepValid() || loading}
-    >
-      Next
-    </button>
-  ) : (
-    <button
-      onClick={() => setIsPreviewOpen(true)}
-      className="btn-success"
-      style={{ backgroundColor: isStepValid() ? '#28a745' : '#cccccc' }}
-      disabled={!isStepValid() || loading}
-    >
-      Preview & Submit
-    </button>
-  )}
-</div>
-
+        {currentStep < steps.length - 1 ? (
+          <button
+            onClick={nextStep}
+            className="btn"
+            style={{ backgroundColor: isStepValid() ? "#007bff" : "#cccccc" }}
+            disabled={!isStepValid() || loading}
+          >
+            Next
+          </button>
+        ) : (
+          <button
+            onClick={() => setIsPreviewOpen(true)}
+            className="btn-success"
+            style={{ backgroundColor: isStepValid() ? "#28a745" : "#cccccc" }}
+            disabled={!isStepValid() || loading}
+          >
+            Preview & Submit
+          </button>
+        )}
+      </div>
 
       {isPreviewOpen && (
         <PreviewPane

@@ -101,7 +101,7 @@ function BasicSettings() {
     const timer = setTimeout(() => {
       setSettingsData(dummyData);
       hideLoader();
-    }, 500);
+    }, 0);
 
     return () => clearTimeout(timer);
   }, []);
