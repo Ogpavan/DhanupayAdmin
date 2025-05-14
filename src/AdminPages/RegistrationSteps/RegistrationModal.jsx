@@ -2,22 +2,27 @@ import React, { useEffect, useState } from "react";
 import { fetchStatesList } from "../../api/stateListApi";
 import { fetchCitiesByState } from "../../api/CityListApi";
 import PreviewPane from "../PreviewPane";
+import Swal from 'sweetalert2';
+
 import Cookies from "js-cookie";
 import axios from "axios"; // Import axios for API calls
-
-
+import { data, useNavigate } from "react-router-dom";
+ 
 ///////////////////////////
 
 const token = Cookies.get("token");
 const userId = Cookies.get("UserId");
 // Steps array
+
+const bankList = [
+  "SBI", "HDFC", "ICICI", "AXIS", "KOTAK", "YES BANK", "CITI BANK", "OTHERS"
+]
 const steps = [
   "Basic Details",
   "Residential Details",
   "Business Details",
-  "Aadhaar Details",
-  "PAN Details",
-  "Video KYC", // New Step
+  "Bank Details",
+  // New Step
 ];
 
 export default function RegistrationModal() {
@@ -29,25 +34,13 @@ export default function RegistrationModal() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [agreeTerms, setAgreeTerms] = useState(false);
+  const [closePreview, setClosePreview] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [openPreview, setOpenPreview] = useState(false);
+ const [roles, setRoles] = useState([]);
+  const [selectedRole, setSelectedRole] = useState('');
 
-  const [profilePhoto, setProfilePhoto] = useState(null);
-const [shopPhoto, setShopPhoto] = useState(null);
-const [videoFile, setVideoFile] = useState(null);
-
-const [profilePhotoUploaded, setProfilePhotoUploaded] = useState(false);
-const [shopPhotoUploaded, setShopPhotoUploaded] = useState(false);
-const [videoUploaded, setVideoUploaded] = useState(false);
-
-const [formDatatwo, setFormDatatwo] = useState({ aadhaar: "", pan: "" });
-const [aadhaarFront, setAadhaarFront] = useState(null);
-const [aadhaarBack, setAadhaarBack] = useState(null);
-const [panImage, setPanImage] = useState(null);
-const [aadhaarUploaded, setAadhaarUploaded] = useState(false);
-const [panUploaded, setPanUploaded] = useState(false);
-const [video, setVideo] = useState(null);
-
+const handlePreviewClose = () => setIsPreviewOpen(false);
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -69,17 +62,57 @@ const [video, setVideo] = useState(null);
     busState: "",
     businessName: "",
     firmName: "",
-    aadhaar: "",
-    aadhaarFront: null,
-    aadhaarBack: null,
-    pan: "",
-    PAN: null,
-    profilePhoto: null,
-    shopPhoto: null,
-    video: null,
+    roleid: "",
     userType: "",
   });
 
+ 
+
+const isStepValid = () => {
+  if (currentStep === 0) {
+    return (
+      formData.firstName.trim() !== '' &&
+      formData.lastName.trim() !== '' &&
+      formData.mobile.length === 10 &&
+      /^[0-9]{10}$/.test(formData.mobile) &&
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email) &&
+      formData.roleid !== '' &&
+      formData.userType !== ''
+    );
+  }
+
+  if (currentStep === 1) {
+    return (
+    
+      formData.resArea.trim() !== '' &&
+      formData.resPincode.length === 6 &&
+      formData.resState !== '' &&
+      formData.resCity !== ''
+    );
+  }
+
+  if (currentStep === 2) {
+    return (
+      formData.shopName.trim() !== '' &&
+      formData.shopAddress.trim() !== '' &&
+      formData.busPincode.length === 6 &&
+      formData.busState !== '' &&
+      formData.busCity !== ''
+    );
+
+    if (currentStep === 3) {
+      return (
+        formData.accountHolderName.trim() !== '' &&
+        formData.accountNumber.length === 10 &&
+        formData.ifscCode.length === 11 &&
+        formData.bankName.trim() !== '' &&
+        formData.branchName.trim() !== ''
+      );  
+    }
+  }
+
+  return false;
+};
 
   // Fetch user types
   useEffect(() => {
@@ -141,6 +174,39 @@ const [video, setVideo] = useState(null);
     }
   }, [formData.resState]);
 
+ useEffect(() => {
+    const fetchRoles = async () => {
+      try {
+        const response = await axios.post(
+          'https://gateway.dhanushop.com/api/role/list',
+          { userId: userId },
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+        console.log(response.data);
+        setRoles(response.data); // Assuming response.data is the array of roles
+      } catch (error) {
+        console.error('Error fetching roles:', error);
+      }
+    };
+
+    fetchRoles();
+  }, [token]);
+
+ const handleroleChange = (e) => {
+  const role = e.target.value;
+  setSelectedRole(role);
+  setFormData((prev) => ({ ...prev, roleid: role }));
+};
+
+
+
+
+
   // Check admin role
   useEffect(() => {
     const role = Cookies.get("role");
@@ -153,12 +219,7 @@ const [video, setVideo] = useState(null);
     setFormData({ ...formData, [name]: files ? files[0] : value });
   };
 
-  const nextStep = async () => {
-    const isSuccess = await submitStepData(currentStep);
-    if (isSuccess) {
-      setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1));
-    }
-  };
+ 
 
   const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 0));
 
@@ -167,83 +228,14 @@ const [video, setVideo] = useState(null);
   if (loading) return <p>Loading...</p>;
   if (error) return <p>{error}</p>;
 
-  // const handleSubmit = async () => {
-  //   if (!agreeTerms) {
-  //     alert("Please agree to the terms and conditions.");
-  //     return;
-  //   }
-  
-  //   const payload = {
-  //     UserID: userId,
-  //     UserTypeID: formData.userType,
-  //     RoleID: null,
-  //     FirstName: formData.firstName,
-  //     LastName: formData.lastName,
-  //     MobileNumber: formData.mobile,
-  //     Email: formData.email,
-  //     PersonalAddressLine1: formData.resHouseNo || "",
-  //     PersonalAddressLine2: formData.resArea || "",
-  //     PersonalCityID: formData.resCity || null,
-  //     PersonalStateID: formData.resState || null,
-  //     PersonalPincode: formData.resPincode || "",
-  //     ShopAddressLine1: formData.shopName || "",
-  //     ShopAddressLine2: formData.shopAddress || "",
-  //     ShopCityID: formData.busCity || null,
-  //     ShopStateID: formData.busState || null,
-  //     ShopPincode: formData.busPincode || "",
-  //   };
-  
-  //   try {
-  //     // Step 1: Register the user
-      
-  //     const response = await axios.post(
-  //       "https://gateway.dhanushop.com/api/users/register",
-  //       payload
-  //     );
-  
-  //     const { newUserId } = response.data;
-  //     console.log("API Payload after request:", payload);
-  //     console.log("New User ID:", response.data); // Adjust if response format is different
-  //     if (!userId) {
-  //       throw new Error("No newUserId received from registration API.");
-  //     }
-  
-  //     // Step 2: Upload documents
-  //     const formData = new FormData();
-  //     formData.append("UserId", userId);
-  //     formData.append("newUserId", newUserId);
-  //     formData.append("DocumentType", "Aadhaar"); // or dynamically from form
-  //     formData.append("DocumentNumber", formData.documentNumber);
-  //     formData.append("FrontImage", formData.frontImage); // must be File object
-  //     formData.append("BackImage", formData.backImage);
-  //     formData.append("VideoFile", formData.videoFile);
-  
-  //     const uploadRes = await axios.post(
-  //       "https://gateway.dhanushop.com/api/users/uploadDocuments",
-  //       formData,
-  //       {
-  //         headers: {
-  //           "Content-Type": "multipart/form-data",
-  //         },
-  //       }
-  //     );
-  
-  //     console.log("Document Upload Response:", uploadRes.data);
-  //     alert("Form and documents submitted successfully!");
-  //     closePreview();
-  //   } catch (error) {
-  //     console.error("Error submitting form or documents:", error);
-  //     alert("Failed to complete registration. Please try again.");
-  //   }
-  // };
-
-
+   
 const submitStepData = async (step) => {
   try {
-    if (step === 2) {
+    if (step === 3) {
       const payload = {
         UserID: userId,
         UserTypeID: formData.userType,
+        RoleID: formData.roleid,
         FirstName: formData.firstName,
         LastName: formData.lastName,
         MobileNumber: formData.mobile,
@@ -261,30 +253,102 @@ const submitStepData = async (step) => {
         ShopPincode: formData.busPincode,
         ShopStateID: formData.busState,
         ShopCityID: formData.busCity,
+        AccountHolderName: formData.accountHolderName,
+        AccountNumber: formData.accountNumber,
+        IFSCCode: formData.ifscCode,
+        BankName: formData.bankName,
+        BranchName: formData.branchName,
       };
 
-      const response = await axios.post("https://gateway.dhanushop.com/api/users/register", payload);
+     
+      const response = await axios.post(
+        "https://gateway.dhanushop.com/api/users/register",
+        payload
+      );
 
-      console.log("API Payload after request:", payload);
-      console.log("Response from API:", response.data);
+      
+
+      // Check for duplicate email
+      if (response.data?.message === "EmailExists") {
+        Swal.fire({
+          icon: "error",
+          title: "Email already exists",
+          text: "The email address you entered is already registered. Please use a different one.",
+        });
+        return false;
+      }
+
+      // Check for duplicate mobile
+      if (response.data?.message === "MobileExists") {
+        Swal.fire({
+          icon: "error",
+          title: "Mobile number already exists",
+          text: "The mobile number you entered is already registered. Please use a different one.",
+        });
+        return false;
+      }
 
       const newUserId = response.data?.newUserId || response.data?.data?.newUserId;
 
-      if (newUserId) {
-        Cookies.set("newUserId", newUserId);
-        console.log("Stored newUserId in cookies:", newUserId);
+      if (response.data?.suc || newUserId) {
+       
+        if (newUserId) {
+          Cookies.set("newUserId", newUserId);
+          console.log("Stored newUserId in cookies:", newUserId);
+        }
+
+        // ✅ Show success alert
+          Swal.fire({
+      icon: "success",
+      title: "Registration Successful",
+      text: "Your registration has been completed successfully!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // After the user clicks OK, navigate to the registration page
+        
+      }
+    });
+        return true;
       } else {
         console.warn("newUserId not found in response");
+        Swal.fire({
+          icon: "warning",
+          title: "Unexpected Response",
+          text: "Your data was submitted, but no user ID was returned.",
+        });
+        return true; // depending on your app logic
       }
     }
 
     return true;
   } catch (error) {
     console.error(`Step ${step + 1} submission failed:`, error);
-    alert(`Failed to save data for step ${step + 1}.`);
+    Swal.fire({
+      icon: "error",
+      title: "Submission Failed",
+      text: `Failed to save data for step ${step + 1}. Please try again.`,
+    });
     return false;
   }
 };
+
+
+const nextStep = async () => {
+  if (!isStepValid()) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Validation Error',
+      text: 'Please complete all required fields correctly before continuing.',
+    });
+    return;
+  }
+
+  const isSuccess = await submitStepData(currentStep);
+  if (isSuccess) {
+    setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1));
+  }
+};
+
   
   const copyResidentialToBusiness = () => {
     setFormData((prevData) => ({
@@ -299,155 +363,7 @@ const submitStepData = async (step) => {
   };
 
 
-
-const handleAadhaarUpload = async () => {
-  const form = new FormData();
-  form.append("UserId", userId);
-  form.append("newUserId", Cookies.get("newUserId"));
-  form.append("DocumentType", "Aadhaar");
-  form.append("DocumentNumber", formData.aadhaar);
-  form.append("FrontImage", aadhaarFront);
-  form.append("BackImage", aadhaarBack);
-  form.append("VideoFile", null);
-
-  try {
-    console.log("Aadhaar Upload Form Data:", form);
-    const res = await fetch("https://gateway.dhanushop.com/api/users/uploadDocuments", {
-      method: "POST",
-      body: form,
-    });
-
-    const data = await res.json();
-    
-    if (data?.success) {
-      setAadhaarUploaded(true);
-      console.log("Aadhaar Upload Success:", data);
-      alert("Aadhaar uploaded successfully!");
-    }
-  } catch (error) {
-    console.error("Aadhaar Upload Error:", error);
-        alert("Aadhaar upload unsuccessful",error)
-  }
-};
-
-
-const handlePanUpload = async () => {
-  const form = new FormData();
-  form.append("UserId", userId);
-  form.append("newUserId", Cookies.get("newUserId"));
-  form.append("DocumentType", "PAN");
-  form.append("DocumentNumber", formData.pan);
-  form.append("FrontImage", panImage);
-  form.append("BackImage", null); // Required by API schema, use empty blob if not needed
-  form.append("VideoFile", null); // Optional
-
-  try {
-    const res = await fetch("https://gateway.dhanushop.com/api/users/uploadDocuments", {
-      method: "POST",
-      body: form,
-    });
-
-    const data = await res.json();
-     if (data?.success) {
-      setPanUploaded(true);
-      console.log("PAN Upload Success:", data);
-      alert("PAN uploaded successfully!");
-    }
-  } catch (error) {
-    
-    console.error("PAN Upload Error:", error);
-    alert("Pan upload error",error)
-  }
-};
-
-const handleProfilePhotoUpload = async () => {
-   const form = new FormData();
-  form.append("UserId", userId);
-  form.append("newUserId", Cookies.get("newUserId"));
-  form.append("DocumentType", "ProfilePhoto");
-  form.append("DocumentNumber", null);
-  form.append("FrontImage", profilePhoto);
-  form.append("BackImage", null); // Required by API schema, use empty blob if not needed
-  form.append("VideoFile", null); // Optional
-
-  try {
-    const res = await fetch("https://gateway.dhanushop.com/api/users/uploadDocuments", {
-      method: "POST",
-      body: form,
-    });
-
-    const data = await res.json();
-     if (data?.success) {
-      setProfilePhotoUploaded(true);
-      console.log("Profile Upload Success:", data);
-      alert("Profile uploaded successfully!");
-    }
-  } catch (error) {
-    
-    console.error("PAN Upload Error:", error);
-    alert("Pan upload error",error)
-  }
-};
-
-
-const handleShopPhotoUpload = async () => {
-     const form = new FormData();
-  form.append("UserId", userId);
-  form.append("newUserId", Cookies.get("newUserId"));
-  form.append("DocumentType", "Shop Photo");
-  form.append("DocumentNumber", null);
-  form.append("FrontImage", profilePhoto);
-  form.append("BackImage", null); // Required by API schema, use empty blob if not needed
-  form.append("VideoFile", null); // Optional
-
-  try {
-    const res = await fetch("https://gateway.dhanushop.com/api/users/uploadDocuments", {
-      method: "POST",
-      body: form,
-    });
-
-    const data = await res.json();
-     if (data?.success) {
-      setShopPhotoUploaded(true);
-      console.log("shop photo Upload Success:", data);
-      alert("Shop photo uploaded successfully!");
-    }
-  } catch (error) {
-    
-    console.error("Shop Photp Upload Error:", error);
-    alert("Shop Photo  upload error",error)
-  }
-};
-
-const handleVideoUpload = async () => {
-      const form = new FormData();
-  form.append("UserId", userId);
-  form.append("newUserId", Cookies.get("newUserId"));
-  form.append("DocumentType", "Video");
-  form.append("DocumentNumber", null);
-  form.append("FrontImage", null);
-  form.append("BackImage", null); // Required by API schema, use empty blob if not needed
-  form.append("VideoFile", video); // Optional
-
-  try {
-    const res = await fetch("https://gateway.dhanushop.com/api/users/uploadDocuments", {
-      method: "POST",
-      body: form,
-    });
-
-    const data = await res.json();
-     if (data?.success) {
-       setVideoUploaded(true);
-      console.log("Video Upload Success:", data);
-      alert("Video uploaded successfully!");
-    }
-  } catch (error) {
-    
-    console.error("Video Upload Error:", error);
-    alert("Video  upload error",error)
-  }
-};
-
+ 
   return (
     <div className="max-w-3xl mx-auto px-6 py-5 bg-white rounded-xl relative">
  
@@ -502,15 +418,15 @@ const handleVideoUpload = async () => {
             <div className="flex gap-4 items-center">
             <div>
   <label className="block text-sm font-medium text-gray-700 mb-1">
-    User Type:
+    User Type *
   </label>
   <select
     name="userType"
     value={formData.userType}
     onChange={handleChange}
-    className="border border-gray-300 px-2 py-1 rounded-md"
+    className="border border-gray-300 px-2 py-2 rounded-md"
   >
-    <option value="">Select a User Type</option>
+    <option value="" disabled>Select a User Type </option>
     {userTypes.map((userType) => (
       <option
         key={userType.UserTypeID}
@@ -521,10 +437,22 @@ const handleVideoUpload = async () => {
     ))}
   </select>
 </div>
-
+    <div>
+      <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1">Select Role *</label>
+        <select id="role" value={selectedRole} onChange={handleroleChange}
+            className="border border-gray-300 px-2 py-2 rounded-md"
+>
+          <option value="" disabled>Select Role</option>
+          {roles.map((role) => (
+            <option key={role.RoleID} value={role.RoleID}>
+              {role.RoleName}
+            </option>
+          ))}
+        </select>
+    </div>
 
               <Input
-                label="First Name"
+                label="First Name *"
                 name="firstName"
                 value={formData.firstName}
                 onChange={(e) => {
@@ -541,7 +469,7 @@ const handleVideoUpload = async () => {
                 required
               />
               <Input
-                label="Last Name"
+                label="Last Name *"
                 name="lastName"
                 value={formData.lastName}
                 onChange={(e) => {
@@ -559,7 +487,7 @@ const handleVideoUpload = async () => {
               />
             </div>
             <Input
-              label="Mobile Number"
+              label="Mobile Number *"
               name="mobile"
               value={formData.mobile}
               onChange={(e) => {
@@ -594,7 +522,7 @@ const handleVideoUpload = async () => {
               required
             />
             <Input
-              label="Email"
+              label="Email *"
               name="email"
               value={formData.email}
               onChange={(e) => {
@@ -638,7 +566,7 @@ const handleVideoUpload = async () => {
                 required
               />
               <Input
-                label="Residential Area"
+                label="Residential Area *"
                 name="resArea"
                 value={formData.resArea}
                 onChange={(e) => {
@@ -674,7 +602,7 @@ const handleVideoUpload = async () => {
             />
 
             <Input
-              label="Pincode"
+              label="Pincode *"
               name="resPincode"
               value={formData.resPincode}
               onChange={(e) => {
@@ -693,7 +621,7 @@ const handleVideoUpload = async () => {
 
             <div className="flex gap-4">
               <Selectlistbyapi
-                label="State"
+                label=" State *"
                 name="resState"
                 value={formData.resState}
                 onChange={handleChange}
@@ -701,7 +629,7 @@ const handleVideoUpload = async () => {
               />
 
               <Selectlistbyapi
-                label="City"
+                label="City *"
                 name="resCity"
                 value={formData.resCity}
                 onChange={handleChange}
@@ -715,7 +643,7 @@ const handleVideoUpload = async () => {
           <>
             <div className="flex gap-4">
               <Input
-                label="Shop Name"
+                label="Shop Name *"
                 name="shopName"
                 value={formData.shopName}
                 onChange={(e) => {
@@ -730,7 +658,7 @@ const handleVideoUpload = async () => {
                 required
               />
               <Input
-                label="Shop Address"
+                label="Shop Address *"
                 name="shopAddress"
                 value={formData.shopAddress}
                 onChange={(e) => {
@@ -755,7 +683,7 @@ const handleVideoUpload = async () => {
               </button>
             </div>
             <Input
-              label="Landmark"
+              label="Landmark (optional)"
               name="busLandmark"
               value={formData.busLandmark}
               onChange={(e) => {
@@ -770,7 +698,7 @@ const handleVideoUpload = async () => {
               required
             />
             <Input
-              label="Pincode"
+              label="Pincode *"
               name="busPincode"
               value={formData.busPincode}
               onChange={(e) => {
@@ -788,7 +716,7 @@ const handleVideoUpload = async () => {
             />
             <div className="flex gap-4 w-full">
               <Selectlistbyapi
-                label="State"
+                label="State *"
                 name="busState"
                 value={formData.busState}
                 onChange={handleChange}
@@ -796,7 +724,7 @@ const handleVideoUpload = async () => {
                 className="w-1/2"
               />
               <Selectlistbyapi
-                label="City"
+                label="City *"
                 name="busCity"
                 value={formData.busCity}
                 onChange={handleChange}
@@ -807,240 +735,131 @@ const handleVideoUpload = async () => {
           </>
         )}
 
- {currentStep === 3 && (
-  <div className=" max-w-3xl mx-auto mt-4">
-    {/* Aadhaar Upload */}
-    <div className="border rounded-xl p-6 shadow-sm bg-white   ">
-      
-      <div className="">
-        {/* Aadhaar Number */}
-        <div className="flex flex-col w-full  gap-4">
-        <div>
-          <label className="block mb-1 font-medium">Aadhaar Number</label>
-          <input
-            type="text"
-            name="aadhaar"
-            value={formData.aadhaar}
-            onChange={(e) => {
-              const value = e.target.value;
-              if (/^\d{0,12}$/.test(value)) {
-                handleChange(e);
-                setAadhaarUploaded(false);
-              }
-            }}
-            maxLength={12}
-            className="w-full border px-3 py-2 rounded"
-            placeholder="Enter Aadhaar"
-          />
-        </div>
-        {/* Aadhaar Front Image */}
-        <div className="flex mb-3 gap-x-4">
-        <div>
-          <label className="block mb-1 font-medium">Front Image</label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => {
-              setAadhaarFront(e.target.files[0]);
-              setAadhaarUploaded(false);
-            }}
-            className="w-full border px-3 py-2 rounded"
-          />
-        </div>
-        {/* Aadhaar Back Image */}
-        <div>
-          <label className="block mb-1 font-medium">Back Image</label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => {
-              setAadhaarBack(e.target.files[0]);
-              setAadhaarUploaded(false);
-            }}
-            className="w-full border px-3 py-2 rounded"
-          />
-        </div>
-        </div>
-        </div>
-        {/* Upload Button */}
-        <div className="col-span-2 flex items-end">
-          <button
-            onClick={handleAadhaarUpload}
-            disabled={aadhaarUploaded}
-            className={`w-full py-2 rounded text-white ${
-              aadhaarUploaded
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-indigo-700 hover:bg-indigo-800"
-            }`}
-          >
-            {aadhaarUploaded ? "Uploaded" : "Upload"}
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-)}
-
-
-
-        {currentStep === 4 && (
-          <>
-     {/* PAN Upload */}
-    <div className="border rounded-xl p-6 shadow-sm bg-white">
-     
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        {/* PAN Number */}
-        <div>
-          <label className="block mb-1 font-medium">PAN Number</label>
-          <input
-            type="text"
-            name="pan"
-            value={formData.pan}
-            onChange={(e) => {
-              const value = e.target.value.toUpperCase();
-              if (/^[A-Z0-9]{0,10}$/.test(value)) {
-                handleChange({
-                  target: { name: e.target.name, value },
-                });
-                setPanUploaded(false);
-              }
-            }}
-            maxLength={10}
-            className="w-full border px-3 py-2 rounded"
-            placeholder="Enter PAN"
-          />
-        </div>
-        {/* PAN Image */}
-        <div>
-          <label className="block mb-1 font-medium">PAN Image</label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => {
-              setPanImage(e.target.files[0]);
-              setPanUploaded(false);
-            }}
-            className="w-full border px-3 py-2 rounded"
-          />
-        </div>
-        {/* Upload Button */}
-        <div className=" flex justify-end w-full">
-          <button
-            onClick={handlePanUpload}
-            disabled={panUploaded}
-            className={`w-64 py-2 rounded text-white ${
-              panUploaded
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-indigo-700 hover:bg-indigo-800"
-            }`}
-          >
-            {panUploaded ? "Uploaded" : "Upload"}
-          </button>
-        </div>
-      </div>
-    </div>
-          </>
-        )}
-
-{currentStep === 5 && (
-  <div className="space-y-6 mt-6">
-    {/* Profile Photo Upload */}
-    <div className="space-y-2">
-      <label className="block font-medium">Upload Profile Photo</label>
-      <input
-        type="file"
-        name="profilePhoto"
-        accept="image/*"
-        onChange={(e) => setProfilePhoto(e.target.files[0])}
-        className="w-full border px-3 py-2 rounded"
+        
+      {currentStep === 3 && (
+  <>
+    <div className="flex gap-4">
+      <Input
+        label="Account Holder Name *"
+        name="accountHolderName"
+        value={formData.accountHolderName}
+        onChange={(e) => {
+          const value = e.target.value;
+          if (/^[a-zA-Z\s.']*$/.test(value)) {
+            handleChange(e);
+          }
+        }}
+        className="w-full"
+        pattern="^[a-zA-Z\s.']+$"
+        title="Only letters, spaces, and periods are allowed."
+        required
       />
-      <button
-        onClick={handleProfilePhotoUpload}
-        disabled={profilePhotoUploaded}
-        className={`w-full py-2 rounded text-white ${
-          profilePhotoUploaded
-            ? "bg-gray-400 cursor-not-allowed"
-            : "bg-blue-500 hover:bg-blue-600"
-        }`}
-      >
-        {profilePhotoUploaded ? "Uploaded" : "Upload"}
-      </button>
+      <Selectlistbyapi
+        label="Bank Name *"
+        name="bankName"
+        value={formData.bankName}
+        onChange={handleChange}
+        options={bankList} // assume this is a list of banks from API or static
+        className="w-full"
+        required
+      />
     </div>
 
-    {/* Shop Photo Upload */}
-    <div className="space-y-2">
-      <label className="block font-medium">Upload Shop Photo</label>
-      <input
-        type="file"
-        name="shopPhoto"
-        accept="image/*"
-        onChange={(e) => setShopPhoto(e.target.files[0])}
-        className="w-full border px-3 py-2 rounded"
-      />
-      <button
-        onClick={handleShopPhotoUpload}
-        disabled={shopPhotoUploaded}
-        className={`w-full py-2 rounded text-white ${
-          shopPhotoUploaded
-            ? "bg-gray-400 cursor-not-allowed"
-            : "bg-blue-500 hover:bg-blue-600"
-        }`}
-      >
-        {shopPhotoUploaded ? "Uploaded" : "Upload"}
-      </button>
-    </div>
+    <Input
+      label="Bank Branch *"
+      name="bankBranch"
+      value={formData.bankBranch}
+      onChange={(e) => {
+        const value = e.target.value;
+        if (/^[a-zA-Z0-9\s.,'-]*$/.test(value)) {
+          handleChange(e);
+        }
+      }}
+      className="w-full"
+      maxLength={40}
+      pattern="^[a-zA-Z0-9\s.,'-]+$"
+      title="Please enter a valid branch name."
+      required
+    />
 
-    {/* 30-sec Video Upload */}
-    <div className="space-y-2">
-      <label className="block font-medium">Upload 30-sec Video</label>
-      <input
-        type="file"
-        name="video"
-        accept="video/*"
-        onChange={(e) => setVideoFile(e.target.files[0])}
-        className="w-full border px-3 py-2 rounded"
+    <div className="flex gap-4">
+      <Input
+        label="Account Number *"
+        name="accountNumber"
+        value={formData.accountNumber}
+        onChange={(e) => {
+          const value = e.target.value;
+          if (/^\d{0,20}$/.test(value)) {
+            handleChange(e);
+          }
+        }}
+        inputMode="numeric"
+        className="w-full"
+        pattern="^\d{8,20}$"
+        title="Account number must be between 8 and 20 digits."
+        maxLength={20}
+        required
       />
-      <button
-        onClick={handleVideoUpload}
-        disabled={videoUploaded}
-        className={`w-full py-2 rounded text-white ${
-          videoUploaded
-            ? "bg-gray-400 cursor-not-allowed"
-            : "bg-blue-500 hover:bg-blue-600"
-        }`}
-      >
-        {videoUploaded ? "Uploaded" : "Upload"}
-      </button>
+      <Input
+        label="Confirm Account Number *"
+        name="confirmAccountNumber"
+        value={formData.confirmAccountNumber}
+        onChange={(e) => {
+          const value = e.target.value;
+          if (/^\d{0,20}$/.test(value)) {
+            handleChange(e);
+          }
+        }}
+        inputMode="numeric"
+        className="w-full"
+        pattern="^\d{8,20}$"
+        title="Must match the account number above."
+        maxLength={20}
+        required
+      />
     </div>
-  </div>
+  </>
 )}
 
       </div>
 
       {/* Buttons */}
-      <div className="flex justify-between mt-10 absolute w-[95%]">
-        <button
-          onClick={prevStep}
-          disabled={currentStep === 0}
-          className="btn-outline"
-        >
-          Previous
-        </button>
-        {currentStep < steps.length - 1 ? (
-          <button onClick={nextStep} className="btn-primary">
-            Next
-          </button>
-        ) : (
-          <button onClick={openPreview} className="btn-success">
-            Preview & Submit
-          </button>
-        )}
-      </div>
+  <div className="flex justify-between mt-10 absolute w-[95%]">
+  {currentStep !== 0 ? (
+    <button onClick={prevStep} className="btn-outline">
+      Previous
+    </button>
+  ) : (
+    <div className="w-[120px]"></div> // Placeholder
+  )}
+
+  {currentStep < steps.length - 1 ? (
+    <button
+      onClick={nextStep}
+      className="btn"
+      style={{ backgroundColor: isStepValid() ? '#007bff' : '#cccccc' }}
+      disabled={!isStepValid() || loading}
+    >
+      Next
+    </button>
+  ) : (
+    <button
+      onClick={() => setIsPreviewOpen(true)}
+      className="btn-success"
+      style={{ backgroundColor: isStepValid() ? '#28a745' : '#cccccc' }}
+      disabled={!isStepValid() || loading}
+    >
+      Preview & Submit
+    </button>
+  )}
+</div>
+
+
       {isPreviewOpen && (
         <PreviewPane
           formData={formData}
-          onClose={closePreview}
-          onSubmit={handleSubmit}
+          onClose={handlePreviewClose}
+          onSubmit={submitStepData}
           agreeTerms={agreeTerms}
           setAgreeTerms={setAgreeTerms}
         />

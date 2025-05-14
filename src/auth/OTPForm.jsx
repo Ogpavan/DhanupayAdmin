@@ -2,12 +2,17 @@ import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import loginpageimage from "/LoginPageImage.png"; // Replace with the correct image path
 import Cookies from "js-cookie"; // Import js-cookie
+import Swal from "sweetalert2";
 
 export default function OTPForm() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { message = "Please enter the OTP and MPIN sent to your registered number.", userId = "" } = location.state || {};
-  const BASE_URL = import.meta.env.VITE_BACKEND_URL || "https://gateway.dhanushop.com"; // API base URL
+  const {
+    message = "Please enter the OTP and MPIN sent to your registered number.",
+    userId = "",
+  } = location.state || {};
+  const BASE_URL =
+    import.meta.env.VITE_BACKEND_URL || "https://gateway.dhanushop.com"; // API base URL
 
   // State variables
   const [otp, setOtp] = useState(["", "", "", ""]);
@@ -36,23 +41,22 @@ export default function OTPForm() {
 
   // Handle input change for OTP and MPIN
   const handleInputChange = (e, index, type) => {
-    const value = e.target.value.replace(/[^0-9]/g, "");
+    const value = e.target.value.replace(/[^0-9]/g, ""); // Accept only digits
+    if (!value) return;
+
+    const targetArray = type === "otp" ? [...otp] : [...mpin];
+    targetArray[index] = value;
+
     if (type === "otp") {
-      const newOtp = [...otp];
-      newOtp[index] = value;
-      setOtp(newOtp);
-
-      if (value && index < 3) {
-        document.getElementById(`otp-${index + 1}`).focus();
-      }
+      setOtp(targetArray);
     } else {
-      const newMpin = [...mpin];
-      newMpin[index] = value;
-      setMpin(newMpin);
+      setMpin(targetArray);
+    }
 
-      if (value && index < 3) {
-        document.getElementById(`mpin-${index + 1}`).focus();
-      }
+    // Move to next input if not last
+    const nextInput = document.getElementById(`${type}-${index + 1}`);
+    if (value && nextInput) {
+      nextInput.focus();
     }
   };
 
@@ -97,7 +101,12 @@ export default function OTPForm() {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ UserId: UserId, LoginId: loginid, OTP: otp.join(""), MPin: mpin.join("") }),
+        body: JSON.stringify({
+          UserId: UserId,
+          LoginId: loginid,
+          OTP: otp.join(""),
+          MPin: mpin.join(""),
+        }),
       });
 
       const data = await response.json();
@@ -111,10 +120,15 @@ export default function OTPForm() {
           ? navigate("/user")
           : setError("Unknown user type. Please contact support.");
       } else {
-        setError(data?.message || "Verification failed. Please check your details and try again.");
+        setError(
+          data?.message ||
+            "Verification failed. Please check your details and try again."
+        );
       }
     } catch (error) {
-      setError("An error occurred while verifying your details. Please try again.");
+      setError(
+        "An error occurred while verifying your details. Please try again."
+      );
     } finally {
       setLoading(false);
     }
@@ -141,12 +155,30 @@ export default function OTPForm() {
 
       if (response.ok && data?.success) {
         setResendTimer(30);
-        alert(data.message || "OTP resent successfully!");
+        Swal.fire({
+          icon: "success",
+          title: "OTP Sent",
+          text: "A new OTP has been sent to your registered contact.",
+          timer: 3000,
+          showConfirmButton: false,
+        });
       } else {
         setError(data?.message || "Failed to resend OTP. Please try again.");
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: data?.message || "Failed to resend OTP. Please try again.",
+        });
       }
     } catch {
-      setError("Failed to resend OTP. Please check your connection and try again.");
+      const errorMsg =
+        "Failed to resend OTP. Please check your connection and try again.";
+      setError(errorMsg);
+      Swal.fire({
+        icon: "error",
+        title: "Network Error",
+        text: errorMsg,
+      });
     } finally {
       setResending(false);
     }
@@ -171,14 +203,20 @@ export default function OTPForm() {
       {/* Form Section */}
       <div className="w-full md:w-1/2 flex items-center justify-center p-8">
         <div className="bg-white rounded-2xl p-8 w-full max-w-md">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-3">Secure Login with OTP and MPIN</h2>
+          <h2 className="text-2xl font-semibold text-gray-800 mb-3">
+            Secure Login with OTP and MPIN
+          </h2>
           <p className="text-sm text-center text-gray-600 mb-10">{message}</p>
-          {error && <div className="text-red-500 text-sm mb-4 text-center">{error}</div>}
+          {error && (
+            <div className="text-red-500 text-sm mb-4 text-center">{error}</div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* OTP Input */}
             <div className="flex items-center">
-              <label className="block text-sm font-medium text-gray-700 mb-2 pr-3">Enter OTP: </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2 pr-3">
+                Enter OTP:{" "}
+              </label>
               <div className="flex space-x-2">
                 {otp.map((digit, index) => (
                   <input
@@ -190,6 +228,9 @@ export default function OTPForm() {
                     value={digit}
                     onChange={(e) => handleInputChange(e, index, "otp")}
                     onKeyDown={(e) => handleBackspace(e, index, "otp")}
+                    onClick={(e) => e.target.setSelectionRange(0, 1)} // Prevent caret movement
+                    onFocus={(e) => e.target.setSelectionRange(0, 1)} // Always position caret at start
+                    inputMode="numeric"
                   />
                 ))}
               </div>
@@ -204,7 +245,9 @@ export default function OTPForm() {
 
             {/* MPIN Input */}
             <div className="flex items-center">
-              <label className="block text-sm font-medium text-gray-700 mb-2 pr-2">Enter MPIN: </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2 pr-2">
+                Enter MPIN:{" "}
+              </label>
               <div className="flex space-x-2">
                 {mpin.map((digit, index) => (
                   <input
@@ -216,6 +259,9 @@ export default function OTPForm() {
                     value={digit}
                     onChange={(e) => handleInputChange(e, index, "mpin")}
                     onKeyDown={(e) => handleBackspace(e, index, "mpin")}
+                    onClick={(e) => e.target.setSelectionRange(0, 1)} // Prevent caret movement
+                    onFocus={(e) => e.target.setSelectionRange(0, 1)} // Always position caret at start
+                    inputMode="numeric"
                   />
                 ))}
               </div>
@@ -244,13 +290,22 @@ export default function OTPForm() {
               onClick={handleResendOtp}
               disabled={resending || resendTimer > 0}
               className={`${
-                resending || resendTimer > 0 ? "text-gray-400 cursor-not-allowed" : "text-indigo-600 hover:underline"
+                resending || resendTimer > 0
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-indigo-600 hover:underline"
               }`}
             >
-              {resending ? "Resending..." : resendTimer > 0 ? `Resend OTP in ${resendTimer}s` : "Resend OTP"}
+              {resending
+                ? "Resending..."
+                : resendTimer > 0
+                ? `Resend OTP in ${resendTimer}s`
+                : "Resend OTP"}
             </button>
 
-            <button onClick={handleForgotMpin} className="text-indigo-600 hover:underline">
+            <button
+              onClick={handleForgotMpin}
+              className="text-indigo-600 hover:underline"
+            >
               Forgot MPIN?
             </button>
           </div>

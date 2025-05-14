@@ -23,21 +23,8 @@ function PreviewPane({ formData, onClose, onSubmit, agreeTerms, setAgreeTerms })
       ["City", formData.busCity],
       ["State", formData.busState],
       ["Pincode", formData.busPincode],
-    ],
-    "Aadhaar Details": [
-      ["Aadhaar Number", formData.aadhaar],
-      ["Aadhaar Front", formData.aadhaarFront],
-      ["Aadhaar Back", formData.aadhaarBack],
-    ],
-    "PAN Details": [
-      ["PAN Number", formData.pan],
-      ["Uploaded PAN", formData.PAN],
-    ],
-    "Video KYC": [
-      ["Profile Photo", formData.profilePhoto],
-      ["Shop Photo", formData.shopPhoto],
-      ["Video", formData.video],
-    ],
+    ]
+    
   };
 
   return (
@@ -112,7 +99,7 @@ function PreviewPane({ formData, onClose, onSubmit, agreeTerms, setAgreeTerms })
           </button>
           <button
             onClick={() => {
-              if (agreeTerms) onSubmit();
+              if (agreeTerms) onSubmit(2);
               else alert("Please agree to the terms and conditions.");
             }}
             className={`px-4 py-2 rounded-lg shadow ${
