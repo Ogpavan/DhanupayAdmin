@@ -50,7 +50,7 @@ export default function UserDashboard() {
   const [activeService, setActiveService] = useState("recharge");
 
   return (
-    <div className="h-[79vh] overflow-scroll ">
+    <div className="h-[79vh] overflow-scroll hide-scrollbar">
       {/* Top icon bar */}
       <div className="flex overflow-x-auto justify-evenly bg-indigo-700 rounded-lg text-white px-4 py-3">
         {serviceOptions.map((service) => (
