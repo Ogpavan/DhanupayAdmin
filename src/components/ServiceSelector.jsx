@@ -107,7 +107,7 @@ function RenderForm({ activeService }) {
     default:
       return (
         <div className="bg-white overflow-x-scroll rounded-lg ">
-          <h2 className="text-xl font-semibold mb-4">{activeLabel} Payment</h2>
+          <h2 className=" font-semibold mb-4">{activeLabel} Payment</h2>
           <form className="space-y-4">
             <input type="text" placeholder="Enter Customer ID or Details" className="w-full p-2 border rounded" />
             <input type="number" placeholder="Enter Amount" className="w-full p-2 border rounded" />
@@ -121,11 +121,11 @@ function RenderForm({ activeService }) {
 export default function ServiceSelector({ activeService, setActiveService }) {
   return (
     <div className="  w-full h-full bg-white rounded-xl p-4">
-      <div className="flex justify-end absolute right-10 ">
+      {/* <div className="flex justify-end absolute right-10 ">
         <img src="/bharat-connect.png" alt="Bharat Connect" className="h-10" />
-      </div>
+      </div> */}
 
-      <div className="flex flex-wrap pr-20 gap-3 mb-6">
+      {/* <div className="flex flex-wrap pr-20 gap-3 mb-6">
         {allServices.map((service) => (
           <button
             key={service.id}
@@ -140,9 +140,27 @@ export default function ServiceSelector({ activeService, setActiveService }) {
             <span className="mt-1 text-center">{service.label}</span>
           </button>
         ))}
-      </div>
+      </div> */}
 
-      <div className="py-4">
+      <div className="grid grid-cols-12 gap-2 mb-6  ">
+  {allServices.map((service) => (
+    <button
+      key={service.id}
+      onClick={() => setActiveService(service.id)}
+      className={`flex flex-col items-center justify-center text-sm p-2 rounded-lg transition-all shadow-lg ${
+        activeService === service.id
+          ? "text-indigo-600 font-semibold border-b-2 border-orange-500 bg-gray-100"
+          : "text-gray-700 hover:text-indigo-500 bg-white"
+      }`}
+    >
+      <div className="text-xl mb-1">{service.icon}</div>
+      <span className="text-center text-[12px]">{service.label}</span>
+    </button>
+  ))}
+</div>
+
+
+      <div className="py-4 text-[12px]">
         <RenderForm activeService={activeService} />
       </div>
     </div>
