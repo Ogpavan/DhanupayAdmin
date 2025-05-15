@@ -140,7 +140,7 @@ export default function Electricity({ activeLabel }) {
     setTimeout(() => {
 
       setShowConfirmationScreen(false);
-    }, 50000);
+    }, 5000);
 
     console.log(formData);
 
