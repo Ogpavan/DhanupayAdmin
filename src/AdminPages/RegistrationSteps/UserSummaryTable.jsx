@@ -11,20 +11,17 @@ const UserSummaryTable = () => {
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showKycModal, setShowKycModal] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [statusLoadingIds, setStatusLoadingIds] = useState([]);
+  const [statusMessages, setStatusMessages] = useState({});
 
   const navigate = useNavigate();
-
-
+  const token = Cookies.get("token");
+  const userId = Cookies.get("UserId");
 
   useEffect(() => {
     const fetchUsers = async () => {
       setLoading(true);
       try {
-        const token = Cookies.get("token");
-        const userId = Cookies.get("UserId");
-
-        // console.log("[DEBUG] Token and UserId from cookies:", token, userId);
-
         if (!token || !userId) {
           console.error("Missing token or userId in cookies");
           setUsers([]);
@@ -42,12 +39,10 @@ const UserSummaryTable = () => {
             },
           }
         );
-
+        console.log(response.data);
         if (response.data.success) {
-          console.log("[DEBUG] Users fetched from API:", response.data.users);
           setUsers(response.data.users || []);
         } else {
-          console.error("API call successful but users not found.");
           setUsers([]);
         }
       } catch (error) {
@@ -59,68 +54,75 @@ const UserSummaryTable = () => {
     };
 
     fetchUsers();
-  }, []);
+  }, [token, userId]);
 
   const handleViewDetails = (user) => {
-    const formattedUser = {
-      usertypename: user.usertypename,
-      userId: user.userId,
-      newuserId: user.NewUserId,
-      
-      firstName: user.FirstName,
-      lastName: user.LastName,
-      mobile: user.MobileNumber,
-      altMobile: user.AlternateMobileNumber,
-      email: user.Email,
-      resState: user.personalsatename,
-      resCity: user.personalcityname,
-      resPincode: user.PersonalPincode,
-      resHouseNo: user.PersonalAddressLine1,
-      resArea: user.PersonalAddressLine2,
-      resLandmark: user.PersonalLandmark,
-      shopName: user.ShopName,
-      shopAddress: `${user.ShopAddressLine1 || ""} ${user.ShopAddressLine2 || ""}`.trim(),
-      busState: user.shopsatename,
-      busCity: user.shopcityname,
-      busPincode: user.ShopPincode,
-      busLandmark: user.ShopLandmark,
-      businessName: user.BusinessName,
-      firmName: user.FirmName,
-      aadhaar: user.AadhaarNumber,
-      pan: user.PanNumber,
-      kycVerified: user.IsKYC === "True" && user.IsDocumentVerified === "True",
-      esignVerified: user.IsEsignVerified === "True",
-      video: { name: user.VideoFileName },
-      profilePhoto: { name: user.ProfilePhotoName },
-      shopPhoto: { name: user.ShopPhotoName },
-      aadhaarFront: { name: user.AadhaarFrontFile },
-      aadhaarBack: { name: user.AadhaarBackFile },
-      panCardFile: { name: user.PanCardFile },
-    };
-
-    setSelectedUser(formattedUser);
+    setSelectedUser(user);
     setShowDetailsModal(true);
   };
 
-const handleViewKyc = (user) => {
-  const formattedUser = {
-    ...user,
-    userId: user.UserId || user.userId || "",
-    newUserId: user.NewUserId || user.newUserId || "",
-    aadhaarNumber: user.AadhaarNumber || "",
-    panNumber: user.PanNumber || "",
+  const handleViewKyc = (user) => {
+    setSelectedUser(user);
+    setShowKycModal(true);
   };
 
-  // console.log("[DEBUG] KYC Modal opening with data:", formattedUser); // ✅ Use correct variable name
+  const handleStatusChange = async (user, newStatus) => {
+    if (!token || !userId) {
+      alert("Authorization token or UserId missing");
+      return;
+    }
 
-  setSelectedUser(formattedUser);
-  setShowKycModal(true);
-};
+    const newUserId = user.NewUserID;
+
+    setStatusLoadingIds((ids) => [...ids, newUserId]);
+    setStatusMessages((msgs) => ({ ...msgs, [newUserId]: "" }));
+
+    try {
+      const response = await axios.post(
+        "https://gateway.dhanushop.com/api/users/ChangeUserStatus",
+        {
+          UserID: userId, // Admin ID from cookies
+          NewUserId: newUserId, // Target user
+          UserStatus: newStatus,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.data.success) {
+        setStatusMessages((msgs) => ({
+          ...msgs,
+          [newUserId]: "Status updated successfully",
+        }));
+
+        setUsers((prevUsers) =>
+          prevUsers.map((u) =>
+            u.NewUserID === newUserId ? { ...u, UserStatus: newStatus } : u
+          )
+        );
+      } else {
+        setStatusMessages((msgs) => ({
+          ...msgs,
+          [newUserId]: "Failed to update status",
+        }));
+      }
+    } catch (error) {
+      setStatusMessages((msgs) => ({
+        ...msgs,
+        [newUserId]: "Error updating status",
+      }));
+    } finally {
+      setStatusLoadingIds((ids) => ids.filter((id) => id !== newUserId));
+    }
+  };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        {/* Simple spinner using Tailwind */}
         <svg
           className="animate-spin h-12 w-12 text-blue-600"
           xmlns="http://www.w3.org/2000/svg"
@@ -167,6 +169,7 @@ const handleViewKyc = (user) => {
             <th className="px-4 py-2 border">Email</th>
             <th className="px-4 py-2 border">KYC</th>
             <th className="px-4 py-2 border">eSign</th>
+            <th className="px-4 py-2 border">User Status</th>
             <th className="px-4 py-2 border">Actions</th>
           </tr>
         </thead>
@@ -174,25 +177,32 @@ const handleViewKyc = (user) => {
           {users
             .filter((user) => user.UserType?.toLowerCase() !== "employee")
             .map((user) => {
-              const isKYCVerified = user.IsKYC === "True" && user.IsDocumentVerified === "True";
+              const isKYCVerified =
+                user.KycStatus === "Approved" && user.IsDocumentVerified === "True";
               const isEsignVerified = user.IsEsignVerified === "True";
+              const userStatus = user.UserStatus || "Pending";
+              const isLoading = statusLoadingIds.includes(user.NewUserID);
+              const statusMessage = statusMessages[user.NewUserID] || "";
 
               return (
-                <tr key={user.UserId || user.NewUserID}>
+                <tr key={user.NewUserID}>
                   <td className="px-4 py-2 border">{user.usertypename}</td>
                   <td className="px-4 py-2 border">{user.FirstName}</td>
                   <td className="px-4 py-2 border">{user.LastName}</td>
                   <td className="px-4 py-2 border">{user.MobileNumber}</td>
                   <td className="px-4 py-2 border">{user.Email}</td>
                   <td className="px-4 py-2 border">
-                    <button
-                      onClick={() => handleViewKyc(user)}
-                      className={`px-4 py-1 rounded-full text-sm font-semibold text-white ${
-                        isKYCVerified ? "bg-green-600" : "bg-yellow-600"
-                      }`}
-                    >
-                      {isKYCVerified ? "Verified" : "Pending"}
-                    </button>
+                    <td className="px-4 py-2 ">
+  <button
+    onClick={() => handleViewKyc(user)}
+    className={`px-4 py-1 rounded-full text-sm font-semibold text-white ${
+      user.KycStatus === "Approved" ? "bg-green-600" : "bg-yellow-600"
+    }`}
+  >
+    {user.KycStatus === "Approved" ? "Verified" : "Pending"}
+  </button>
+</td>
+
                   </td>
                   <td
                     className={`px-4 py-2 border ${
@@ -201,6 +211,26 @@ const handleViewKyc = (user) => {
                   >
                     {isEsignVerified ? "Verified" : "Not Verified"}
                   </td>
+                <td className="px-4 py-2 border">
+  <select
+    disabled={isLoading}
+    value={userStatus}
+    onChange={(e) => handleStatusChange(user, e.target.value)}
+    className={`border rounded-full px-2 py-1 text-sm text-white transition-colors duration-200 ${
+ 
+      userStatus === "Verified"
+        ? "bg-green-600"
+        : userStatus === "Pending"
+        ? "bg-yellow-600"
+        : "bg-red-600"
+    }`}
+  >
+    <option value="Pending">Pending</option>
+    <option value="Verified">Verified</option>
+    <option value="Blocked">Blocked</option>
+  </select>
+</td>
+
                   <td className="px-4 py-2 border">
                     <button
                       onClick={() => handleViewDetails(user)}
@@ -218,14 +248,20 @@ const handleViewKyc = (user) => {
       {showDetailsModal && selectedUser && (
         <UserDetailsModal
           formData={selectedUser}
-          onClose={() => setShowDetailsModal(false)}
+          onClose={() => {
+            setShowDetailsModal(false);
+            setSelectedUser(null);
+          }}
         />
       )}
 
       {showKycModal && selectedUser && (
         <KycDetailsModal
           formData={selectedUser}
-          onClose={() => setShowKycModal(false)}
+          onClose={() => {
+            setShowKycModal(false);
+            setSelectedUser(null);
+          }}
         />
       )}
     </div>

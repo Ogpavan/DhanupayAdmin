@@ -1,42 +1,49 @@
-import React, { useEffect, useRef, useState } from "react";
-import axios from "axios";
-import Swal from "sweetalert2";
-import Cookies from "js-cookie";
+  import React, { useEffect, useRef, useState } from "react";
+  import axios from "axios";
+  import Swal from "sweetalert2";
+  import Cookies from "js-cookie";
+import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
+import KycToggle from "./KycToggle";
 
-const BASE_URL = "https://gateway.dhanushop.com";
-const API_UPLOAD_DOCS = `${BASE_URL}/api/users/uploadDocuments`;
+  const BASE_URL = "https://gateway.dhanushop.com";
+  const API_UPLOAD_DOCS = `${BASE_URL}/api/users/uploadDocuments`;
 
-const userId = Cookies.get("UserId");
-const token = Cookies.get("token");
+  const userId = Cookies.get("UserId");
+  const token = Cookies.get("token");
 
-const KycDetailsModal = ({ formData = {}, onClose }) => {
-  const fileRefs = useRef({});
-  const [aadhaarNumber, setAadhaarNumber] = useState("");
-  const [panNumber, setPanNumber] = useState("");
-  const [existingDocs, setExistingDocs] = useState(null);
+  const KycDetailsModal = ({ formData = {}, onClose }) => {
+    const fileRefs = useRef({});
+    const [aadhaarNumber, setAadhaarNumber] = useState("");
+    const [error, setError] = useState("");
+    const [panNumber, setPanNumber] = useState("");
+    const [existingDocs, setExistingDocs] = useState(null);
+    const [panError, setPanError] = useState("");
+const [zoomImage, setZoomImage] = useState(null);
+    const [documents, setDocuments] = useState({
+      aadhaarFront: null,
+      aadhaarBack: null,
+      panImage: null,
+      profilePhoto: null,
+      shopPhoto: null,
+      video: null,
+      CancelCheque: null,
+    });
 
-  const [documents, setDocuments] = useState({
-    aadhaarFront: null,
-    aadhaarBack: null,
-    panImage: null,
-    profilePhoto: null,
-    shopPhoto: null,
-    video: null,
-    CancelCheque: null, 
-  });
+    const [uploading, setUploading] = useState("");
+const handleViewImage = (url) => {
+  setZoomImage(url);
+};
 
-  const [uploading, setUploading] = useState("");
-
-  useEffect(() => {
+const closeZoom = () => {
+  setZoomImage(null);
+};
     const fetchExistingDocs = async () => {
       try {
         const res = await axios.post(
           `${BASE_URL}/api/users/GetAllDocumentsbyUser`,
           { UserID: formData.NewUserID },
           {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+            headers: { Authorization: `Bearer ${token}` },
           }
         );
 
@@ -44,6 +51,7 @@ const KycDetailsModal = ({ formData = {}, onClose }) => {
           const groupedDocs = {
             Aadhaar: [],
             PAN: [],
+            KYC: [],
             Photo: [],
             ShopPhoto: [],
             Video: [],
@@ -51,6 +59,8 @@ const KycDetailsModal = ({ formData = {}, onClose }) => {
           };
 
           res.data.users.forEach((doc) => {
+         
+
             if (groupedDocs[doc.DocumentType]) {
               groupedDocs[doc.DocumentType].push(doc);
             }
@@ -68,18 +78,34 @@ const KycDetailsModal = ({ formData = {}, onClose }) => {
             panImage: groupedDocs.PAN[0]?.FrontImageURL
               ? BASE_URL + groupedDocs.PAN[0].FrontImageURL
               : "",
-            profilePhoto: groupedDocs.Photo[0]?.FrontImageURL
-              ? BASE_URL + groupedDocs.Photo[0].FrontImageURL
+
+            // OLD lines to remove:
+            // profilePhoto: groupedDocs.Photo[0]?.FrontImageURL ? BASE_URL + groupedDocs.Photo[0].FrontImageURL : "",
+            // shopPhoto: groupedDocs.ShopPhoto[0]?.BackImageURL ? BASE_URL + groupedDocs.ShopPhoto[0].BackImageURL : "",
+            // video: groupedDocs.Video[0]?.VideoFileUrl ? BASE_URL + groupedDocs.Video[0].VideoFileUrl : "",
+
+            // NEW lines:
+            profilePhoto: groupedDocs.KYC[0]?.FrontImageURL
+              ? BASE_URL + groupedDocs.KYC[0].FrontImageURL
               : "",
-            shopPhoto: groupedDocs.ShopPhoto[0]?.BackImageURL
-              ? BASE_URL + groupedDocs.ShopPhoto[0].BackImageURL
+            shopPhoto: groupedDocs.KYC[0]?.BackImageURL
+              ? BASE_URL + groupedDocs.KYC[0].BackImageURL
               : "",
-            video: groupedDocs.Video[0]?.VideoFileUrl
-              ? BASE_URL + groupedDocs.Video[0].VideoFileUrl
+            video: groupedDocs.KYC[0]?.VideoFileUrl
+              ? BASE_URL + groupedDocs.KYC[0].VideoFileUrl
               : "",
-              CancelCheque: groupedDocs.CancelCheque?.[0]?.FrontImageURL
-    ? BASE_URL + groupedDocs.CancelCheque[0].FrontImageURL
-    : "",
+
+            CancelCheque: groupedDocs.CancelCheque[0]?.FrontImageURL
+              ? BASE_URL + groupedDocs.CancelCheque[0].FrontImageURL
+              : "",
+
+            status: {
+              Aadhaar: groupedDocs.Aadhaar[0]?.Documentstatus || "Pending",
+              PAN: groupedDocs.PAN[0]?.Documentstatus || "Pending",
+              KYC: groupedDocs.KYC[0]?.Documentstatus || "Pending", // Also fix status key here
+              CancelCheque:
+                groupedDocs.CancelCheque[0]?.Documentstatus || "Pending",
+            },
           }));
 
           setAadhaarNumber(groupedDocs.Aadhaar[0]?.DocumentNumber || "");
@@ -90,161 +116,277 @@ const KycDetailsModal = ({ formData = {}, onClose }) => {
       }
     };
 
-    if (formData.NewUserID) {
-      fetchExistingDocs();
-    }
-  }, [formData.NewUserID]);
+    useEffect(() => {
+      if (formData.NewUserID) {
+        fetchExistingDocs();
+      }
+    }, [formData.NewUserID]);
 
-  const handleUploadClick = (key) => {
-    fileRefs.current[key]?.click();
-  };
+    const handleUploadClick = (key) => {
+      fileRefs.current[key]?.click();
+    };
 
-  const handleFileChange = (e, key) => {
-    const file = e.target.files[0];
-    if (file) {
-      setDocuments((prev) => ({ ...prev, [key]: file }));
-    }
-  };
+    const handleFileChange = (e, key) => {
+      const file = e.target.files[0];
+      if (file) {
+        setDocuments((prev) => ({ ...prev, [key]: file }));
+      }
+    };
 
-const uploadDocuments = async (type) => {
-  setUploading(type);
-  const data = new FormData();
+    //verify
+    const verifyDocument = async (type, status) => {
+      let remark = "";
 
-  data.append("UserId", userId);
-  data.append("newUserId", formData.NewUserID);
-  data.append("DocumentType", type);
+      if (status === "Rejected") {
+        const { value } = await Swal.fire({
+          title: "Reason for Rejection",
+          input: "text",
+          inputLabel: "Enter a remark",
+          inputPlaceholder: "Type reason here...",
+          inputValidator: (value) => {
+            if (!value) {
+              return "Remark is required for rejection.";
+            }
+          },
+          showCancelButton: true,
+        });
 
-  if (type === "Aadhaar") {
-    if (!aadhaarNumber || !documents.aadhaarFront || !documents.aadhaarBack) {
-      Swal.fire(
-        "Missing Fields",
-        "Please provide Aadhaar number, front and back images.",
-        "warning"
+        if (!value) return; // Cancelled
+        remark = value;
+      }
+
+      try {
+        const response = await axios.post(
+          `${BASE_URL}/api/users/VerifyDocument`,
+          {
+            UserID: userId,
+            NewUserID: formData.NewUserID,
+            DocumentType: type,
+            Documentstatus: status,
+            Remarks: remark,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        if (response.data.success) {
+          Swal.fire("Success", response.data.message, "success");
+
+          // Optional: Refresh document status
+          if (formData.NewUserID) {
+            await fetchExistingDocs();
+          }
+        } else {
+          Swal.fire(
+            "Error",
+            response.data.message || "Verification failed",
+            "error"
+          );
+        }
+      } catch (error) {
+        console.error("[ERROR] Document verification failed:", error);
+        Swal.fire("Error", "Document verification failed", "error");
+      }
+    };
+
+    const uploadDocuments = async (type) => {
+      setUploading(type);
+      const data = new FormData();
+
+      data.append("UserId", userId);
+      data.append("newUserId", formData.NewUserID);
+      data.append("DocumentType", type);
+
+      if (type === "Aadhaar") {
+        if (!aadhaarNumber || !documents.aadhaarFront || !documents.aadhaarBack) {
+          Swal.fire(
+            "Missing Fields",
+            "Please provide Aadhaar number, front and back images.",
+            "warning"
+          );
+          setUploading("");
+          return;
+        }
+        data.append("DocumentNumber", aadhaarNumber);
+        data.append("FrontImage", documents.aadhaarFront);
+        data.append("BackImage", documents.aadhaarBack);
+      } else if (type === "PAN") {
+        if (!panNumber || !documents.panImage) {
+          Swal.fire(
+            "Missing Fields",
+            "Please provide PAN number and image.",
+            "warning"
+          );
+          setUploading("");
+          return;
+        }
+        data.append("DocumentNumber", panNumber);
+        data.append("FrontImage", documents.panImage);
+      } else if (type === "KYC") {
+        if (!documents.profilePhoto || !documents.shopPhoto || !documents.video) {
+          Swal.fire(
+            "Missing Fields",
+            "Please provide profile photo, shop photo, and video.",
+            "warning"
+          );
+          setUploading("");
+          return;
+        }
+        data.append("FrontImage", documents.profilePhoto);
+        data.append("BackImage", documents.shopPhoto);
+        data.append("VideoFile", documents.video);
+      } else if (type === "CancelCheque") {
+        if (!documents.CancelCheque) {
+          Swal.fire(
+            "Missing Fields",
+            "Please provide Cancel Check document.",
+            "warning"
+          );
+          setUploading("");
+          return;
+        }
+        data.append("FrontImage", documents.CancelCheque);
+      }
+
+      try {
+        const response = await axios.post(API_UPLOAD_DOCS, data, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.data.success === true) {
+          Swal.fire("Success", "Documents uploaded successfully", "success");
+
+          const docs = response.data.documents || {};
+
+          setDocuments((prev) => ({
+            ...prev,
+            ...(type === "Aadhaar" && {
+              aadhaarFront: docs.aadhaarFrontUrl || prev.aadhaarFront,
+              aadhaarBack: docs.aadhaarBackUrl || prev.aadhaarBack,
+            }),
+            ...(type === "PAN" && {
+              panImage: docs.panImageUrl || prev.panImage,
+            }),
+            ...(type === "KYC" && {
+              profilePhoto: docs.profilePhotoUrl || prev.profilePhoto,
+              shopPhoto: docs.shopPhotoUrl || prev.shopPhoto,
+              video: docs.videoUrl || prev.video,
+            }),
+            ...(type === "CancelCheque" && {
+              CancelCheque: docs.CancelChequeUrl || prev.CancelCheque,
+            }),
+          }));
+        } else {
+          Swal.fire("Error", response.data.message || "Upload failed", "error");
+        }
+      } catch (error) {
+        console.error("[ERROR] Upload failed:", error);
+        Swal.fire("Error", "Failed to upload documents", "error");
+      } finally {
+        setUploading("");
+      }
+    };
+
+    const isAadhaarValid = () => {
+      return (
+        aadhaarNumber.length === 12 &&
+        !/^(\d)\1{11}$/.test(aadhaarNumber) &&
+        !error
       );
-      setUploading("");
-      return;
-    }
-    data.append("DocumentNumber", aadhaarNumber);
-    data.append("FrontImage", documents.aadhaarFront);
-    data.append("BackImage", documents.aadhaarBack);
-  } else if (type === "PAN") {
-    if (!panNumber || !documents.panImage) {
-      Swal.fire(
-        "Missing Fields",
-        "Please provide PAN number and image.",
-        "warning"
-      );
-      setUploading("");
-      return;
-    }
-    data.append("DocumentNumber", panNumber);
-    data.append("FrontImage", documents.panImage);
-  } else if (type === "KYC") {
-    if (!documents.profilePhoto || !documents.shopPhoto || !documents.video) {
-      Swal.fire(
-        "Missing Fields",
-        "Please provide profile photo, shop photo, and video.",
-        "warning"
-      );
-      setUploading("");
-      return;
-    }
-    data.append("FrontImage", documents.profilePhoto);
-    data.append("BackImage", documents.shopPhoto);
-    data.append("VideoFile", documents.video);
-  } else if (type === "CancelCheque") {
-    if (!documents.CancelCheque) {
-      Swal.fire(
-        "Missing Fields",
-        "Please provide Cancel Check document.",
-        "warning"
-      );
-      setUploading("");
-      return;
-    }
-    data.append("FrontImage", documents.CancelCheque);
-  }
+    };
 
-  try {
-    const response = await axios.post(API_UPLOAD_DOCS, data, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    if (response.data.success === true) {
-      Swal.fire("Success", "Documents uploaded successfully", "success");
-
-      const docs = response.data.documents || {};
-
-      setDocuments((prev) => ({
-        ...prev,
-        ...(type === "Aadhaar" && {
-          aadhaarFront: docs.aadhaarFrontUrl || prev.aadhaarFront,
-          aadhaarBack: docs.aadhaarBackUrl || prev.aadhaarBack,
-        }),
-        ...(type === "PAN" && {
-          panImage: docs.panImageUrl || prev.panImage,
-        }),
-        ...(type === "KYC" && {
-          profilePhoto: docs.profilePhotoUrl || prev.profilePhoto,
-          shopPhoto: docs.shopPhotoUrl || prev.shopPhoto,
-          video: docs.videoUrl || prev.video,
-        }),
-        ...(type === "CancelCheque" && {
-          CancelCheque: docs.CancelChequeUrl || prev.CancelCheque,
-        }),
-      }));
-    } else {
-      Swal.fire("Error", response.data.message || "Upload failed", "error");
-    }
-  } catch (error) {
-    console.error("[ERROR] Upload failed:", error);
-    Swal.fire("Error", "Failed to upload documents", "error");
-  } finally {
-    setUploading("");
-  }
+   const isPanValid = () => {
+  return /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(panNumber.toUpperCase());
 };
 
 
-  const renderRow = (label, key) => {
-    const file = documents[key];
-    const isUploaded = typeof file === "string";
+    const handlePanChange = (e) => {
+      let value = e.target.value.toUpperCase();
+      setPanNumber(value);
 
-    return (
-      <tr key={key}>
-        <td className="p-2 font-semibold border">{label}</td>
-        <td className="p-2 border text-center">
-          <input
-            type="file"
-            hidden
-            ref={(el) => (fileRefs.current[key] = el)}
-            onChange={(e) => handleFileChange(e, key)}
-            disabled={uploading !== ""}
-          />
-          {file ? (
-            <>
-              {isUploaded ? (
-                <a
-                  href={file}
-                  target="_blank"
-                  rel="noopener noreferrer"
+      // PAN format: 5 letters, 4 digits, 1 letter (e.g., ABCDE1234F)
+      const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+
+      if (!panRegex.test(value)) {
+        setPanError("Invalid PAN format (e.g., ABCDE1234F)");
+      } else {
+        setPanError("");
+      }
+    };
+
+const renderRow = (label, key) => {
+  const file = documents[key];
+  const isUploaded = typeof file === "string";
+
+  // Map keys to document types for status
+  const keyToTypeMap = {
+    aadhaarFront: "Aadhaar",
+    aadhaarBack: "Aadhaar",
+    panImage: "PAN",
+    profilePhoto: "KYC",
+    shopPhoto: "KYC",
+    video: "KYC",
+    CancelCheque: "CancelCheque",
+  };
+
+  const type = keyToTypeMap[key];
+  const status = documents.status?.[type] || "Pending";
+  const isApproved = status === "Approved";
+
+  return (
+    <tr key={key}>
+      <td className="p-2 font-semibold border">{label}</td>
+      <td className="p-2 border text-center">
+        <input
+          type="file"
+          hidden
+          ref={(el) => (fileRefs.current[key] = el)}
+          onChange={(e) => handleFileChange(e, key)}
+          disabled={uploading !== ""}
+        />
+        {file ? (
+          <>
+            {isUploaded ? (
+              <>
+                <button
+                  onClick={() => handleViewImage(file)}
                   className="text-indigo-600 underline mr-2"
                 >
                   View
-                </a>
-              ) : (
+                </button>
+                {!isApproved && (
+                  <button
+                    onClick={() => handleUploadClick(key)}
+                    className="text-blue-600 hover:underline"
+                    disabled={uploading !== ""}
+                  >
+                    Change
+                  </button>
+                )}
+              </>
+            ) : (
+              <>
                 <span className="mr-2">{file.name}</span>
-              )}
-              <button
-                onClick={() => handleUploadClick(key)}
-                className="text-blue-600 hover:underline"
-                disabled={uploading !== ""}
-              >
-                Change
-              </button>
-            </>
-          ) : (
+                {!isApproved && (
+                  <button
+                    onClick={() => handleUploadClick(key)}
+                    className="text-blue-600 hover:underline"
+                    disabled={uploading !== ""}
+                  >
+                    Change
+                  </button>
+                )}
+              </>
+            )}
+          </>
+        ) : (
+          !isApproved && (
             <button
               onClick={() => handleUploadClick(key)}
               className="text-indigo-600 hover:underline"
@@ -252,96 +394,237 @@ const uploadDocuments = async (type) => {
             >
               Select File
             </button>
-          )}
-        </td>
-      </tr>
-    );
-  };
-
-  const renderUploadButton = (type, label) => (
-    <tr key={`${type}-upload`}>
-      <td colSpan={2} className="text-right p-2">
-        <button
-          className={`px-4 py-1 rounded text-white ${
-            uploading === type ? "bg-gray-400" : "bg-blue-500"
-          }`}
-          onClick={() => uploadDocuments(type)}
-          disabled={uploading !== ""}
-        >
-          {uploading === type ? "Uploading..." : `Upload ${label}`}
-        </button>
+          )
+        )}
       </td>
     </tr>
   );
+};
+
+
+    const handleChange = (e) => {
+      let value = e.target.value;
+
+      // Remove non-digit chars immediately
+      value = value.replace(/\D/g, "");
+
+      // Limit length to max 12 digits
+      if (value.length > 12) {
+        value = value.slice(0, 12);
+      }
+
+      setAadhaarNumber(value);
+
+      // Validate length
+      if (value.length < 12) {
+        setError("Aadhaar number must be 12 digits");
+      } else if (/^(\d)\1{11}$/.test(value)) {
+        // Check for 12 identical digits (invalid Aadhaar)
+        setError("Invalid Aadhaar number");
+      } else {
+        setError("");
+      }
+    };
+
+const renderUploadButton = (type, label) => {
+  const status = documents.status?.[type] || "Pending";
+  const isApproved = status === "Approved";
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-center items-center bg-black bg-opacity-40">
-      <div className="bg-white w-full max-w-4xl rounded shadow-lg overflow-hidden">
-        <div className="p-4 border-b flex justify-between items-center">
-          <h2 className="text-lg font-semibold">Upload KYC Documents</h2>
+    <tr key={`${type}-upload`}>
+      <td colSpan={2} className="text-right p-2 space-x-2">
+        {/* Hide Upload button if Approved */}
+        {!isApproved && (
           <button
-            onClick={onClose}
-            className="text-xl text-gray-600 hover:text-black"
+            className={`px-4 py-1 rounded text-white ${
+              uploading === type ? "bg-gray-400" : "bg-blue-500"
+            }`}
+            onClick={() => uploadDocuments(type)}
+            disabled={
+              uploading !== "" ||
+              (type === "Aadhaar" && !isAadhaarValid()) ||
+              (type === "PAN" && !isPanValid())
+            }
+          >
+            {uploading === type ? "Uploading..." : `Upload ${label}`}
+          </button>
+        )}
+
+        {/* Always show Approve button if not Approved */}
+        {!isApproved && (
+          <button
+            className="px-4 py-1 bg-green-600 text-white rounded hover:bg-green-700"
+            onClick={() => verifyDocument(type, "Approved")}
             disabled={uploading !== ""}
           >
-            &times;
+            Approve
           </button>
-        </div>
-        <div className="p-4 overflow-auto">
-          <table className="w-full text-sm border">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="p-2 border">Document</th>
-                <th className="p-2 border">Select / File Name</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td className="p-2 font-semibold border">Aadhaar Number</td>
-                <td className="p-2 border">
-                  <input
-                    type="text"
-                    className="w-full border p-1"
-                    value={aadhaarNumber}
-                    onChange={(e) => setAadhaarNumber(e.target.value)}
-                    placeholder="Enter Aadhaar number"
-                    disabled={uploading !== ""}
-                  />
-                </td>
-              </tr>
-              {renderRow("Aadhaar Front", "aadhaarFront")}
-              {renderRow("Aadhaar Back", "aadhaarBack")}
-              {renderUploadButton("Aadhaar", "Aadhaar")}
+        )}
 
-              <tr>
-                <td className="p-2 font-semibold border">PAN Number</td>
-                <td className="p-2 border">
-                  <input
-                    type="text"
-                    className="w-full border p-1"
-                    value={panNumber}
-                    onChange={(e) => setPanNumber(e.target.value)}
-                    placeholder="Enter PAN number"
-                    disabled={uploading !== ""}
-                  />
-                </td>
-              </tr>
-              {renderRow("PAN Image", "panImage")}
-              {renderUploadButton("PAN", "PAN")}
+        {/* Show Reject button only if not already rejected */}
+        {status !== "Rejected" && !isApproved && (
+          <button
+            className="px-4 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+            onClick={() => verifyDocument(type, "Rejected")}
+            disabled={uploading !== ""}
+          >
+            Reject
+          </button>
+        )}
 
-              {renderRow("Profile Photo", "profilePhoto")}
-              {renderRow("Shop Photo", "shopPhoto")}
-              {renderRow("Video", "video")}
-              {renderUploadButton("KYC", "KYC")}
-              {renderRow("Cancel Check", "CancelCheque")}
-{renderUploadButton("CancelCheque", "Cancel Check")}
-
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
+        {/* Show current status */}
+        <span
+          className={`ml-4 font-semibold ${
+            status === "Approved"
+              ? "text-green-600"
+              : status === "Rejected"
+              ? "text-red-600"
+              : "text-yellow-600"
+          }`}
+        >
+          {status}
+        </span>
+      </td>
+    </tr>
   );
 };
 
-export default KycDetailsModal;
+
+    return (
+      <div className="fixed inset-0 z-50 flex justify-center items-center bg-black bg-opacity-40">
+        <div className="bg-white w-full max-w-4xl rounded shadow-lg overflow-hidden">
+          <div className="p-4 border-b flex justify-between items-center">
+            <h2 className="text-lg font-semibold">
+              Upload KYC Documents for
+              <span className="text-indigo-600">
+                {" "}
+                {formData.FirstName + " " + formData.LastName || "User"}
+              </span>
+            </h2>
+            <KycToggle userId={userId} token={token} NewUserId={formData.NewUserID}   initialKycStatus={formData.KycStatus} />
+
+            <button
+              onClick={onClose}
+              className="text-xl text-gray-600 hover:text-black"
+              disabled={uploading !== ""}
+            >
+              &times;
+            </button>
+          </div>
+          <div className="p-4 overflow-auto">
+            <table className="w-full text-sm border">
+              <thead className="bg-gray-100">
+                <tr>
+                  <th className="p-2 border">Document</th>
+                  <th className="p-2 border">Select / File Name</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td className="p-2 font-semibold border">Aadhaar Number</td>
+                  <td className="p-2 border">
+                    <div>
+                      <input
+                        type="text"
+                        className={`w-full border p-1 ${
+                          error ? "border-red-500" : ""
+                        }`}
+                        value={aadhaarNumber}
+                        onChange={handleChange}
+                        placeholder="Enter Aadhaar number"
+                        maxLength={12}
+                        disabled={uploading !== ""}
+                      />
+                      {error && (
+                        <p className="text-red-600 text-sm mt-1">{error}</p>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+                {renderRow("Aadhaar Front", "aadhaarFront")}
+                {renderRow("Aadhaar Back", "aadhaarBack")}
+                {renderUploadButton("Aadhaar", "Aadhaar")}
+
+                <tr>
+                  <td className="p-2 font-semibold border">PAN Number</td>
+                  <td className="p-2 border">
+                    <input
+                      type="text"
+                      className={`w-full border p-1 ${
+                        panError ? "border-red-500" : ""
+                      }`}
+                      value={panNumber}
+                      onChange={handlePanChange}
+                      placeholder="Enter PAN number"
+                      maxLength={10}
+                      disabled={uploading !== ""}
+                    />
+                    {panError && (
+                      <p className="text-red-600 text-sm mt-1">{panError}</p>
+                    )}
+                  </td>
+                </tr>
+
+                {renderRow("PAN Image", "panImage")}
+                {renderUploadButton("PAN", "PAN")}
+
+                {renderRow("Profile Photo", "profilePhoto")}
+                {renderRow("Shop Photo", "shopPhoto")}
+                {renderRow("Video", "video")}
+                {renderUploadButton("KYC", "KYC")}
+                {renderRow("Cancel Check", "CancelCheque")}
+                {renderUploadButton("CancelCheque", "Cancel Check")}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        {zoomImage && (
+  <div
+    onClick={closeZoom}
+    className="fixed inset-0 bg-black bg-opacity-90 flex justify-center items-center cursor-zoom-out z-60"
+  >
+    <div
+      onClick={(e) => e.stopPropagation()} // Prevent close on image drag
+      className="max-w-full max-h-full p-4 bg-white rounded shadow-lg"
+      style={{ maxWidth: "90vw", maxHeight: "90vh" }}
+    >
+     <TransformWrapper
+  key={zoomImage}
+  initialScale={1}
+  minScale={1}
+  maxScale={5}
+  wheel={{ step: 0.2 }}
+  doubleClick={{ disabled: true }}
+>
+  {( ) => (
+    <>
+   
+      <TransformComponent>
+        <img
+          src={zoomImage}
+          alt="Zoomed document"
+          style={{
+            maxWidth: "100%",
+            maxHeight: "80vh",
+            userSelect: "none",
+            pointerEvents: "auto",
+          }}
+          onLoad={(e) => {
+            // Sometimes forcing re-render on image load fixes internal calc issues
+            e.currentTarget.style.width = "auto";
+            e.currentTarget.style.height = "auto";
+          }}
+        />
+      </TransformComponent>
+    </>
+  )}
+</TransformWrapper>
+
+    </div>
+  </div>
+)}
+      </div>
+    );
+  };
+
+  export default KycDetailsModal;

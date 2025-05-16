@@ -16,7 +16,7 @@ export default function LoginPage() {
   const [tempUserId, settempUserId] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [userType, setUserType] = useState("Admin");
+  const [userType, setUserType] = useState("");
 
   const navigate = useNavigate();
 
