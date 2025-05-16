@@ -23,7 +23,7 @@ const UserSummaryTable = () => {
         const token = Cookies.get("token");
         const userId = Cookies.get("UserId");
 
-        console.log("[DEBUG] Token and UserId from cookies:", token, userId);
+        // console.log("[DEBUG] Token and UserId from cookies:", token, userId);
 
         if (!token || !userId) {
           console.error("Missing token or userId in cookies");
@@ -63,7 +63,7 @@ const UserSummaryTable = () => {
 
   const handleViewDetails = (user) => {
     const formattedUser = {
-      userType: user.UserType,
+      usertypename: user.usertypename,
       userId: user.userId,
       newuserId: user.NewUserId,
       
@@ -72,16 +72,16 @@ const UserSummaryTable = () => {
       mobile: user.MobileNumber,
       altMobile: user.AlternateMobileNumber,
       email: user.Email,
-      resState: user.PersonalStateID,
-      resCity: user.PersonalCityID,
+      resState: user.personalsatename,
+      resCity: user.personalcityname,
       resPincode: user.PersonalPincode,
       resHouseNo: user.PersonalAddressLine1,
       resArea: user.PersonalAddressLine2,
       resLandmark: user.PersonalLandmark,
       shopName: user.ShopName,
       shopAddress: `${user.ShopAddressLine1 || ""} ${user.ShopAddressLine2 || ""}`.trim(),
-      busState: user.ShopStateID,
-      busCity: user.ShopCityID,
+      busState: user.shopsatename,
+      busCity: user.shopcityname,
       busPincode: user.ShopPincode,
       busLandmark: user.ShopLandmark,
       businessName: user.BusinessName,
@@ -111,7 +111,7 @@ const handleViewKyc = (user) => {
     panNumber: user.PanNumber || "",
   };
 
-  console.log("[DEBUG] KYC Modal opening with data:", formattedUser); // ✅ Use correct variable name
+  // console.log("[DEBUG] KYC Modal opening with data:", formattedUser); // ✅ Use correct variable name
 
   setSelectedUser(formattedUser);
   setShowKycModal(true);
@@ -179,7 +179,7 @@ const handleViewKyc = (user) => {
 
               return (
                 <tr key={user.UserId || user.NewUserID}>
-                  <td className="px-4 py-2 border">{user.UserType}</td>
+                  <td className="px-4 py-2 border">{user.usertypename}</td>
                   <td className="px-4 py-2 border">{user.FirstName}</td>
                   <td className="px-4 py-2 border">{user.LastName}</td>
                   <td className="px-4 py-2 border">{user.MobileNumber}</td>

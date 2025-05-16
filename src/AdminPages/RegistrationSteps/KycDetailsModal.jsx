@@ -9,11 +9,11 @@ const API_UPLOAD_DOCS = `${BASE_URL}/api/users/uploadDocuments`;
 const userId = Cookies.get("UserId");
 const token = Cookies.get("token");
 
-
 const KycDetailsModal = ({ formData = {}, onClose }) => {
   const fileRefs = useRef({});
   const [aadhaarNumber, setAadhaarNumber] = useState("");
   const [panNumber, setPanNumber] = useState("");
+  const [existingDocs, setExistingDocs] = useState(null);
 
   const [documents, setDocuments] = useState({
     aadhaarFront: null,
@@ -22,39 +22,105 @@ const KycDetailsModal = ({ formData = {}, onClose }) => {
     profilePhoto: null,
     shopPhoto: null,
     video: null,
+    CancelCheque: null, 
   });
 
   const [uploading, setUploading] = useState("");
 
-    useEffect(() => {
-    console.log("[DEBUG] formData received in KYC modal:", formData);
-  }, [formData]);
-  
+  useEffect(() => {
+    const fetchExistingDocs = async () => {
+      try {
+        const res = await axios.post(
+          `${BASE_URL}/api/users/GetAllDocumentsbyUser`,
+          { UserID: formData.NewUserID },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (res.data.success && Array.isArray(res.data.users)) {
+          const groupedDocs = {
+            Aadhaar: [],
+            PAN: [],
+            Photo: [],
+            ShopPhoto: [],
+            Video: [],
+            CancelCheque: [],
+          };
+
+          res.data.users.forEach((doc) => {
+            if (groupedDocs[doc.DocumentType]) {
+              groupedDocs[doc.DocumentType].push(doc);
+            }
+          });
+
+          setExistingDocs(groupedDocs);
+          setDocuments((prev) => ({
+            ...prev,
+            aadhaarFront: groupedDocs.Aadhaar[0]?.FrontImageURL
+              ? BASE_URL + groupedDocs.Aadhaar[0].FrontImageURL
+              : "",
+            aadhaarBack: groupedDocs.Aadhaar[0]?.BackImageURL
+              ? BASE_URL + groupedDocs.Aadhaar[0].BackImageURL
+              : "",
+            panImage: groupedDocs.PAN[0]?.FrontImageURL
+              ? BASE_URL + groupedDocs.PAN[0].FrontImageURL
+              : "",
+            profilePhoto: groupedDocs.Photo[0]?.FrontImageURL
+              ? BASE_URL + groupedDocs.Photo[0].FrontImageURL
+              : "",
+            shopPhoto: groupedDocs.ShopPhoto[0]?.BackImageURL
+              ? BASE_URL + groupedDocs.ShopPhoto[0].BackImageURL
+              : "",
+            video: groupedDocs.Video[0]?.VideoFileUrl
+              ? BASE_URL + groupedDocs.Video[0].VideoFileUrl
+              : "",
+              CancelCheque: groupedDocs.CancelCheque?.[0]?.FrontImageURL
+    ? BASE_URL + groupedDocs.CancelCheque[0].FrontImageURL
+    : "",
+          }));
+
+          setAadhaarNumber(groupedDocs.Aadhaar[0]?.DocumentNumber || "");
+          setPanNumber(groupedDocs.PAN[0]?.DocumentNumber || "");
+        }
+      } catch (error) {
+        console.error("[ERROR] Failed to fetch existing documents:", error);
+      }
+    };
+
+    if (formData.NewUserID) {
+      fetchExistingDocs();
+    }
+  }, [formData.NewUserID]);
+
   const handleUploadClick = (key) => {
-    console.log(`[DEBUG] Triggering file input click for: ${key}`);
     fileRefs.current[key]?.click();
   };
 
   const handleFileChange = (e, key) => {
     const file = e.target.files[0];
     if (file) {
-      console.log(`[DEBUG] Selected file for ${key}:`, file);
       setDocuments((prev) => ({ ...prev, [key]: file }));
     }
   };
 
 const uploadDocuments = async (type) => {
-  console.log(`[DEBUG] Starting upload for document type: ${type}`);
   setUploading(type);
   const data = new FormData();
 
   data.append("UserId", userId);
-    data.append("newUserId", formData.NewUserID );
+  data.append("newUserId", formData.NewUserID);
   data.append("DocumentType", type);
 
   if (type === "Aadhaar") {
     if (!aadhaarNumber || !documents.aadhaarFront || !documents.aadhaarBack) {
-      Swal.fire("Missing Fields", "Please provide Aadhaar number, front and back images.", "warning");
+      Swal.fire(
+        "Missing Fields",
+        "Please provide Aadhaar number, front and back images.",
+        "warning"
+      );
       setUploading("");
       return;
     }
@@ -63,7 +129,11 @@ const uploadDocuments = async (type) => {
     data.append("BackImage", documents.aadhaarBack);
   } else if (type === "PAN") {
     if (!panNumber || !documents.panImage) {
-      Swal.fire("Missing Fields", "Please provide PAN number and image.", "warning");
+      Swal.fire(
+        "Missing Fields",
+        "Please provide PAN number and image.",
+        "warning"
+      );
       setUploading("");
       return;
     }
@@ -71,77 +141,117 @@ const uploadDocuments = async (type) => {
     data.append("FrontImage", documents.panImage);
   } else if (type === "KYC") {
     if (!documents.profilePhoto || !documents.shopPhoto || !documents.video) {
-      Swal.fire("Missing Fields", "Please provide profile photo, shop photo, and video.", "warning");
+      Swal.fire(
+        "Missing Fields",
+        "Please provide profile photo, shop photo, and video.",
+        "warning"
+      );
       setUploading("");
       return;
     }
     data.append("FrontImage", documents.profilePhoto);
     data.append("BackImage", documents.shopPhoto);
     data.append("VideoFile", documents.video);
+  } else if (type === "CancelCheque") {
+    if (!documents.CancelCheque) {
+      Swal.fire(
+        "Missing Fields",
+        "Please provide Cancel Check document.",
+        "warning"
+      );
+      setUploading("");
+      return;
+    }
+    data.append("FrontImage", documents.CancelCheque);
   }
 
-  // Debug output to check FormData content:
-  // for (const pair of data.entries()) {
-  //   console.log(`${pair[0]}:`, pair[1]);
-  // }
+  try {
+    const response = await axios.post(API_UPLOAD_DOCS, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-    try {
-      console.log("[DEBUG] Starting upload for data:", data);
-      const response = await axios.post(API_UPLOAD_DOCS, data, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          // DO NOT set Content-Type manually here
-        },
-      });
+    if (response.data.success === true) {
+      Swal.fire("Success", "Documents uploaded successfully", "success");
 
-      console.log("[DEBUG] Upload response:", response.data);
+      const docs = response.data.documents || {};
 
-      if (response.data.success === true) {
-        Swal.fire("Success", "Documents uploaded successfully", "success");
-        setDocuments({
-          aadhaarFront: null,
-          aadhaarBack: null,
-          panImage: null,
-          profilePhoto: null,
-          shopPhoto: null,
-          video: null,
-        });
-      } else {
-        Swal.fire("Error", response.data.message || "Upload failed", "error");
-      }
-    } catch (error) {
-      console.error("[ERROR] Upload failed:", error);
-      Swal.fire("Error", "Failed to upload documents", "error");
-    } finally {
-      setUploading("");
+      setDocuments((prev) => ({
+        ...prev,
+        ...(type === "Aadhaar" && {
+          aadhaarFront: docs.aadhaarFrontUrl || prev.aadhaarFront,
+          aadhaarBack: docs.aadhaarBackUrl || prev.aadhaarBack,
+        }),
+        ...(type === "PAN" && {
+          panImage: docs.panImageUrl || prev.panImage,
+        }),
+        ...(type === "KYC" && {
+          profilePhoto: docs.profilePhotoUrl || prev.profilePhoto,
+          shopPhoto: docs.shopPhotoUrl || prev.shopPhoto,
+          video: docs.videoUrl || prev.video,
+        }),
+        ...(type === "CancelCheque" && {
+          CancelCheque: docs.CancelChequeUrl || prev.CancelCheque,
+        }),
+      }));
+    } else {
+      Swal.fire("Error", response.data.message || "Upload failed", "error");
     }
-  };
+  } catch (error) {
+    console.error("[ERROR] Upload failed:", error);
+    Swal.fire("Error", "Failed to upload documents", "error");
+  } finally {
+    setUploading("");
+  }
+};
 
 
   const renderRow = (label, key) => {
     const file = documents[key];
+    const isUploaded = typeof file === "string";
+
     return (
       <tr key={key}>
         <td className="p-2 font-semibold border">{label}</td>
         <td className="p-2 border text-center">
+          <input
+            type="file"
+            hidden
+            ref={(el) => (fileRefs.current[key] = el)}
+            onChange={(e) => handleFileChange(e, key)}
+            disabled={uploading !== ""}
+          />
           {file ? (
-            <span>{file.name}</span>
-          ) : (
             <>
-              <input
-                type="file"
-                hidden
-                ref={(el) => (fileRefs.current[key] = el)}
-                onChange={(e) => handleFileChange(e, key)}
-              />
+              {isUploaded ? (
+                <a
+                  href={file}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-indigo-600 underline mr-2"
+                >
+                  View
+                </a>
+              ) : (
+                <span className="mr-2">{file.name}</span>
+              )}
               <button
                 onClick={() => handleUploadClick(key)}
-                className="text-indigo-600 hover:underline"
+                className="text-blue-600 hover:underline"
                 disabled={uploading !== ""}
               >
-                Select File
+                Change
               </button>
             </>
+          ) : (
+            <button
+              onClick={() => handleUploadClick(key)}
+              className="text-indigo-600 hover:underline"
+              disabled={uploading !== ""}
+            >
+              Select File
+            </button>
           )}
         </td>
       </tr>
@@ -149,7 +259,7 @@ const uploadDocuments = async (type) => {
   };
 
   const renderUploadButton = (type, label) => (
-    <tr>
+    <tr key={`${type}-upload`}>
       <td colSpan={2} className="text-right p-2">
         <button
           className={`px-4 py-1 rounded text-white ${
@@ -223,6 +333,9 @@ const uploadDocuments = async (type) => {
               {renderRow("Shop Photo", "shopPhoto")}
               {renderRow("Video", "video")}
               {renderUploadButton("KYC", "KYC")}
+              {renderRow("Cancel Check", "CancelCheque")}
+{renderUploadButton("CancelCheque", "Cancel Check")}
+
             </tbody>
           </table>
         </div>
