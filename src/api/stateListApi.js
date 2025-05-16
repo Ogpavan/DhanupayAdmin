@@ -17,6 +17,7 @@ export const fetchStatesList = async () => {
       });
   
       const data = await response.json();
+      console.log(data);
       return data; // Return the list of states
     } catch (error) {
       console.error('Error fetching states:', error);

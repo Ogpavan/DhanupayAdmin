@@ -15,7 +15,7 @@ export const fetchCitiesByState = async (selectedState) => {
         StateId: selectedState,   // Match the backend's key name exactly (capital S)
       }),
     });
-
+    // console.log(response); 
     if (!response.ok) {
       throw new Error("Failed to fetch cities");
     }

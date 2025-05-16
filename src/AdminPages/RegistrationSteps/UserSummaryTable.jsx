@@ -10,14 +10,27 @@ const UserSummaryTable = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showKycModal, setShowKycModal] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
 
+
+
   useEffect(() => {
     const fetchUsers = async () => {
+      setLoading(true);
       try {
-        const token = Cookies.get("token"); // Ensure 'token' is stored in cookies
-        const userId = Cookies.get("UserId") || "2"; // Default to '2' if not found
+        const token = Cookies.get("token");
+        const userId = Cookies.get("UserId");
+
+        console.log("[DEBUG] Token and UserId from cookies:", token, userId);
+
+        if (!token || !userId) {
+          console.error("Missing token or userId in cookies");
+          setUsers([]);
+          setLoading(false);
+          return;
+        }
 
         const response = await axios.post(
           "https://gateway.dhanushop.com/api/users/AllUserDetails",
@@ -31,17 +44,106 @@ const UserSummaryTable = () => {
         );
 
         if (response.data.success) {
+          console.log("[DEBUG] Users fetched from API:", response.data.users);
           setUsers(response.data.users || []);
         } else {
           console.error("API call successful but users not found.");
+          setUsers([]);
         }
       } catch (error) {
         console.error("Failed to fetch users:", error);
+        setUsers([]);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchUsers();
   }, []);
+
+  const handleViewDetails = (user) => {
+    const formattedUser = {
+      userType: user.UserType,
+      userId: user.userId,
+      newuserId: user.NewUserId,
+      
+      firstName: user.FirstName,
+      lastName: user.LastName,
+      mobile: user.MobileNumber,
+      altMobile: user.AlternateMobileNumber,
+      email: user.Email,
+      resState: user.PersonalStateID,
+      resCity: user.PersonalCityID,
+      resPincode: user.PersonalPincode,
+      resHouseNo: user.PersonalAddressLine1,
+      resArea: user.PersonalAddressLine2,
+      resLandmark: user.PersonalLandmark,
+      shopName: user.ShopName,
+      shopAddress: `${user.ShopAddressLine1 || ""} ${user.ShopAddressLine2 || ""}`.trim(),
+      busState: user.ShopStateID,
+      busCity: user.ShopCityID,
+      busPincode: user.ShopPincode,
+      busLandmark: user.ShopLandmark,
+      businessName: user.BusinessName,
+      firmName: user.FirmName,
+      aadhaar: user.AadhaarNumber,
+      pan: user.PanNumber,
+      kycVerified: user.IsKYC === "True" && user.IsDocumentVerified === "True",
+      esignVerified: user.IsEsignVerified === "True",
+      video: { name: user.VideoFileName },
+      profilePhoto: { name: user.ProfilePhotoName },
+      shopPhoto: { name: user.ShopPhotoName },
+      aadhaarFront: { name: user.AadhaarFrontFile },
+      aadhaarBack: { name: user.AadhaarBackFile },
+      panCardFile: { name: user.PanCardFile },
+    };
+
+    setSelectedUser(formattedUser);
+    setShowDetailsModal(true);
+  };
+
+const handleViewKyc = (user) => {
+  const formattedUser = {
+    ...user,
+    userId: user.UserId || user.userId || "",
+    newUserId: user.NewUserId || user.newUserId || "",
+    aadhaarNumber: user.AadhaarNumber || "",
+    panNumber: user.PanNumber || "",
+  };
+
+  console.log("[DEBUG] KYC Modal opening with data:", formattedUser); // ✅ Use correct variable name
+
+  setSelectedUser(formattedUser);
+  setShowKycModal(true);
+};
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        {/* Simple spinner using Tailwind */}
+        <svg
+          className="animate-spin h-12 w-12 text-blue-600"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            className="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="4"
+          ></circle>
+          <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+          ></path>
+        </svg>
+      </div>
+    );
+  }
 
   return (
     <div className="overflow-auto">
@@ -69,96 +171,62 @@ const UserSummaryTable = () => {
           </tr>
         </thead>
         <tbody>
-          {users.map((user) => {
-            const isKYCVerified = user.IsKYC === "True" && user.IsDocumentVerified === "True";
-            const isEsignVerified = user.IsEsignVerified === "True";
+          {users
+            .filter((user) => user.UserType?.toLowerCase() !== "employee")
+            .map((user) => {
+              const isKYCVerified = user.IsKYC === "True" && user.IsDocumentVerified === "True";
+              const isEsignVerified = user.IsEsignVerified === "True";
 
-            return (
-              <tr key={user.UserId}>
-                <td className="px-4 py-2 border">{user.UserType || "-"}</td>
-                <td className="px-4 py-2 border">{user.FirstName || "-"}</td>
-                <td className="px-4 py-2 border">{user.LastName || "-"}</td>
-                <td className="px-4 py-2 border">{user.MobileNumber || "-"}</td>
-                <td className="px-4 py-2 border">{user.Email || "-"}</td>
-                <td className="px-4 py-2 border">
-                  <button
-                    onClick={() => {
-                      setSelectedUser(user);
-                      setShowKycModal(true);
-                    }}
-                    className={`px-4 py-1 rounded-full text-sm font-semibold text-white ${
-                      isKYCVerified ? "bg-green-600" : "bg-yellow-600"
+              return (
+                <tr key={user.UserId || user.NewUserID}>
+                  <td className="px-4 py-2 border">{user.UserType}</td>
+                  <td className="px-4 py-2 border">{user.FirstName}</td>
+                  <td className="px-4 py-2 border">{user.LastName}</td>
+                  <td className="px-4 py-2 border">{user.MobileNumber}</td>
+                  <td className="px-4 py-2 border">{user.Email}</td>
+                  <td className="px-4 py-2 border">
+                    <button
+                      onClick={() => handleViewKyc(user)}
+                      className={`px-4 py-1 rounded-full text-sm font-semibold text-white ${
+                        isKYCVerified ? "bg-green-600" : "bg-yellow-600"
+                      }`}
+                    >
+                      {isKYCVerified ? "Verified" : "Pending"}
+                    </button>
+                  </td>
+                  <td
+                    className={`px-4 py-2 border ${
+                      isEsignVerified ? "text-green-600" : "text-red-600"
                     }`}
                   >
-                    {isKYCVerified ? "Verified" : "Pending"}
-                  </button>
-                </td>
-                <td className={`px-4 py-2 border ${isEsignVerified ? "text-green-600" : "text-red-600"}`}>
-                  {isEsignVerified ? "Verified" : "Not Verified"}
-                </td>
-                <td className="px-4 py-2 border">
-                  <button
-onClick={() => {
-  setSelectedUser({
-    userType: user.UserType,
-    firstName: user.FirstName,
-    lastName: user.LastName,
-    mobile: user.MobileNumber,
-    altMobile: user.AlternateMobileNumber,
-    email: user.Email,
-
-    resState: user.PersonalStateID,
-    resCity: user.PersonalCityID,
-    resPincode: user.PersonalPincode,
-    resHouseNo: user.PersonalAddressLine1,
-    resArea: user.PersonalAddressLine2,
-    resLandmark: user.PersonalLandmark,
-
-    shopName: user.ShopName,
-    shopAddress: `${user.ShopAddressLine1 || ""} ${user.ShopAddressLine2 || ""}`.trim(),
-
-    busState: user.ShopStateID,
-    busCity: user.ShopCityID,
-    busPincode: user.ShopPincode,
-    busLandmark: user.ShopLandmark,
-    businessName: user.BusinessName,
-    firmName: user.FirmName,
-
-    aadhaar: user.AadhaarNumber,
-    pan: user.PanNumber,
-
-    kycVerified: user.IsKYC === "True" && user.IsDocumentVerified === "True",
-    esignVerified: user.IsEsignVerified === "True",
-
-    video: { name: user.VideoFileName },
-    profilePhoto: { name: user.ProfilePhotoName },
-    shopPhoto: { name: user.ShopPhotoName },
-    aadhaarFront: { name: user.AadhaarFrontFile },
-    aadhaarBack: { name: user.AadhaarBackFile },
-    PAN: { name: user.PanCardFile },
-  });
-
-  setShowDetailsModal(true);
-}}
-
-  className="text-blue-600 hover:underline"
->
-  View Details
-</button>
-
-                </td>
-              </tr>
-            );
-          })}
+                    {isEsignVerified ? "Verified" : "Not Verified"}
+                  </td>
+                  <td className="px-4 py-2 border">
+                    <button
+                      onClick={() => handleViewDetails(user)}
+                      className="text-blue-600 hover:underline"
+                    >
+                      View Details
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
         </tbody>
       </table>
 
       {showDetailsModal && selectedUser && (
-        <UserDetailsModal formData={selectedUser} onClose={() => setShowDetailsModal(false)} />
+        <UserDetailsModal
+          formData={selectedUser}
+          onClose={() => setShowDetailsModal(false)}
+        />
       )}
 
       {showKycModal && selectedUser && (
-        <KycDetailsModal formData={selectedUser} onClose={() => setShowKycModal(false)} />
+        <KycDetailsModal
+          formData={selectedUser}
+          onClose={() => setShowKycModal(false)}
+        />
       )}
     </div>
   );

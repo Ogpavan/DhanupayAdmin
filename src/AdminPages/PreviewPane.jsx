@@ -5,39 +5,46 @@ function PreviewPane({
   agreeTerms,
   setAgreeTerms,
 }) {
-  const sections = {
-    "Basic Details": [
-      ["First Name", formData.firstName],
-      ["Last Name", formData.lastName],
-      ["Mobile", formData.mobile],
-      ["Alternate Mobile", formData.altMobile],
-      ["Email", formData.email],
-      ["User Type", formData.userType],
-    ],
-    "Residential Details": [
-      ["House No", formData.resHouseNo],
-      ["Area", formData.resArea],
-      ["Landmark", formData.resLandmark],
-      ["City", formData.resCity],
-      ["State", formData.resState],
-      ["Pincode", formData.resPincode],
-    ],
-    "Business Details": [
-      ["Shop Name", formData.shopName],
-      ["Shop Address", formData.shopAddress],
-      ["Landmark", formData.busLandmark],
-      ["City", formData.busCity],
-      ["State", formData.busState],
-      ["Pincode", formData.busPincode],
-    ],
-    "Account Details": [
-      ["Bank Name", formData.bankName],
-      ["Branch Name", formData.branchName],
-      ["Account Holder Name", formData.accountHolderName],
-      ["Account Number", formData.accountNumber],
-      ["IFSC Code", formData.ifscCode],
-    ],
-  };
+// Add this above the sections declaration
+const isWhiteLabel = formData.userType === "2";
+console.log("User Type:", formData);
+
+// Main section data
+const sections = {
+  "Basic Details": [
+    ["First Name", formData.firstName],
+    ["Last Name", formData.lastName],
+    ["Mobile", formData.mobile],
+    ["Alternate Mobile", formData.altMobile],
+    ["Email", formData.email],
+    // ["User Type", formData.userType],
+  ],
+  "Residential Details": [
+    ["House No", formData.resHouseNo],
+    ["Area", formData.resArea],
+    ["Landmark", formData.resLandmark],
+    ["City", formData.resCity],
+    ["State", formData.resState],
+    ["Pincode", formData.resPincode],
+  ],
+  "Business Details": [
+    ["Shop Name", formData.shopName],
+    ["Shop Address", formData.shopAddress],
+    ["Landmark", formData.busLandmark],
+    ["City", formData.busCity],
+    ["State", formData.busState],
+    ["Pincode", formData.busPincode],
+    ...(isWhiteLabel ? [["Website URL", formData.websiteUrl]] : []), // 👈 Conditional field
+  ],
+  "Account Details": [
+    ["Bank Name", formData.bankName],
+    ["Branch Name", formData.branchName],
+    ["Account Holder Name", formData.accountHolderName],
+    ["Account Number", formData.accountNumber],
+    ["IFSC Code", formData.ifscCode],
+  ],
+};
+
 
   return (
     <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
