@@ -8,16 +8,53 @@ const UserDetailsModal = ({ formData = {}, onClose }) => {
     </div>
   );
 
+  const renderImageField = (label, url) => (
+    <div key={label} className="grid grid-cols-2 gap-1 py-1 text-sm border-b items-center">
+      <div className="font-medium text-gray-600">{label}</div>
+      <div>
+        {url ? (
+          <img
+            src={`https://gateway.dhanushop.com${url}`}
+            alt={label}
+            className="max-h-20 rounded shadow"
+          />
+        ) : (
+          "—"
+        )}
+      </div>
+    </div>
+  );
+
   const renderSection = (title, fields) => (
     <div className="mb-6">
       <h3 className="text-md font-semibold mb-2 border-b pb-1 text-blue-700">
         {title}
       </h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {fields}
-      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">{fields}</div>
     </div>
   );
+
+  // Bank Details placeholder - you can add when data available
+  const renderBankDetails = () => {
+    const banks = Array.isArray(formData.bankDetails)
+      ? formData.bankDetails
+      : formData.bankDetails
+      ? [formData.bankDetails]
+      : [];
+
+    if (banks.length === 0) {
+      return <div>No bank details available</div>;
+    }
+
+    return banks.map((bank, idx) => (
+      <div key={idx} className="border rounded p-3 mb-4">
+        {renderField("Account Holder Name", bank.AccountHolderName)}
+        {renderField("Bank Name", bank.BankName)}
+        {renderField("Account Number", bank.AccountNumber)}
+        {renderField("Bank Branch", bank.BankBranch)}
+      </div>
+    ));
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
@@ -33,49 +70,48 @@ const UserDetailsModal = ({ formData = {}, onClose }) => {
         </div>
 
         {renderSection("Basic Details", [
-          renderField("User Type", formData.userType),
-          renderField("First Name", formData.firstName),
-          renderField("Last Name", formData.lastName),
-          renderField("Mobile", formData.mobile),
-          renderField("Alternate Mobile", formData.altMobile),
-          renderField("Email", formData.email),
+          renderField("User Role", formData.rolename),
+          renderField("User Type", formData.usertypename),
+          renderField("First Name", formData.FirstName),
+          renderField("Last Name", formData.LastName),
+          renderField("Mobile Number", formData.MobileNumber),
+          renderField("Email", formData.Email),
         ])}
 
-        {renderSection("Residential Details", [
-          renderField("State", formData.resState),
-          renderField("City", formData.resCity),
-          renderField("Pincode", formData.resPincode),
-          renderField("House No", formData.resHouseNo),
-          renderField("Area", formData.resArea),
-          renderField("Landmark", formData.resLandmark),
+        {renderSection("Personal Address", [
+          renderField("Address Line 1", formData.PersonalAddressLine1),
+          renderField("Address Line 2", formData.PersonalAddressLine2),
+          renderField("City", formData.personalcityname),
+          renderField("State", formData.personalsatename),
+          renderField("Pincode", formData.PersonalPincode),
         ])}
 
-        {renderSection("Business Details", [
-          renderField("Shop Name", formData.shopName),
-          renderField("Shop Address", formData.shopAddress),
-          renderField("Business Landmark", formData.busLandmark),
-          renderField("Business Pincode", formData.busPincode),
-          renderField("Business City", formData.busCity),
-          renderField("Business State", formData.busState),
-          renderField("Business Name", formData.businessName),
-          renderField("Firm Name", formData.firmName),
+        {renderSection("Shop Details", [
+          renderField("Shop Address Line 1", formData.ShopAddressLine1),
+          renderField("Shop Address Line 2", formData.ShopAddressLine2),
+          renderField("Shop City", formData.shopcityname),
+          renderField("Shop State", formData.shopsatename),
+          renderField("Shop Pincode", formData.ShopPincode),
+          renderImageField("Shop Image", formData.ShopImage),
         ])}
 
         {renderSection("Document Details", [
-          renderField("Aadhaar No", formData.aadhaar),
-          renderField("PAN No", formData.pan),
-          renderField("Aadhaar Front", formData.aadhaarFront?.name),
-          renderField("Aadhaar Back", formData.aadhaarBack?.name),
-          renderField("PAN File", formData.PAN?.name),
-          renderField("Video File", formData.video?.name),
-          renderField("Profile Photo", formData.profilePhoto?.name),
-          renderField("Shop Photo", formData.shopPhoto?.name),
+          renderField("Aadhaar Number", formData.AadhaarNumber),
+          renderImageField("Aadhaar Front", formData.AadhaarFront),
+          renderImageField("Aadhaar Back", formData.AadhaarBack),
+          renderField("PAN Number", formData.PanNumber),
+          renderImageField("PAN Front", formData.PanFront),
+          renderImageField("Video", formData.Video),
+          renderImageField("Profile Image", formData.ProfileImage),
         ])}
 
-        {renderSection("Verification", [
-          renderField("KYC Verified", formData.kycVerified ? "Yes" : "No"),
-          renderField("eSign Verified", formData.esignVerified ? "Yes" : "No"),
+        {renderSection("Verification Status", [
+          renderField("KYC Status", formData.KycStatus),
+          renderField("eSign Status", formData.EsignStatus),
+          renderField("User Status", formData.UserStatus),
         ])}
+
+        {renderSection("Bank Details", renderBankDetails())}
       </div>
     </div>
   );
