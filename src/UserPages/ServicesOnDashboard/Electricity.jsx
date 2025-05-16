@@ -1,147 +1,3 @@
-// import { useState } from "react";
-// import Swal from "sweetalert2";
-
-// export default function Electricity({ activeLabel }) {
-//   const [transactions, setTransactions] = useState([
-//     {
-//       id: 1,
-//       operatorName: "Bihar State Electricity Board (BSEB)",
-//       reqId: "REQ987654",
-//       consumerNumber: "1100223344",
-//       amount: "600",
-//       operatorId: "ELEC123",
-//       date: "28 Apr 2025 02:30 PM",
-//       status: "Success",
-//     },
-//     {
-//       id: 2,
-//       operatorName: "Tamil Nadu Electricity Board (TNEB)",
-//       reqId: "REQ112233",
-//       consumerNumber: "7788990011",
-//       amount: "750",
-//       operatorId: "ELEC456",
-//       date: "27 Apr 2025 11:15 AM",
-//       status: "Pending",
-//     },
-//   ]);
-
-//   const [formData, setFormData] = useState({
-//     operator: "",
-//     consumerNumber: "",
-//     amount: "",
-//   });
-
-//   const handleChange = (e) => {
-//     const { name, value } = e.target;
-//     setFormData((prev) => ({ ...prev, [name]: value }));
-//   };
-
-//   const handleSubmit = (e) => {
-//     e.preventDefault();
-//     console.log("Electricity Bill Data:", formData);
-
-//     Swal.fire({
-//       icon: 'success',
-//       title: 'Success!',
-//       text: 'Your electricity bill has been successfully paid.',                            
-//       confirmButtonColor: '#3085d6',
-//       confirmButtonText: 'OK'                             
-//     });
-//   };
-
-//   return (
-//     <div className="flex gap-4">
-//       {/* Electricity Recharge Form */}
-//       <div className="bg-white shadow-md rounded-lg p-6 max-w-md">
-//         <h2 className="text-xl font-semibold mb-4">
-//           {activeLabel} Recharge & Bill Payment
-//         </h2>
-
-//         <form className="space-y-4 mb-8" onSubmit={handleSubmit}>
-//           <select
-//             name="operator"
-//             className="w-full p-2 border rounded"
-//             onChange={handleChange}
-//             value={formData.operator}
-//           >
-//             <option value="">Select Electricity Operator</option>
-//             <option value="bseb">Bihar State Electricity Board (BSEB)</option>
-//             <option value="tneb">Tamil Nadu Electricity Board (TNEB)</option>
-//             <option value="dvvnl">Dakshin Vidyut Vitran Nigam Limited (DVVNL)</option>
-//             <option value="bspdcl">Bihar State Power Distribution Company Limited (BSPDCL)</option>
-//             <option value="mseb">Maharashtra State Electricity Board (MSEB)</option>
-//             <option value="bescom">Bangalore Electricity Supply Company (BESCOM)</option>
-//           </select>
-
-//           <input
-//             type="text"
-//             name="consumerNumber"
-//             placeholder="Enter Consumer Number"
-//             className="w-full p-2 border rounded"
-//             value={formData.consumerNumber}
-//             onChange={handleChange}
-//           />
-
-//           <div className="flex gap-4">
-//             <input
-//               type="number"
-//               name="amount"
-//               placeholder="Enter Amount"
-//               className="w-full p-2 border rounded"
-//               value={formData.amount}
-//               onChange={handleChange}
-//             />
-//             <button
-//               type="button"
-//               className="text-nowrap p-2 border rounded bg-gray-100"
-//             >
-//               Fetch Bill
-//             </button>
-//           </div>
-//           <button
-//             type="submit"
-//             className="w-full bg-blue-500 text-white p-2 rounded"
-//           >
-//             Continue
-//           </button>
-//         </form>
-//       </div>
-
-//       {/* Recent Electricity Transactions Table */}
-//       <div className="bg-white shadow-md rounded-lg p-6">
-//         <h3 className="text-lg font-semibold mb-2">Recent Electricity Transactions</h3>
-//         <div className="overflow-x-auto">
-//           <table className="w-full text-sm text-left border">
-//             <thead className="bg-gray-100">
-//               <tr>
-//                 <th className="p-2 border">Operator</th>
-//                 <th className="p-2 border">Consumer No</th>
-//                 <th className="p-2 border">Amount</th>
-//                 <th className="p-2 border">ReqID</th>
-//                 <th className="p-2 border">Operator ID</th>
-//                 <th className="p-2 border">Date</th>
-//                 <th className="p-2 border">Status</th>
-//               </tr>
-//             </thead>
-//             <tbody>
-//               {transactions.map((tx) => (
-//                 <tr key={tx.id}>
-//                   <td className="p-2 border">{tx.operatorName}</td>
-//                   <td className="p-2 border">{tx.consumerNumber}</td>
-//                   <td className="p-2 border">₹{tx.amount}</td>
-//                   <td className="p-2 border">{tx.reqId}</td>
-//                   <td className="p-2 border">{tx.operatorId}</td>
-//                   <td className="p-2 border">{tx.date}</td>
-//                   <td className="p-2 border">{tx.status}</td>
-//                 </tr>
-//               ))}
-//             </tbody>
-//           </table>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
 
 
 import { useRef, useState } from "react";
@@ -192,6 +48,9 @@ export default function Electricity({ activeLabel }) {
   const [paymentDone, setPaymentDone] = useState(false);
   const [errors, setErrors] = useState({});
 
+  // const [paymentDone, setPaymentDone] = useState(false);
+  const [showConfirmationScreen, setShowConfirmationScreen] = useState(false);
+
   const [transactions, setTransactions] = useState([
     {
       id: 1,
@@ -219,7 +78,7 @@ export default function Electricity({ activeLabel }) {
     operator: "",
     consumerNumber: "",
     amount: "",
-    convenienceFee: "2.50", // Adding this for the payment confirmation
+    convenienceFee: "10", // Adding this for the payment confirmation
     orderId: `ORD${Math.floor(Math.random() * 100000000)}`,
     transactionId: `BHRTX${Math.floor(Math.random() * 100000000)}`
   });
@@ -272,21 +131,31 @@ export default function Electricity({ activeLabel }) {
   const handlePayment = () => {
     // Simulate payment processing
     setPaymentDone(true);
+    setShowConfirmationScreen(true);
+    audioRef.current.play().then(() => {
+      console.log("Audio played successfully");
+    }).catch((error) => {
+      console.error("Failed to play audio:", error);
+    });
+    setTimeout(() => {
+
+      setShowConfirmationScreen(false);
+    }, 5000);
 
     console.log(formData);
 
     console.log("Payment done, attempting to play sound...");
 
-    if (audioRef.current) {
-      console.log("Audio element found, trying to play...");
-      audioRef.current.play().then(() => {
-        console.log("Audio played successfully");
-      }).catch((error) => {
-        console.error("Failed to play audio:", error);
-      });
-    } else {
-      console.error("Audio element not found");
-    }
+    // if (audioRef.current) {
+    //   console.log("Audio element found, trying to play...");
+    //   audioRef.current.play().then(() => {
+    //     console.log("Audio played successfully");
+    //   }).catch((error) => {
+    //     console.error("Failed to play audio:", error);
+    //   });
+    // } else {
+    //   console.error("Audio element not found");
+    // }
 
 
     // Add transaction to history
@@ -321,7 +190,7 @@ export default function Electricity({ activeLabel }) {
         operator: "",
         consumerNumber: "",
         amount: "",
-        convenienceFee: "2.50",
+        convenienceFee: "10",
         orderId: `ORD${Math.floor(Math.random() * 100000000)}`,
         transactionId: `BHRTX${Math.floor(Math.random() * 100000000)}`
       });
@@ -335,11 +204,11 @@ export default function Electricity({ activeLabel }) {
       <audio ref={audioRef} src="/BharatConnect.wav" preload="auto" />
       <div className="bg-white shadow-md rounded-lg p-6 max-w-md w-full">
         <div className="flex justify-between ">
-                 <h2 className="text-xl    mb-4">
-                   {activeLabel}  & Bill Payment
-                 </h2>
-                 <span><img src={bharatconnects} alt="Bharat Connect" className="h-6" /></span>
-                 </div>
+          <h2 className="text-xl    mb-4">
+            {activeLabel}  & Bill Payment
+          </h2>
+          <span><img src={bharatconnects} alt="Bharat Connect" className="h-6" /></span>
+        </div>
 
         <form className="space-y-4 mb-8" onSubmit={handleSubmit}>
           {/* Operator Dropdown */}
@@ -391,22 +260,50 @@ export default function Electricity({ activeLabel }) {
               </ul>
             )}
           </div>
+          <div className="w-full">
+            <label className="block text-gray-700 font-medium mb-2" htmlFor="consumerNumber">
+              Consumer Number
+            </label>
+            <div className="flex gap-4">
+              <input
+                type="text"
+                name="consumerNumber"
+                id="consumerNumber"
+                placeholder="Enter Consumer Number"
+                className={`w-full p-2 border rounded ${errors.consumerNumber ? 'border-red-500' : ''}`}
+                value={formData.consumerNumber}
+                onChange={handleChange}
+              />
+              <button
+                type="button"
+                className="text-nowrap p-2 border rounded bg-gray-100"
+                onClick={fetchBill}
+              >
+                Fetch Bill
+              </button>
+            </div>
+            {errors.consumerNumber && <p className="text-red-500 text-xs mt-1">{errors.consumerNumber}</p>}
+          </div>
 
-          <input
-            type="text"
-            name="consumerNumber"
-            placeholder="Enter Consumer Number"
-            className={`w-full p-2 border rounded ${errors.consumerNumber ? 'border-red-500' : ''}`}
-            value={formData.consumerNumber}
-            onChange={handleChange}
-          />
-          {errors.consumerNumber && <p className="text-red-500 text-xs mt-1">{errors.consumerNumber}</p>}
 
+          {billInfo && (
+            <div className="bg-gray-100 p-3 rounded text-sm">
+              <p><strong>Consumer Name:</strong> {billInfo.name}</p>
+              <p><strong>Due Date:</strong> {billInfo.dueDate}</p>
+              <p><strong>Bill No:</strong> {billInfo.billNumber ?? 'BN09876'}</p>
+              <p><strong>Bill Date:</strong> {billInfo.billDate ?? '01 May 2025'}</p>
+              <p><strong>Amount Due:</strong> ₹{billInfo.amount}</p>
+            </div>
+          )}
+          <label className="block text-gray-700 font-medium mb-2" htmlFor="amount">
+            Amount
+          </label>
           <div className="flex gap-4">
             <div className="w-full">
               <input
                 type="number"
                 name="amount"
+                id="amount"
                 placeholder="Enter Amount"
                 className={`w-full p-2 border rounded ${errors.amount ? 'border-red-500' : ''}`}
                 value={formData.amount}
@@ -415,23 +312,8 @@ export default function Electricity({ activeLabel }) {
               {errors.amount && <p className="text-red-500 text-xs mt-1">{errors.amount}</p>}
             </div>
 
-
-            <button
-              type="button"
-              className="text-nowrap p-2 border rounded bg-gray-100"
-              onClick={fetchBill}
-            >
-              Fetch Bill
-            </button>
           </div>
 
-          {billInfo && (
-            <div className="bg-gray-100 p-3 rounded text-sm">
-              <p><strong>Consumer Name:</strong> {billInfo.name}</p>
-              <p><strong>Due Date:</strong> {billInfo.dueDate}</p>
-              <p><strong>Amount Due:</strong> ₹{billInfo.amount}</p>
-            </div>
-          )}
 
 
 
@@ -448,13 +330,12 @@ export default function Electricity({ activeLabel }) {
               onChange={(e) => {
                 const value = parseFloat(e.target.value);
                 // Check if the value is a valid number and within the range 0 - 10
-                if (!isNaN(value) && value >= 0 && value <= 10) {
+                if (!isNaN(value) && value <= 10) {
                   setFormData({ ...formData, convenienceFee: value });
                 }
               }}
-              min="0"
+              // min="0"
               max="10"
-              step="1"
               className="w-full px-3 py-2 border border-gray-300 rounded"
               placeholder="Enter convenience fee (0 - 10)"
             />
@@ -463,6 +344,7 @@ export default function Electricity({ activeLabel }) {
 
           <h1 onClick={() => navigate("/user/rechargecomplaint")}
             className="text-xs text-center cursor-pointer  font-bold text-blue-500 underline mb-4">Raise Complaint </h1>
+
 
           <button
             type="submit"
@@ -478,7 +360,12 @@ export default function Electricity({ activeLabel }) {
 
       {/* Recent Electricity Transactions Table */}
       <div className="bg-white shadow-md rounded-lg p-6 w-full">
+        <div className="flex justify-between">
         <h3 className="text-lg   mb-2">Recent Electricity Transactions</h3>
+        <div className="flex justify-center mb-5">
+          <img src="/bharat-connect.png" alt="Bharat Connect" className="h-7" />
+        </div>
+        </div> 
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left border">
             <thead className="bg-gray-100">
@@ -529,184 +416,190 @@ export default function Electricity({ activeLabel }) {
         </div>
       </div>
 
-      {/* Modal */}
+
+
+
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
-          <div className=" p-6 rounded shadow-lg max-w-sm w-full text-center">
+          <div className="p-6 rounded shadow-lg max-w-sm w-full text-center">
             {!paymentDone ? (
-              <>
-                <div className="p-6 bg-white shadow-lg rounded-lg max-w-md mx-auto">
-                  {/* Logo */}
-                  <div className="flex justify-center mb-5">
-                    <img src="/bharat-connect.png" alt="Bharat Connect" className="h-7" />
-                  </div>
-                  <h3 className="text-2xl font-semibold text-center mb-6">Confirm Details</h3>
-                  <div className="space-y-4">
-                    <div className="flex justify-between">
-                      <span className="font-semibold">Operator:</span>
-                      <span>{operators.find(op => op.id === formData.operator)?.name}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="font-semibold">Consumer Number:</span>
-                      <span>{formData.consumerNumber}</span>
-                    </div>
-                    {billInfo && (
-                      <div className="flex justify-between">
-                        <span className="font-semibold">Consumer Name:</span>
-                        <span>{billInfo.name}</span>
-                      </div>
-                    )}
-                    <div className="flex justify-between">
-                      <span className="font-semibold">Bill Amount:</span>
-                      <span>₹{formData.amount}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="font-semibold">Convenience Fee:</span>
-                      <span>₹{formData.convenienceFee}</span>
-                    </div>
-                    <div className="flex justify-between font-semibold text-xl">
-                      <span>Total Amount:</span>
-                      <span>₹{(Number(formData.amount) + Number(formData.convenienceFee)).toFixed(2)}</span>
-                    </div>
-                  </div>
-                  <button
-                    className="mt-6 w-full bg-green-500 text-white p-3 rounded-lg text-lg hover:bg-green-600 transition"
-                    onClick={handlePayment}
-                  >
-                    Make Payment
-                  </button>
-                  <button
-                    className="mt-2 w-full bg-gray-300 text-gray-700 p-2 rounded-lg hover:bg-gray-400 transition"
-                    onClick={closeModal}
-                  >
-                    Cancel
-                  </button>
+              <div className="p-6 bg-white shadow-lg rounded-lg max-w-md mx-auto">
+                {/* Logo */}
+                <div className="flex justify-center mb-5">
+                  <img src="/bharat-connect.png" alt="Bharat Connect" className="h-7" />
                 </div>
-              </>
-            ) : (
-              <>
-                <div className="max-w- w-[30vw] mx-auto bg-white rounded-lg shadow-lg p-6 pt-1 space-y-2 leading-snug text-sm text-gray-700 printable">
-                  {/* Logo */}
-                  <div className="flex justify-center mb-2">
-                    <img src="/bbpsassured.png" alt="Bharat Connect" className="h-22" />
+                <h3 className="text-2xl font-semibold text-center mb-6">Confirm Details</h3>
+                <div className="space-y-4">
+                  <div className="flex justify-between">
+                    <span className="font-semibold">Operator:</span>
+                    <span>{operators.find(op => op.id === formData.operator)?.name}</span>
                   </div>
-
-                  {/* Success Message */}
-                  <div className="flex items-center justify-center text-green-600">
-                    <img src="/check.png" alt="Success" className="h-8 w-8 mr-2" />
-                    <span className="text-2xl font-bold">Payment Successful!</span>
+                  <div className="flex justify-between">
+                    <span className="font-semibold">Consumer Number:</span>
+                    <span>{formData.consumerNumber}</span>
                   </div>
-
-                  {/* Transaction Info */}
-                  <div className="space-y-2">
-                    <div className="flex justify-between pt-2">
-                      <span className="font-semibold">Order ID:</span>
-                      <span>{formData.orderId ?? 'ORD123456'}</span>
-                    </div>
-
-                    <div className="flex justify-between">
-                      <span className="font-semibold">B-Connect Txn ID:</span>
-                      <span>{formData.transactionId ?? 'TXN987654'}</span>
-                    </div>
-
-                    <div className="flex justify-between">
-                      <span className="font-semibold">Operator:</span>
-                      <span>{operators.find(op => op.id === formData.operator)?.name || 'OperatorName'}</span>
-                    </div>
-
-                    <div className="flex justify-between">
-                      <span className="font-semibold">Biller ID:</span>
-                      <span>{formData.billerId ?? 'BIL123456'}</span>
-                    </div>
-
-                    <div className="flex justify-between">
-                      <span className="font-semibold">Biller Name:</span>
-                      <span>{formData.billerName ?? 'Bharat Biller'}</span>
-                    </div>
-
-                    <div className="flex justify-between">
-                      <span className="font-semibold">Consumer Number:</span>
-                      <span>{formData.consumerNumber ?? 'CON7890'}</span>
-                    </div>
-
+                  {billInfo && (
                     <div className="flex justify-between">
                       <span className="font-semibold">Consumer Name:</span>
-                      <span>{billInfo?.name ?? 'John Doe'}</span>
+                      <span>{billInfo.name}</span>
                     </div>
-
-                    <div className="flex justify-between">
-                      <span className="font-semibold">Bill Date:</span>
-                      <span>{formData.billDate ?? '2025-05-01'}</span>
-                    </div>
-
-                    <div className="flex justify-between">
-                      <span className="font-semibold">Bill Period:</span>
-                      <span>{formData.billPeriod ?? 'Apr 2025'}</span>
-                    </div>
-
-                    <div className="flex justify-between">
-                      <span className="font-semibold">Bill No:</span>
-                      <span>{formData.billNumber ?? 'BN09876'}</span>
-                    </div>
-
-                    <div className="flex justify-between">
-                      <span className="font-semibold">Bill Due Date:</span>
-                      <span>{formData.billDueDate ?? '2025-05-15'}</span>
-                    </div>
-
-                    <div className="flex justify-between">
-                      <span className="font-semibold">Bill Amount:</span>
-                      <span>₹{formData.amount ?? '0.00'}</span>
-                    </div>
-
-                    <div className="flex justify-between">
-                      <span className="font-semibold">Convenience Fee:</span>
-                      <span>₹{formData.convenienceFee ?? '0.00'}</span>
-                    </div>
-
-                    <div className="flex justify-between">
-                      <span className="font-semibold">Transaction Date & Time:</span>
-                      <span>{formData.transactionDateTime ?? '2025-05-13 12:00 PM'}</span>
-                    </div>
-
-                    <div className="flex justify-between">
-                      <span className="font-semibold">Payment Mode:</span>
-                      <span>Cash</span>
-                    </div>
-
-                    <div className="flex justify-between">
-                      <span className="font-semibold">Payment Status:</span>
-                      <span>Success</span>
-                    </div>
-
-                    <div className="flex justify-between border-t pt-2 font-semibold text-base text-black">
-                      <span>Total Amount:</span>
-                      <span>₹{(Number(formData.amount ?? 0) + Number(formData.convenienceFee ?? 0)).toFixed(2)}</span>
-                    </div>
+                  )}
+                  
+                  <div className="flex justify-between">
+                    <span className="font-semibold">Due Date:</span>
+                    <span>{billInfo.dueDate}</span>
                   </div>
-
-                  {/* Buttons */}
-                  <div className="text-center space-x-4 mt-4 no-print">
-                    <button
-                      className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded transition"
-                      onClick={() => window.print()}
-                    >
-                      Print
-                    </button>
-                    <button
-                      className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded transition"
-                      onClick={closeModal}
-                    >
-                      Close
-                    </button>
+                  <div className="flex justify-between">
+                    <span className="font-semibold">Bill No:</span>
+                    <span>{billInfo.billNumber ?? 'BN09876'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-semibold">Bill Date:</span>
+                    <span>{billInfo.billDate ?? '01 May 2025'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-semibold">Bill Amount:</span>
+                    <span>₹{formData.amount}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-semibold">Convenience Fee:</span>
+                    <span>₹{formData.convenienceFee}</span>
+                  </div>
+                  <div className="flex justify-between font-semibold text-xl">
+                    <span>Total Amount:</span>
+                    <span>₹{(Number(formData.amount) + Number(formData.convenienceFee)).toFixed(2)}</span>
+                  </div>
+                </div>
+                <button
+                  className="mt-6 w-full bg-green-500 text-white p-3 rounded-lg text-lg hover:bg-green-600 transition"
+                  onClick={handlePayment}
+                >
+                  Make Payment
+                </button>
+                <button
+                  className="mt-2 w-full bg-gray-300 text-gray-700 p-2 rounded-lg hover:bg-gray-400 transition"
+                  onClick={closeModal}
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : showConfirmationScreen ? (
+              // ✅ Confirmation Screen
+              <div className="bg-white rounded-lg shadow-lg p-6 flex flex-col items-center">
+                <h2 className="text-xl font-semibold mb-4">Confirmation Page</h2>
+                <img
+                  src="bbpsassured.png"
+                  alt="Processing"
+                  className="h-64 object-contain mb-4"
+                />
+                <p className="text-white bg-orange-500 py-3 px-4  rounded-3xl  text-lg">Please wait Generating Reciept</p>
+              </div>
+            ) : (
+              // ✅ Receipt Section
+              <div className="w-[30vw] mx-auto bg-white rounded-lg shadow-lg p-6 pt-1 space-y-2 leading-snug text-sm text-gray-700 printable">
+                <div className="flex justify-between items-center">
+                  <div className="flex justify-center mb-2">
+                    <img src="/logo-DhanuPay.png" alt="Logo" className="h-28" />
+                  </div>
+                  <div className="flex justify-center">
+                    <img src="/bbpsassured.png" alt="BBPS" className="h-22" />
                   </div>
                 </div>
 
-              </>
+
+
+                <div className="flex items-center justify-center text-green-600">
+                  <img src="/check.png" alt="Success" className="h-8 w-8 mr-2" />
+                  <span className="text-2xl font-bold">Payment Successful!</span>
+                </div>
+
+                <div className="flex items-center justify-center text-black">
+                  <span className="text-2xl font-bold">Bharat Connect Receipt</span>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="font-semibold">Name of the biller:</span>
+                    <span>{operators.find(op => op.id === formData.operator)?.name || 'OperatorName'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-semibold">Consumer Name:</span>
+                    <span>{billInfo?.name ?? 'John Doe'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-semibold">Bill No:</span>
+                    <span>{formData.billNumber ?? 'BN09876'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-semibold">Bill Date:</span>
+                    <span>{formData.billDate ?? '01 May 2025'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-semibold">Bill Due Date:</span>
+                    <span>{formData.billDueDate ?? '15 May 2025'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-semibold">B-Connect Txn ID:</span>
+                    <span>{formData.transactionId ?? 'TXN987654'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-semibold">Payment Mode:</span>
+                    <span>Cash</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-semibold">Service:</span>
+                    <span>{formData.Service ?? 'Electricity'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-semibold">Consumer Number:</span>
+                    <span>{formData.consumerNumber ?? '3456525847'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-semibold">Order ID:</span>
+                    <span>{formData.orderId ?? 'ORD123456'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-semibold">Transaction Date & Time:</span>
+                    <span>{formData.transactionDateTime ?? '14 May 2025 12:00 PM'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-semibold">Payment Status:</span>
+                    <span>Success</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-semibold">Bill Amount:</span>
+                    <span>₹{formData.amount ?? '0.00'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-semibold">Convenience Fee:</span>
+                    <span>₹{formData.convenienceFee ?? '0.00'}</span>
+                  </div>
+                  <div className="flex justify-between border-t pt-2 font-semibold text-base text-black">
+                    <span>Total Amount:</span>
+                    <span>₹{(Number(formData.amount ?? 0) + Number(formData.convenienceFee ?? 0)).toFixed(2)}</span>
+                  </div>
+                </div>
+
+                <div className="text-center space-x-4 mt-4 no-print">
+                  <button
+                    className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded transition"
+                    onClick={() => window.print()}
+                  >
+                    Print
+                  </button>
+                  <button
+                    className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded transition"
+                    onClick={closeModal}
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
             )}
           </div>
         </div>
       )}
+
+
     </div>
   );
 }
