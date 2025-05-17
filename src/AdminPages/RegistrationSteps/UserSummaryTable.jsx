@@ -14,6 +14,9 @@ const UserSummaryTable = () => {
   const [statusLoadingIds, setStatusLoadingIds] = useState([]);
   const [statusMessages, setStatusMessages] = useState({});
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
   const navigate = useNavigate();
   const token = Cookies.get("token");
   const userId = Cookies.get("UserId");
@@ -39,7 +42,6 @@ const UserSummaryTable = () => {
             },
           }
         );
-        console.log(response.data);
         if (response.data.success) {
           setUsers(response.data.users || []);
         } else {
@@ -73,7 +75,6 @@ const UserSummaryTable = () => {
     }
 
     const newUserId = user.NewUserID;
-
     setStatusLoadingIds((ids) => [...ids, newUserId]);
     setStatusMessages((msgs) => ({ ...msgs, [newUserId]: "" }));
 
@@ -81,8 +82,8 @@ const UserSummaryTable = () => {
       const response = await axios.post(
         "https://gateway.dhanushop.com/api/users/ChangeUserStatus",
         {
-          UserID: userId, // Admin ID from cookies
-          NewUserId: newUserId, // Target user
+          UserID: userId,
+          NewUserId: newUserId,
           UserStatus: newStatus,
         },
         {
@@ -119,6 +120,18 @@ const UserSummaryTable = () => {
       setStatusLoadingIds((ids) => ids.filter((id) => id !== newUserId));
     }
   };
+
+   
+  // Filter & Paginate
+  const filteredUsers = users.filter(
+    (user) => user.UserType?.toLowerCase() !== "1"
+  );
+  console.log(filteredUsers);
+  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+  const currentUsers = filteredUsers.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   if (loading) {
     return (
@@ -174,76 +187,103 @@ const UserSummaryTable = () => {
           </tr>
         </thead>
         <tbody>
-          {users
-            .filter((user) => user.UserType?.toLowerCase() !== "employee")
-            .map((user) => {
-              const isKYCVerified =
-                user.KycStatus === "Approved" && user.IsDocumentVerified === "True";
-              const isEsignVerified = user.IsEsignVerified === "True";
-              const userStatus = user.UserStatus || "Pending";
-              const isLoading = statusLoadingIds.includes(user.NewUserID);
-              const statusMessage = statusMessages[user.NewUserID] || "";
+          {currentUsers.map((user) => {
+            const isEsignVerified = user.IsEsignVerified === "True";
+            const userStatus = user.UserStatus || "Pending";
+            const isLoading = statusLoadingIds.includes(user.NewUserID);
 
-              return (
-                <tr key={user.NewUserID}>
-                  <td className="px-4 py-2 border">{user.usertypename}</td>
-                  <td className="px-4 py-2 border">{user.FirstName}</td>
-                  <td className="px-4 py-2 border">{user.LastName}</td>
-                  <td className="px-4 py-2 border">{user.MobileNumber}</td>
-                  <td className="px-4 py-2 border">{user.Email}</td>
-                  <td className="px-4 py-2 border">
-                    <td className="px-4 py-2 ">
-  <button
-    onClick={() => handleViewKyc(user)}
-    className={`px-4 py-1 rounded-full text-sm font-semibold text-white ${
-      user.KycStatus === "Approved" ? "bg-green-600" : "bg-yellow-600"
-    }`}
-  >
-    {user.KycStatus === "Approved" ? "Verified" : "Pending"}
-  </button>
-</td>
-
-                  </td>
-                  <td
-                    className={`px-4 py-2 border ${
-                      isEsignVerified ? "text-green-600" : "text-red-600"
+            return (
+              <tr key={user.NewUserID}>
+                <td className="px-4 py-2 border">{user.usertypename}</td>
+                <td className="px-4 py-2 border">{user.FirstName}</td>
+                <td className="px-4 py-2 border">{user.LastName}</td>
+                <td className="px-4 py-2 border">{user.MobileNumber}</td>
+                <td className="px-4 py-2 border">{user.Email}</td>
+                <td className="px-4 py-2 border">
+                  <button
+                    onClick={() => handleViewKyc(user)}
+                    className={`px-4 py-1 rounded-full text-sm font-semibold text-white ${
+                      user.KycStatus === "Approved"
+                        ? "bg-green-600"
+                        : "bg-yellow-600"
                     }`}
                   >
-                    {isEsignVerified ? "Verified" : "Not Verified"}
-                  </td>
+                    {user.KycStatus === "Approved" ? "Verified" : "Pending"}
+                  </button>
+                </td>
+                <td
+                  className={`px-4 py-2 border ${
+                    isEsignVerified ? "text-green-600" : "text-red-600"
+                  }`}
+                >
+                  {isEsignVerified ? "Verified" : "Not Verified"}
+                </td>
                 <td className="px-4 py-2 border">
-  <select
-    disabled={isLoading}
-    value={userStatus}
-    onChange={(e) => handleStatusChange(user, e.target.value)}
-    className={`border rounded-full px-2 py-1 text-sm text-white transition-colors duration-200 ${
- 
-      userStatus === "Verified"
-        ? "bg-green-600"
-        : userStatus === "Pending"
-        ? "bg-yellow-600"
-        : "bg-red-600"
-    }`}
-  >
-    <option value="Pending">Pending</option>
-    <option value="Verified">Verified</option>
-    <option value="Blocked">Blocked</option>
-  </select>
-</td>
-
-                  <td className="px-4 py-2 border">
-                    <button
-                      onClick={() => handleViewDetails(user)}
-                      className="text-blue-600 hover:underline"
-                    >
-                      View Details
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
+                  <select
+                    disabled={isLoading}
+                    value={userStatus}
+                    onChange={(e) => handleStatusChange(user, e.target.value)}
+                    className={`border rounded-full px-2 py-1 text-sm text-white transition-colors duration-200 ${
+                      userStatus === "Verified"
+                        ? "bg-green-600"
+                        : userStatus === "Pending"
+                        ? "bg-yellow-600"
+                        : "bg-red-600"
+                    }`}
+                  >
+                    <option value="Pending">Pending</option>
+                    <option value="Verified">Verified</option>
+                    <option value="Blocked">Blocked</option>
+                  </select>
+                </td>
+                <td className="px-4 py-2 border">
+                  <button
+                    onClick={() => handleViewDetails(user)}
+                    className="text-blue-600 hover:underline"
+                  >
+                    View Details
+                  </button>
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
+
+      {/* Pagination Controls */}
+      <div className="flex justify-center mt-4 space-x-2">
+        <button
+          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+          disabled={currentPage === 1}
+          className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+        >
+          Previous
+        </button>
+
+        {Array.from({ length: totalPages }, (_, index) => (
+          <button
+            key={index}
+            onClick={() => setCurrentPage(index + 1)}
+            className={`px-3 py-1 rounded ${
+              currentPage === index + 1
+                ? "bg-blue-600 text-white"
+                : "bg-gray-100"
+            }`}
+          >
+            {index + 1}
+          </button>
+        ))}
+
+        <button
+          onClick={() =>
+            setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+          }
+          disabled={currentPage === totalPages}
+          className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+        >
+          Next
+        </button>
+      </div>
 
       {showDetailsModal && selectedUser && (
         <UserDetailsModal

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import Swal from "sweetalert2";
 
 function KycToggle({ userId, token, NewUserId, initialKycStatus }) {
   // Treat "True" or "Approved" as verified
@@ -21,8 +22,20 @@ function KycToggle({ userId, token, NewUserId, initialKycStatus }) {
   const handleToggle = async (e) => {
     const checked = e.target.checked;
 
-    // Prevent unchecking once approved
-    if (!checked) {
+    // Show confirmation dialog using Swal
+    const confirmResult = await Swal.fire({
+      title: checked
+        ? "Are you sure you want to mark KYC as Verified?"
+        : "Are you sure you want to mark KYC as Pending?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes",
+      cancelButtonText: "Cancel",
+    });
+
+    if (!confirmResult.isConfirmed) {
+      // Revert checkbox to previous state if cancelled
+      e.target.checked = isVerified;
       return;
     }
 
@@ -30,12 +43,14 @@ function KycToggle({ userId, token, NewUserId, initialKycStatus }) {
     setMessage("");
 
     try {
+      const newStatus = checked ? "Approved" : "Pending ";
+
       const response = await axios.post(
         "https://gateway.dhanushop.com/api/users/KYCStatusChange",
         {
           UserID: userId,
           NewUserId: NewUserId,
-          KYCStatus: "Approved",
+          KYCStatus: newStatus,
         },
         {
           headers: {
@@ -46,13 +61,15 @@ function KycToggle({ userId, token, NewUserId, initialKycStatus }) {
       );
 
       if (response.data.success) {
-        setIsVerified(true);
-        setMessage("KYC Verified successfully.");
+        setIsVerified(checked);
+        
       } else {
-        setMessage(response.data.message || "Failed to verify KYC.");
+        setMessage(response.data.message || "Failed to update KYC status.");
+        e.target.checked = isVerified; // revert checkbox
       }
     } catch (error) {
-      setMessage("Error verifying KYC.");
+      setMessage("Error updating KYC status.");
+      e.target.checked = isVerified; // revert checkbox
     } finally {
       setLoading(false);
     }
@@ -66,7 +83,7 @@ function KycToggle({ userId, token, NewUserId, initialKycStatus }) {
           type="checkbox"
           checked={isVerified}
           onChange={handleToggle}
-          disabled={isVerified || loading}
+          disabled={loading}
         />
         <span className="slider"></span>
       </label>
@@ -89,7 +106,7 @@ function KycToggle({ userId, token, NewUserId, initialKycStatus }) {
         }
         .slider {
           position: absolute;
-          cursor: ${isVerified ? "not-allowed" : "pointer"};
+          cursor: ${loading ? "not-allowed" : "pointer"};
           top: 0;
           left: 0;
           right: 0;

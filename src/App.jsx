@@ -45,6 +45,7 @@ import OtherServices from "./UserPages/OtherServices.jsx";
 import AEPSServices from "./UserPages/AEPSServices.jsx";
 import RechargesAndBillPay from "./UserPages/RechargesAndBillPay.jsx";
 import RegisterRetailer from "./auth/RegisterRetailer.jsx";
+import EmployeeRegistration from "./AdminPages/EmployeeRegistration.jsx";
 
 function App() {
   return (
@@ -84,6 +85,7 @@ function App() {
             <Route path="ServiceMaster" element={<ServiceMaster />} />
             <Route path="loadwallet" element={<LoadWallet />} />
             <Route path="registrationmodal" element={<RegistrationModal />} />
+            <Route path="employeeregistration" element={<EmployeeRegistration />} />
           </Route>
 
           <Route

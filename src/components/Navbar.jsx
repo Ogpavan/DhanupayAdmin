@@ -1,12 +1,12 @@
 import Cookies from "js-cookie";
 import Swal from "sweetalert2";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Bell } from "phosphor-react";
 
 export default function Navbar() {
   const userType = Cookies.get("UserTypeName");
   const token = Cookies.get("token");
-  const UserName = Cookies.get("UserName");
+ 
   const [notifications, setNotifications] = useState([
     "New transaction request received",
     "API balance is low",
@@ -15,34 +15,33 @@ export default function Navbar() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [adminBalance, setAdminBalance] = useState(3000);
 
-  // Fetch Admin Balance
-  // useEffect(() => {
-  //   const fetchAdminBalance = async () => {
-  //     if (!token) return;
-  //     try {
-  //       const response = await fetch("https://gateway.dhanushop.com/api/admin/balance", {
-  //         method: "GET",
-  //         headers: {
-  //           Authorization: `Bearer ${token}`,
-  //           "Content-Type": "application/json",
-  //         },
-  //       });
-  //       const data = await response.json();
-
-  //       if (response.ok && data.success) {
-  //         setAdminBalance(data.balance); // Assuming `data.balance` contains the admin balance
-  //       } else {
-  //         console.error("Failed to fetch admin balance:", data.message);
-  //         setAdminBalance("Error");
-  //       }
-  //     } catch (error) {
-  //       console.error("Error fetching admin balance:", error);
+  // const fetchAdminBalance = async () => {
+  //   if (!token) return;
+  //   try {
+  //     const response = await fetch("https://gateway.dhanushop.com/api/admin/balance", {
+  //       method: "GET",
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //         "Content-Type": "application/json",
+  //       },
+  //     });
+  //     const data = await response.json();
+  //     if (response.ok && data.success) {
+  //       setAdminBalance(data.balance);
+  //     } else {
   //       setAdminBalance("Error");
   //     }
-  //   };
+  //   } catch (error) {
+  //     setAdminBalance("Error");
+  //   }
+  // };
 
+  // useEffect(() => {
   //   fetchAdminBalance();
   // }, [token]);
+  const UserName = decodeURIComponent(Cookies.get("UserName") || "");
+const AgentId = Cookies.get("AgentId") || "";
+
 
   const handleLogout = async () => {
     const userId = Cookies.get("UserId");
@@ -93,8 +92,18 @@ export default function Navbar() {
             Cookies.remove("UserTypeName");
             Cookies.remove("UserName");
             Cookies.remove("UserId");
+            Cookies.remove("UserTypeId");
+            Cookies.remove("loginid");
+            Cookies.remove("newUserId");
+            Cookies.remove("role");
             localStorage.clear();
-            window.location.href = "/";
+
+            // Navigate based on UserTypeId from response
+            if (data.UserTypeId === "1" || data.UserTypeId === 1) {
+              window.location.href = "/administrator";
+            } else {
+              window.location.href = "/login";
+            }
           });
         } else {
           Swal.fire({
@@ -120,13 +129,12 @@ export default function Navbar() {
   return (
     <nav className="bg-indigo-700 text-white px-8 py-4 flex items-center justify-between shadow-md">
       <h1 className="text-2xl font-semibold flex items-center gap-2">
-  <img src="/logo-DhanuPay.png" alt="DhanuPay Logo" className=" h-16 object-contain" />
-  {/* Dhanupay {UserName} */}
-</h1>
+        <img src="/logo-DhanuPay.png" alt="DhanuPay Logo" className="h-16 object-contain" />
+      </h1>
 
       <div className="flex items-center gap-6">
         {/* Notifications */}
-        <div
+        {/* <div
           className="flex flex-col items-center cursor-pointer hover:text-blue-300 transition-all duration-200"
           onClick={toggleModal}
         >
@@ -134,11 +142,17 @@ export default function Navbar() {
             <Bell size={24} weight="fill" />
           </div>
           <span className="text-xs">Notifications</span>
-        </div>
+        </div> */}
+<div className="flex flex-col items-end  text-white">
+  <span className="font-semibold">{UserName}</span>
+  <span className="text-xs">Agent ID: {AgentId}</span>
+</div>
 
-        <p className="flex flex-col">  Balance:       <span className="text-2xl text-white">
-          {adminBalance !== null ? `₹${adminBalance}` : "Loading..."}
-        </span>
+        <p className="flex flex-col">
+          Balance
+          <span className="text-xl text-white">
+            {adminBalance !== null ? `₹${adminBalance}` : "Loading..."}
+          </span>
         </p>
 
         <button
@@ -149,7 +163,7 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* Modal for Notifications */}
+      {/* Notifications Modal */}
       {isModalOpen && (
         <div className="fixed top-14 right-[24vw] bg-opacity-50 flex items-center text-black justify-center z-50">
           <div className="bg-white p-6 rounded-lg w-96 max-w-md shadow-lg">

@@ -3,10 +3,11 @@ import { fetchStatesList } from "../api/stateListApi";
 import { fetchCitiesByState } from "../api/CityListApi";
 import PreviewPane from "./PreviewPane";
 import Swal from "sweetalert2";
-
+import { IoMdLocate } from "react-icons/io";
 import Cookies from "js-cookie";
 import axios from "axios"; // Import axios for API calls
 import { data, useNavigate } from "react-router-dom";
+import { Eye, EyeOff } from "lucide-react"; // optional icon lib
 
 ///////////////////////////
 
@@ -23,7 +24,8 @@ const bankList = [
   "YES BANK",
   "CITI BANK",
   "OTHERS",
-];
+].map((bank) => ({ label: bank, value: bank }));
+
 const steps = [
   "Basic Details",
   "Residential Details",
@@ -46,7 +48,8 @@ export default function EmployeeRegistration() {
   const [openPreview, setOpenPreview] = useState(false);
   const [roles, setRoles] = useState([]);
   const [selectedRole, setSelectedRole] = useState("");
-
+  const [showAccount, setShowAccount] = useState(false);
+  const [showConfirmAccount, setShowConfirmAccount] = useState(false);
   const handlePreviewClose = () => setIsPreviewOpen(false);
 
   const [formData, setFormData] = useState({
@@ -70,14 +73,23 @@ export default function EmployeeRegistration() {
     businessName: "",
     firmName: "",
     roleid: "",
-    userType: "Employee",
+    userType: "",
+    accountHolderName: "",
+    accountNumber: "",
+    ifscCode: "",
+    bankName: "",
+    branchName: "",
+    latitude: "",
+    longitude: "",
+    websiteUrl: "",
+    referralId: "", // <-- ✅ Add this line
   });
 
   const isStepValid = () => {
     if (currentStep === 0) {
       return (
         formData.firstName.trim() !== "" &&
-        formData.lastName.trim() !== "" &&
+        // formData.lastName.trim() !== "" &&
         formData.mobile.length === 10 &&
         /^[0-9]{10}$/.test(formData.mobile) &&
         /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email) &&
@@ -96,23 +108,31 @@ export default function EmployeeRegistration() {
     }
 
     if (currentStep === 2) {
-      return (
+      const isWhiteLabel = formData.userType === "2";
+
+      const isValid =
         formData.shopName.trim() !== "" &&
         formData.shopAddress.trim() !== "" &&
         formData.busPincode.length === 6 &&
         formData.busState !== "" &&
-        formData.busCity !== ""
-      );
+        formData.busCity !== "" &&
+        formData.latitude !== "" &&
+        formData.longitude !== "" &&
+        (!isWhiteLabel || formData.websiteUrl.trim() !== "");
 
-      if (currentStep === 3) {
-        return (
-          formData.accountHolderName.trim() !== "" &&
-          formData.accountNumber.length === 10 &&
-          formData.ifscCode.length === 11 &&
-          formData.bankName.trim() !== "" &&
-          formData.branchName.trim() !== ""
-        );
-      }
+      return isValid;
+    }
+
+    if (currentStep === 3) {
+      return (
+        formData.accountHolderName.trim() !== "" &&
+        formData.accountNumber.length >= 8 &&
+        formData.accountNumber.length <= 20 &&
+        formData.confirmAccountNumber === formData.accountNumber &&
+        formData.ifscCode.length === 11 &&
+        formData.bankName.trim() !== "" &&
+        formData.branchName.trim() !== "" // <- this will now work after the fix
+      );
     }
 
     return false;
@@ -148,6 +168,7 @@ export default function EmployeeRegistration() {
             value: state.StateId,
           }))
         );
+        console.log();
       } catch (err) {
         console.error("Error fetching states:", err);
       }
@@ -178,28 +199,28 @@ export default function EmployeeRegistration() {
     }
   }, [formData.resState]);
 
-  useEffect(() => {
-    const fetchRoles = async () => {
-      try {
-        const response = await axios.post(
-          "https://gateway.dhanushop.com/api/role/list",
-          { userId: userId },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        console.log(response.data);
-        setRoles(response.data); // Assuming response.data is the array of roles
-      } catch (error) {
-        console.error("Error fetching roles:", error);
-      }
-    };
+  // useEffect(() => {
+  //   const fetchRoles = async () => {
+  //     try {
+  //       const response = await axios.post(
+  //         "https://gateway.dhanushop.com/api/role/list",
+  //         { userId: userId },
+  //         {
+  //           headers: {
+  //             Authorization: `Bearer ${token}`,
+  //             "Content-Type": "application/json",
+  //           },
+  //         }
+  //       );
+  //       console.log(response.data);
+  //       setRoles(response.data); // Assuming response.data is the array of roles
+  //     } catch (error) {
+  //       console.error("Error fetching roles:", error);
+  //     }
+  //   };
 
-    fetchRoles();
-  }, [token]);
+  //   fetchRoles();
+  // }, [token]);
 
   const handleroleChange = (e) => {
     const role = e.target.value;
@@ -254,13 +275,16 @@ export default function EmployeeRegistration() {
           IFSCCode: formData.ifscCode,
           BankName: formData.bankName,
           BranchName: formData.branchName,
+          websiteUrl: formData.websiteUrl,
+          ReferalID: formData.referralId,
         };
 
+        console.log("Payload:", payload);
         const response = await axios.post(
           "https://gateway.dhanushop.com/api/users/register",
           payload
         );
-
+        console.log("Response:", response.data);
         // Check for duplicate email
         if (response.data?.message === "EmailExists") {
           Swal.fire({
@@ -294,19 +318,20 @@ export default function EmployeeRegistration() {
           Swal.fire({
             icon: "success",
             title: "Registration Successful",
-            text: "Your registration has been completed successfully!",
+            text: "User registration has been completed successfully!",
           }).then((result) => {
             if (result.isConfirmed) {
-              // After the user clicks OK, navigate to the registration page
+              window.location.href = "/admin/employeeregistration";
             }
           });
           return true;
         } else {
           console.warn("newUserId not found in response");
+          const responsemessage = response.data?.message;
           Swal.fire({
             icon: "warning",
             title: "Unexpected Response",
-            text: "Your data was submitted, but no user ID was returned.",
+            text: responsemessage,
           });
           return true; // depending on your app logic
         }
@@ -352,12 +377,62 @@ export default function EmployeeRegistration() {
     }));
   };
 
+  const handleUserTypeChange = async (e) => {
+    const selectedUserType = e.target.value;
+    console.log("Selected User Type:", selectedUserType);
+
+    setFormData({ ...formData, userType: selectedUserType });
+    setSelectedRole(""); // reset selected role
+
+    if (selectedUserType) {
+      try {
+        const response = await axios.post(
+          "https://gateway.dhanushop.com/api/role/listByUserTypeID",
+          {
+            userId: userId,
+            UserTypeID: selectedUserType,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        if (Array.isArray(response.data)) {
+          setRoles(response.data);
+        } else {
+          setRoles([]);
+        }
+      } catch (error) {
+        console.error("Error fetching roles:", error);
+        setRoles([]);
+      }
+    } else {
+      setRoles([]);
+    }
+  };
+
+  // const isValidCoordinates = (lat, lon) => {
+  //   const latitude = parseFloat(lat);
+  //   const longitude = parseFloat(lon);
+  //   return (
+  //     !isNaN(latitude) &&
+  //     !isNaN(longitude) &&
+  //     latitude >= -90 &&
+  //     latitude <= 90 &&
+  //     longitude >= -180 &&
+  //     longitude <= 180
+  //   );
+  // };
+  const selectedUserType = userTypes.find(
+    (ut) => ut.UserTypeID.toString() === formData.userType?.toString()
+  );
+
   return (
     <div className="max-w-3xl mx-auto px-6 py-5 bg-white rounded-xl relative">
-      <h1 className="text-center text-2xl font-bold mb-10 text-gray-800">
-        Create Employee
-      </h1>
-
+      <h1 className="text-2xl font-semibold mb-10 text-center ">Employee Registration</h1>
       <div className="flex items-center justify-between mb-10 relative">
         {steps.map((step, index) => {
           const isCompleted = index < currentStep;
@@ -408,54 +483,62 @@ export default function EmployeeRegistration() {
             <div className="flex gap-4 items-center">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  User Type *
+                  User Type <span className="text-red-500">*</span>
                 </label>
                 <select
                   name="userType"
                   value={formData.userType}
-                  onChange={handleChange}
+                  onChange={handleUserTypeChange}
                   className="border border-gray-300 px-2 py-2 rounded-md"
-                  disabled
                 >
                   <option value="" disabled>
                     Select a User Type{" "}
                   </option>
-                  {userTypes.map((userType) => (
-                    <option
-                      key={userType.UserTypeID}
-                      value={userType.UserTypeID}
-                    >
-                      {userType.UserTypeName}
-                    </option>
-                  ))}
+                  {userTypes
+                    .filter(
+                      (userType) =>
+                        userType.UserTypeName.toLowerCase() == "employee"
+                    )
+                    .map((userType) => (
+                      <option
+                        key={userType.UserTypeID}
+                        value={userType.UserTypeID}
+                      >
+                        {userType.UserTypeName}
+                      </option>
+                    ))}
                 </select>
               </div>
+
               <div>
                 <label
                   htmlFor="role"
                   className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                  Select Role *
+                  Select Role <span className="text-red-500">*</span>
                 </label>
                 <select
                   id="role"
                   value={selectedRole}
                   onChange={handleroleChange}
-                  className="border border-gray-300 px-2 py-2 rounded-md"
+                  className="border border-gray-300 px-2 py-2 rounded-md min-w-40"
+                  disabled={!roles.length}
                 >
                   <option value="" disabled>
                     Select Role
                   </option>
                   {roles.map((role) => (
                     <option key={role.RoleID} value={role.RoleID}>
-                      {role.RoleName}
+                      {
+                        role.RoleNAme /* Note: response has RoleNAme (typo), be consistent */
+                      }
                     </option>
                   ))}
                 </select>
               </div>
 
               <Input
-                label="First Name *"
+                label="First Name "
                 name="firstName"
                 value={formData.firstName}
                 onChange={(e) => {
@@ -472,7 +555,7 @@ export default function EmployeeRegistration() {
                 required
               />
               <Input
-                label="Last Name *"
+                label="Last Name "
                 name="lastName"
                 value={formData.lastName}
                 onChange={(e) => {
@@ -486,78 +569,92 @@ export default function EmployeeRegistration() {
                 className="w-1/2"
                 pattern="^[a-zA-Z\s'-]{1,17}$"
                 title="Last name should only contain alphabets, spaces, hyphens, or apostrophes, and be up to 50 characters."
-                required
               />
             </div>
-            <div>
-                 
-
-
-
-
-
-
-
-                 
-            </div>
             <div className="flex gap-4 items-center">
-            <Input
-              label="Mobile Number *"
-              name="mobile"
-              value={formData.mobile}
-              onChange={(e) => {
-                const value = e.target.value;
-                if (/^\d{0,10}$/.test(value)) {
-                  handleChange(e);
-                }
-              }}
-              className="w-full"
-              inputMode="numeric"
-              pattern="^\d{10}$"
-              title="Mobile number must be exactly 10 digits."
-              maxLength={10}
-              required
-            />
+              <Input
+                label="Mobile Number "
+                name="mobile"
+                value={formData.mobile}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  // Allow typing up to 10 digits and only if it starts with 6-9
+                  if (/^$|^[6-9]\d{0,9}$/.test(value)) {
+                    handleChange(e);
+                  }
+                }}
+                className="w-full"
+                inputMode="numeric"
+                pattern="^[6-9]\d{9}$"
+                title="Enter a valid 10-digit Indian mobile number starting with 6, 7, 8, or 9."
+                maxLength={10}
+                required
+              />
 
-            <Input
-              label="Alternate Mobile Number"
-              name="altMobile"
-              value={formData.altMobile}
-              onChange={(e) => {
-                const value = e.target.value;
-                if (/^\d{0,10}$/.test(value)) {
-                  handleChange(e);
-                }
-              }}
-              className="w-full"
-              inputMode="numeric"
-              pattern="^\d{10}$"
-              title="Mobile number must be exactly 10 digits."
-              maxLength={10}
-              required
-            />
+              <Input
+                label="Alternate Mobile Number"
+                name="altMobile"
+                value={formData.altMobile}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (/^$|^[6-9]\d{0,9}$/.test(value)) {
+                    handleChange(e);
+                  }
+                }}
+                className="w-full"
+                inputMode="numeric"
+                pattern="^[6-9]\d{9}$"
+                title="Mobile number must be exactly 10 digits."
+                maxLength={10}
+              />
             </div>
-            <Input
-              label="Email *"
-              name="email"
-              value={formData.email}
-              onChange={(e) => {
-                let value = e.target.value;
+            <div className="flex gap-4 items-center  ">
+              <Input
+                label="Email "
+                name="email"
+                className="w-1/2"
+                value={formData.email}
+                onChange={(e) => {
+                  let value = e.target.value;
 
-                // Regex to allow only valid email characters
-                const emailPattern = /^[a-zA-Z0-9@._-]*$/;
+                  // Regex to allow only valid email characters
+                  const emailPattern = /^[a-zA-Z0-9@._-]*$/;
 
-                // Limit input length to 50 characters, ensure valid characters, and convert to lowercase
-                if (emailPattern.test(value) && value.length <= 50) {
-                  value = value.toLowerCase(); // Convert to lowercase
-                  handleChange({ target: { name: "email", value } }); // Pass updated value to handler
-                }
-              }}
-              pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
-              title="Please enter a valid email address."
-              maxLength={50}
-              required
-            />
+                  // Limit input length to 50 characters, ensure valid characters, and convert to lowercase
+                  if (emailPattern.test(value) && value.length <= 50) {
+                    value = value.toLowerCase(); // Convert to lowercase
+                    handleChange({ target: { name: "email", value } }); // Pass updated value to handler
+                  }
+                }}
+                pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                title="Please enter a valid email address."
+                maxLength={50}
+                required
+              />
+              {/* Referral ID input */}
+            
+                <Input
+                  label="Have a Referral ID?"
+                  name="referralId"
+                  value={formData.referralId || ""}
+                  onChange={(e) => {
+                    const value = e.target.value.toUpperCase(); // Optional: force uppercase
+                    if (value.length <= 10) {
+                      handleChange({
+                        target: {
+                          name: "referralId",
+                          value: value,
+                        },
+                      });
+                    }
+                  }}
+                  maxLength={10} // HTML enforcement
+                  pattern="^DP\w{8}$"
+                  title="Referral ID must start with 'DP' and be exactly 10 characters."
+                  className="w-1/2"
+                />
+              
+            </div>
           </>
         )}
 
@@ -579,10 +676,9 @@ export default function EmployeeRegistration() {
                 pattern="^\d{5}$"
                 title="House No."
                 maxLength={10}
-                required
               />
               <Input
-                label="Residential Area *"
+                label="Residential Area "
                 name="resArea"
                 value={formData.resArea}
                 onChange={(e) => {
@@ -594,6 +690,7 @@ export default function EmployeeRegistration() {
                     handleChange(e);
                   }
                 }}
+                maxLength={100}
                 className="w-full"
                 pattern="^[a-zA-Z\s'-]{1,17}$"
                 title="Please enter a valid residential area (letters, numbers, spaces, and basic punctuation only)."
@@ -607,18 +704,18 @@ export default function EmployeeRegistration() {
               value={formData.resLandmark}
               onChange={(e) => {
                 const value = e.target.value;
-                if (/^[a-zA-Z0-9\s.,'-]*$/.test(value)) {
+                if (value.length <= 100 && /^[a-zA-Z0-9\s.,'-]*$/.test(value)) {
                   handleChange(e);
                 }
               }}
+              maxLength={100}
               className="w-full"
-              pattern="^[a-zA-Z0-9\s.,'-]+$"
+              pattern="^[a-zA-Z0-9\s.,'-]*$"
               title="Please enter a valid Landmark (letters, numbers, spaces, and basic punctuation only)."
-              required
             />
 
             <Input
-              label="Pincode *"
+              label="Pincode "
               name="resPincode"
               value={formData.resPincode}
               onChange={(e) => {
@@ -637,19 +734,21 @@ export default function EmployeeRegistration() {
 
             <div className="flex gap-4">
               <Selectlistbyapi
-                label=" State *"
+                label=" State "
                 name="resState"
                 value={formData.resState}
                 onChange={handleChange}
                 options={states}
+                required
               />
 
               <Selectlistbyapi
-                label="City *"
+                label="City "
                 name="resCity"
                 value={formData.resCity}
                 onChange={handleChange}
                 options={cities}
+                required
               />
             </div>
           </>
@@ -657,95 +756,178 @@ export default function EmployeeRegistration() {
 
         {currentStep === 2 && (
           <>
-            <div className="flex gap-4">
+            {/* Group 1: Shop Name + Address */}
+            <div className="flex  gap-4">
               <Input
-                label="Shop Name *"
+                label="Shop Name "
                 name="shopName"
                 value={formData.shopName}
                 onChange={(e) => {
                   const value = e.target.value;
-                  if (/^[a-zA-Z0-9\s.,'-]*$/.test(value)) {
+                  if (
+                    value.length <= 100 &&
+                    /^[a-zA-Z0-9\s.,'-]*$/.test(value)
+                  ) {
                     handleChange(e);
                   }
                 }}
-                className="w-full"
+                maxLength={100}
+                className="w-full md:w-1/2"
                 pattern="^[a-zA-Z0-9\s.,'-]+$"
-                title="Please enter a valid shop name (letters, numbers, spaces, and basic punctuation only)."
+                title="Please enter a valid shop name"
                 required
               />
+
               <Input
-                label="Shop Address *"
+                label="Shop Address "
                 name="shopAddress"
                 value={formData.shopAddress}
                 onChange={(e) => {
                   const value = e.target.value;
-                  if (/^[a-zA-Z0-9\s.,'-]*$/.test(value)) {
+                  if (
+                    value.length <= 100 &&
+                    /^[a-zA-Z0-9\s.,'-]*$/.test(value)
+                  ) {
                     handleChange(e);
                   }
                 }}
-                className="w-full"
+                maxLength={100}
+                className="w-full md:w-1/2"
                 pattern="^[a-zA-Z0-9\s.,'-]+$"
-                title="Please enter a valid shop address (letters, numbers, spaces, and basic punctuation only)."
+                title="Please enter a valid shop address"
                 required
               />
             </div>
-            <div className="w-full justify-end flex">
-              <button
+            <div className="flex justify-end w-full ">
+              {" "}
+              <span
                 type="button"
-                className="text-blue-500  rounded-md"
+                className="text-blue-500 rounded-md text-xs cursor-pointer "
                 onClick={copyResidentialToBusiness}
               >
                 Same as Residential Address
-              </button>
+              </span>
             </div>
-            <Input
-              label="Landmark (optional)"
-              name="busLandmark"
-              value={formData.busLandmark}
-              onChange={(e) => {
-                const value = e.target.value;
-                if (/^[a-zA-Z0-9\s.,'-]*$/.test(value)) {
-                  handleChange(e);
-                }
-              }}
-              className="w-full"
-              pattern="^[a-zA-Z0-9\s.,'-]+$"
-              title="Please enter a valid Landmark (letters, numbers, spaces, and basic punctuation only)."
-              required
-            />
-            <Input
-              label="Pincode *"
-              name="busPincode"
-              value={formData.busPincode}
-              onChange={(e) => {
-                const value = e.target.value;
-                if (/^\d{0,6}$/.test(value)) {
-                  handleChange(e);
-                }
-              }}
-              className="w-full"
-              inputMode="numeric"
-              pattern="^\d{6}$"
-              title="Pincode No."
-              maxLength={6}
-              required
-            />
-            <div className="flex gap-4 w-full">
+
+            {/* Group 2: Latitude + Longitude */}
+            <div className="flex  gap-4 items-center">
+              <Input
+                label="Latitude "
+                name="latitude"
+                value={formData.latitude}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (/^-?\d{0,2}(\.\d{0,10})?$/.test(value)) {
+                    handleChange(e);
+                  }
+                }}
+                className="w-full md:w-1/2"
+                inputMode="decimal"
+                title="Latitude must be between -90 and 90"
+                required
+              />
+
+              <Input
+                label="Longitude "
+                name="longitude"
+                value={formData.longitude}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (/^-?\d{0,3}(\.\d{0,10})?$/.test(value)) {
+                    handleChange(e);
+                  }
+                }}
+                className="w-full md:w-1/2"
+                inputMode="decimal"
+                title="Longitude must be between -180 and 180"
+                required
+              />
+
+              {/* Map Button */}
+              <div className="mt-2">
+                <button className="flex items-center hover:text-blue-500">
+                  <span className="mr-2 text-nowrap">Locate on Map</span>
+                  <IoMdLocate size={30} />
+                </button>
+              </div>
+            </div>
+
+            {/* Website URL for Whitelabel */}
+            {formData.userType === "2" && (
+              <div className="mt-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Website URL <span className="text-red-600">*</span>
+                </label>
+                <input
+                  type="url"
+                  name="websiteUrl"
+                  value={formData.websiteUrl}
+                  onChange={handleChange}
+                  className="border border-gray-300 px-2 py-2 rounded-md w-full"
+                  placeholder="https://yourdomain.com"
+                  pattern="https?://.*"
+                  title="Enter a valid URL"
+                  required
+                />
+              </div>
+            )}
+
+            {/* Group 3: Landmark + Pincode */}
+            <div className="flex  gap-4">
+              <Input
+                label="Landmark (optional)"
+                name="busLandmark"
+                value={formData.busLandmark}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (
+                    value.length <= 100 &&
+                    /^[a-zA-Z0-9\s.,'-]*$/.test(value)
+                  ) {
+                    handleChange(e);
+                  }
+                }}
+                maxLength={100}
+                className="w-full md:w-1/2"
+                pattern="^[a-zA-Z0-9\s.,'-]+$"
+                title="Enter a valid landmark"
+              />
+
+              <Input
+                label="Pincode "
+                name="busPincode"
+                value={formData.busPincode}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (/^\d{0,6}$/.test(value)) {
+                    handleChange(e);
+                  }
+                }}
+                className="w-full md:w-1/2"
+                inputMode="numeric"
+                pattern="^\d{6}$"
+                title="Pincode"
+                maxLength={6}
+                required
+              />
+
               <Selectlistbyapi
-                label="State *"
+                label="State "
                 name="busState"
                 value={formData.busState}
                 onChange={handleChange}
                 options={states}
-                className="w-1/2"
+                className="w-full md:w-1/2"
+                required
               />
               <Selectlistbyapi
-                label="City *"
+                label="City "
                 name="busCity"
                 value={formData.busCity}
                 onChange={handleChange}
                 options={cities}
-                className="w-1/2"
+                className="w-full md:w-1/2"
+                required
               />
             </div>
           </>
@@ -755,22 +937,24 @@ export default function EmployeeRegistration() {
           <>
             <div className="flex gap-4">
               <Input
-                label="Account Holder Name *"
+                label="Account Holder Name "
                 name="accountHolderName"
                 value={formData.accountHolderName}
                 onChange={(e) => {
                   const value = e.target.value;
-                  if (/^[a-zA-Z\s.']*$/.test(value)) {
+                  if (value.length <= 40 && /^[a-zA-Z\s.']*$/.test(value)) {
                     handleChange(e);
                   }
                 }}
+                maxLength={40}
                 className="w-full"
                 pattern="^[a-zA-Z\s.']+$"
-                title="Only letters, spaces, and periods are allowed."
+                title="Only letters, spaces, apostrophes, and periods are allowed."
                 required
               />
+
               <Selectlistbyapi
-                label="Bank Name *"
+                label="Bank Name "
                 name="bankName"
                 value={formData.bankName}
                 onChange={handleChange}
@@ -779,59 +963,110 @@ export default function EmployeeRegistration() {
                 required
               />
             </div>
-
-            <Input
-              label="Bank Branch *"
-              name="bankBranch"
-              value={formData.bankBranch}
-              onChange={(e) => {
-                const value = e.target.value;
-                if (/^[a-zA-Z0-9\s.,'-]*$/.test(value)) {
-                  handleChange(e);
-                }
-              }}
-              className="w-full"
-              maxLength={40}
-              pattern="^[a-zA-Z0-9\s.,'-]+$"
-              title="Please enter a valid branch name."
-              required
-            />
+            <div className=" flex space-x-4">
+              <Input
+                label="Bank Branch "
+                name="branchName" // ✅ Match the field used in formData and validation
+                value={formData.branchName}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (
+                    value.length <= 100 &&
+                    /^[a-zA-Z0-9\s.,'-]*$/.test(value)
+                  ) {
+                    handleChange(e);
+                  }
+                }}
+                maxLength={100}
+                className="w-full"
+                pattern="^[a-zA-Z0-9\s.,'-]+$"
+                title="Please enter a valid branch name."
+                required
+              />
+              <Input
+                label="IFSC Code "
+                name="ifscCode"
+                value={formData.ifscCode}
+                onChange={(e) => {
+                  const value = e.target.value.toUpperCase(); // Convert to uppercase
+                  if (/^[A-Z0-9]{0,11}$/.test(value)) {
+                    handleChange({ target: { name: "ifscCode", value } });
+                  }
+                }}
+                className="w-full"
+                pattern="^[A-Z]{4}0[A-Z0-9]{6}$" // Strict format validated on form submit
+                title="Enter a valid 11-character IFSC code (e.g., HDFC0001234)."
+                maxLength={11}
+                required
+              />
+            </div>
 
             <div className="flex gap-4">
-              <Input
-                label="Account Number *"
-                name="accountNumber"
-                value={formData.accountNumber}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  if (/^\d{0,20}$/.test(value)) {
-                    handleChange(e);
-                  }
-                }}
-                inputMode="numeric"
-                className="w-full"
-                pattern="^\d{8,20}$"
-                title="Account number must be between 8 and 20 digits."
-                maxLength={20}
-                required
-              />
-              <Input
-                label="Confirm Account Number *"
-                name="confirmAccountNumber"
-                value={formData.confirmAccountNumber}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  if (/^\d{0,20}$/.test(value)) {
-                    handleChange(e);
-                  }
-                }}
-                inputMode="numeric"
-                className="w-full"
-                pattern="^\d{8,20}$"
-                title="Must match the account number above."
-                maxLength={20}
-                required
-              />
+              {/* Account Number Field */}
+              <div className="relative w-full">
+                <Input
+                  label="Account Number"
+                  name="accountNumber"
+                  value={formData.accountNumber}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (/^\d{0,20}$/.test(value)) {
+                      handleChange(e);
+                    }
+                  }}
+                  inputMode="numeric"
+                  className="w-full pr-10" // Reserve space for icon
+                  type={showAccount ? "text" : "password"}
+                  pattern="^\d{8,20}$"
+                  title="Account number must be between 8 and 20 digits."
+                  maxLength={20}
+                  required
+                />
+                <div className="absolute inset-y-0 right-2 top-5 flex items-center">
+                  <button
+                    type="button"
+                    onClick={() => setShowAccount((prev) => !prev)}
+                    className="text-gray-500 focus:outline-none"
+                  >
+                    {showAccount ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Confirm Account Number Field */}
+              <div className="relative w-full">
+                <Input
+                  label="Confirm Account Number"
+                  name="confirmAccountNumber"
+                  value={formData.confirmAccountNumber}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (/^\d{0,20}$/.test(value)) {
+                      handleChange(e);
+                    }
+                  }}
+                  inputMode="numeric"
+                  className="w-full pr-10"
+                  type={showConfirmAccount ? "text" : "password"}
+                  pattern="^\d{8,20}$"
+                  title="Must match the account number above."
+                  maxLength={20}
+                  required
+                />
+                <div className="absolute inset-y-0 right-2 top-5 flex items-center">
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmAccount((prev) => !prev)}
+                    className="text-gray-500 focus:outline-none"
+                  >
+                    {showConfirmAccount ? (
+                      <EyeOff size={18} />
+                    ) : (
+                      <Eye size={18} />
+                    )}
+                  </button>
+                </div>
+              </div>
             </div>
           </>
         )}
@@ -889,55 +1124,26 @@ function Input({
   value,
   onChange,
   className = "",
+  required = false, // new prop to indicate if required
 }) {
   return (
     <div className={className}>
       <label className="block text-sm font-medium text-gray-700 mb-1">
-        {label}
+        {label}{" "}
+        {required && (
+          <span className="text-red-600" aria-hidden="true">
+            *
+          </span>
+        )}
       </label>
       <input
         type={type}
         name={name}
         value={type !== "file" ? value : undefined}
         onChange={onChange}
+        required={required} // set required attribute on input as well
         className="w-full px-2 py-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
       />
-    </div>
-  );
-}
-
-// Reusable Select component
-function Select({
-  label,
-  name,
-  value,
-  onChange,
-  options = [],
-  className = "",
-}) {
-  return (
-    <div className={`w-full ${className}`}>
-      <label className="block text-sm font-medium text-gray-700 mb-1">
-        {label}
-      </label>
-      <select
-        name={name}
-        value={value}
-        onChange={onChange}
-        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-      >
-        <option value="">Select {label}</option>
-        {options.map((opt, idx) => {
-          const optionLabel = typeof opt === "string" ? opt : opt.label;
-          const optionValue = typeof opt === "string" ? opt : opt.value;
-
-          return (
-            <option key={optionValue || idx} value={optionValue}>
-              {optionLabel}
-            </option>
-          );
-        })}
-      </select>
     </div>
   );
 }
@@ -950,16 +1156,23 @@ function Selectlistbyapi({
   onChange,
   options = [],
   className = "",
+  required = false, // new prop
 }) {
   return (
     <div className={`w-full ${className}`}>
       <label className="block text-sm font-medium text-gray-700 mb-1">
         {label}
+        {required && (
+          <span className="text-red-600 ml-1" aria-hidden="true">
+            *
+          </span>
+        )}
       </label>
       <select
         name={name}
         value={value}
         onChange={onChange}
+        required={required}
         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
       >
         <option value="">Select {label}</option>

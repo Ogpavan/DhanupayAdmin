@@ -1,261 +1,311 @@
-import { Pencil, Plus, X } from "phosphor-react"; // Import X (close) icon
-import { useState } from "react";
-import EmployeeRegistration from "./EmployeeRegistration"; // Adjust the import path as necessary
+import React, { useEffect, useState } from "react";
+import UserDetailsModal from "../AdminPages/RegistrationSteps/UserDetailsModal";
+import KycDetailsModal from "../AdminPages/RegistrationSteps/KycDetailsModal";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import Cookies from "js-cookie";
 
-export default function EmployeeMaster() {
-  const [employees, setEmployees] = useState([
-    {
-      id: 1,
-      employeeId: "EMP001",
-      name: "Ravi Sharma",
-      email: "ravi@dhanupay.com",
-      mobile: "9876543210",
-      role: "HR",
-      joiningDate: "2023-01-15",
-      branch: "Mumbai",
-      status: "Active",
-    },
-    {
-      id: 2,
-      employeeId: "EMP002",
-      name: "Neha Singh",
-      email: "neha@dhanupay.com",
-      mobile: "9123456780",
-      role: "Fund Manager",
-      joiningDate: "2023-03-20",
-      branch: "Delhi",
-      status: "Inactive",
-    },
-  ]);
+const EmployeeMaster = () => {
+  const [users, setUsers] = useState([]);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [showKycModal, setShowKycModal] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [statusLoadingIds, setStatusLoadingIds] = useState([]);
+  const [statusMessages, setStatusMessages] = useState({});
 
-  const [editingId, setEditingId] = useState(null);
-  const [editForm, setEditForm] = useState({});
-  const [isRegistrationVisible, setIsRegistrationVisible] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
-  const handleEdit = (id) => {
-    const emp = employees.find((emp) => emp.id === id);
-    setEditingId(id);
-    setEditForm({ ...emp });
+  const navigate = useNavigate();
+  const token = Cookies.get("token");
+  const userId = Cookies.get("UserId");
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      setLoading(true);
+      try {
+        if (!token || !userId) {
+          console.error("Missing token or userId in cookies");
+          setUsers([]);
+          setLoading(false);
+          return;
+        }
+
+        const response = await axios.post(
+          "https://gateway.dhanushop.com/api/users/AllUserDetails",
+          { UserID: userId },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        if (response.data.success) {
+          setUsers(response.data.users || []);
+        } else {
+          setUsers([]);
+        }
+      } catch (error) {
+        console.error("Failed to fetch users:", error);
+        setUsers([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, [token, userId]);
+
+  const handleViewDetails = (user) => {
+    setSelectedUser(user);
+    setShowDetailsModal(true);
   };
 
-  const handleCancel = () => {
-    setEditingId(null);
-    setEditForm({});
+  const handleViewKyc = (user) => {
+    setSelectedUser(user);
+    setShowKycModal(true);
   };
 
-  const handleSave = () => {
-    setEmployees((prev) =>
-      prev.map((emp) => (emp.id === editingId ? { ...editForm } : emp))
-    );
-    setEditingId(null);
-    setEditForm({});
+  const handleStatusChange = async (user, newStatus) => {
+    if (!token || !userId) {
+      alert("Authorization token or UserId missing");
+      return;
+    }
+
+    const newUserId = user.NewUserID;
+    setStatusLoadingIds((ids) => [...ids, newUserId]);
+    setStatusMessages((msgs) => ({ ...msgs, [newUserId]: "" }));
+
+    try {
+      const response = await axios.post(
+        "https://gateway.dhanushop.com/api/users/ChangeUserStatus",
+        {
+          UserID: userId,
+          NewUserId: newUserId,
+          UserStatus: newStatus,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.data.success) {
+        setStatusMessages((msgs) => ({
+          ...msgs,
+          [newUserId]: "Status updated successfully",
+        }));
+
+        setUsers((prevUsers) =>
+          prevUsers.map((u) =>
+            u.NewUserID === newUserId ? { ...u, UserStatus: newStatus } : u
+          )
+        );
+      } else {
+        setStatusMessages((msgs) => ({
+          ...msgs,
+          [newUserId]: "Failed to update status",
+        }));
+      }
+    } catch (error) {
+      setStatusMessages((msgs) => ({
+        ...msgs,
+        [newUserId]: "Error updating status",
+      }));
+    } finally {
+      setStatusLoadingIds((ids) => ids.filter((id) => id !== newUserId));
+    }
   };
 
-  const handleStatusToggle = (id) => {
-    setEmployees((prev) =>
-      prev.map((emp) =>
-        emp.id === id
-          ? {
-              ...emp,
-              status: emp.status === "Active" ? "Inactive" : "Active",
-            }
-          : emp
-      )
-    );
-  };
+   
+  // Filter & Paginate
+  const filteredUsers = users.filter(
+    (user) => user.UserType?.toLowerCase() == "1"
+  );
+  console.log(filteredUsers);
+  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+  const currentUsers = filteredUsers.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
-  const handleAddEmployee = (newEmployee) => {
-    const newId = Math.max(...employees.map((e) => e.id)) + 1;
-    setEmployees([...employees, { ...newEmployee, id: newId }]);
-    setIsRegistrationVisible(false);
-  };
-
-  const columns = [
-    {
-      header: "Employee ID",
-      accessor: "employeeId",
-      editable: false,
-    },
-    {
-      header: "Full Name",
-      accessor: "name",
-      editable: true,
-    },
-    {
-      header: "Email",
-      accessor: "email",
-      editable: true,
-    },
-    {
-      header: "Mobile",
-      accessor: "mobile",
-      editable: true,
-    },
-    {
-      header: "Role",
-      accessor: "role",
-      editable: true,
-      renderEdit: (value, onChange) => (
-        <select
-          className="border rounded px-2 py-1 w-full"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <svg
+          className="animate-spin h-12 w-12 text-blue-600"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
         >
-          <option value="HR">HR</option>
-          <option value="Fund Manager">Fund Manager</option>
-          <option value="Customer Care">Customer Care</option>
-          <option value="Worker">Worker</option>
-          <option value="Support">Support</option>
-          <option value="Finance">Finance</option>
-        </select>
-      ),
-    },
-    {
-      header: "Joining Date",
-      accessor: "joiningDate",
-      editable: true,
-      renderEdit: (value, onChange) => (
-        <input
-          type="date"
-          className="border rounded px-2 py-1 w-full"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-        />
-      ),
-    },
-    {
-      header: "Branch",
-      accessor: "branch",
-      editable: true,
-    },
-    {
-      header: "Status",
-      accessor: "status",
-      editable: false,
-      render: (value, id) => (
-        <span
-          className={`px-2 py-1 rounded-full text-xs font-semibold cursor-pointer ${
-            value === "Active" ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600"
-          }`}
-          onClick={() => handleStatusToggle(id)}
-        >
-          {value}
-        </span>
-      ),
-    },
-    {
-      header: "Actions",
-      accessor: "actions",
-      editable: false,
-      render: (id) =>
-        editingId === id ? (
-          <>
-            <button
-              className="text-green-600 hover:underline mr-2"
-              onClick={handleSave}
-            >
-              Save
-            </button>
-            <button
-              className="text-gray-600 hover:underline"
-              onClick={handleCancel}
-            >
-              Cancel
-            </button>
-          </>
-        ) : (
-          <button
-            className="text-blue-600 hover:underline flex items-center gap-1"
-            onClick={() => handleEdit(id)}
-          >
-            <Pencil className="h-5 w-5" /> Edit
-          </button>
-        ),
-    },
-  ];
+          <circle
+            className="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="4"
+          ></circle>
+          <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+          ></path>
+        </svg>
+      </div>
+    );
+  }
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-semibold">Employee List</h2>
+    <div className="overflow-auto">
+      <div className="flex justify-between items-center p-4">
+        <h2 className="text-2xl font-semibold">Employee Summary</h2>
         <button
-          onClick={() => setIsRegistrationVisible(true)}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded flex items-center gap-2"
+          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          onClick={() => navigate("/admin/employeeregistration")}
         >
-          <Plus size={20} /> Add Employee
+          Add New Employee
         </button>
       </div>
 
-      {isRegistrationVisible && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-  <div className="bg-white rounded-lg w-full max-w-2xl relative h-[650px]"> {/* Set a fixed height */}
-    <button
-      className="absolute top-2 right-2 text-gray-500 hover:text-gray-800"
-      onClick={() => setIsRegistrationVisible(false)}
-    >
-      <X size={24} />
-    </button>
-    <div className="h-full overflow-y-auto"> {/* This ensures content scrolls if it's too long */}
-      <EmployeeRegistration
-        onSave={handleAddEmployee}
-        onCancel={() => setIsRegistrationVisible(false)}
-      />
-    </div>
-  </div>
-</div>
+      <table className="min-w-full border border-gray-300 text-sm text-center">
+        <thead className="bg-gray-100">
+          <tr>
+            <th className="px-4 py-2 border">User Type</th>
+            <th className="px-4 py-2 border">First Name</th>
+            <th className="px-4 py-2 border">Last Name</th>
+            <th className="px-4 py-2 border">Mobile</th>
+            <th className="px-4 py-2 border">Email</th>
+            <th className="px-4 py-2 border">KYC</th>
+            <th className="px-4 py-2 border">eSign</th>
+            <th className="px-4 py-2 border">User Status</th>
+            <th className="px-4 py-2 border">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {currentUsers.map((user) => {
+            const isEsignVerified = user.IsEsignVerified === "True";
+            const userStatus = user.UserStatus || "Pending";
+            const isLoading = statusLoadingIds.includes(user.NewUserID);
 
+            return (
+              <tr key={user.NewUserID}>
+                <td className="px-4 py-2 border">{user.usertypename}</td>
+                <td className="px-4 py-2 border">{user.FirstName}</td>
+                <td className="px-4 py-2 border">{user.LastName}</td>
+                <td className="px-4 py-2 border">{user.MobileNumber}</td>
+                <td className="px-4 py-2 border">{user.Email}</td>
+                <td className="px-4 py-2 border">
+                  <button
+                    onClick={() => handleViewKyc(user)}
+                    className={`px-4 py-1 rounded-full text-sm font-semibold text-white ${
+                      user.KycStatus === "Approved"
+                        ? "bg-green-600"
+                        : "bg-yellow-600"
+                    }`}
+                  >
+                    {user.KycStatus === "Approved" ? "Verified" : "Pending"}
+                  </button>
+                </td>
+                <td
+                  className={`px-4 py-2 border ${
+                    isEsignVerified ? "text-green-600" : "text-red-600"
+                  }`}
+                >
+                  {isEsignVerified ? "Verified" : "Not Verified"}
+                </td>
+                <td className="px-4 py-2 border">
+                  <select
+                    disabled={isLoading}
+                    value={userStatus}
+                    onChange={(e) => handleStatusChange(user, e.target.value)}
+                    className={`border rounded-full px-2 py-1 text-sm text-white transition-colors duration-200 ${
+                      userStatus === "Verified"
+                        ? "bg-green-600"
+                        : userStatus === "Pending"
+                        ? "bg-yellow-600"
+                        : "bg-red-600"
+                    }`}
+                  >
+                    <option value="Pending">Pending</option>
+                    <option value="Verified">Verified</option>
+                    <option value="Blocked">Blocked</option>
+                  </select>
+                </td>
+                <td className="px-4 py-2 border">
+                  <button
+                    onClick={() => handleViewDetails(user)}
+                    className="text-blue-600 hover:underline"
+                  >
+                    View Details
+                  </button>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+
+      {/* Pagination Controls */}
+      <div className="flex justify-center mt-4 space-x-2">
+        <button
+          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+          disabled={currentPage === 1}
+          className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+        >
+          Previous
+        </button>
+
+        {Array.from({ length: totalPages }, (_, index) => (
+          <button
+            key={index}
+            onClick={() => setCurrentPage(index + 1)}
+            className={`px-3 py-1 rounded ${
+              currentPage === index + 1
+                ? "bg-blue-600 text-white"
+                : "bg-gray-100"
+            }`}
+          >
+            {index + 1}
+          </button>
+        ))}
+
+        <button
+          onClick={() =>
+            setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+          }
+          disabled={currentPage === totalPages}
+          className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+        >
+          Next
+        </button>
+      </div>
+
+      {showDetailsModal && selectedUser && (
+        <UserDetailsModal
+          formData={selectedUser}
+          onClose={() => {
+            setShowDetailsModal(false);
+            setSelectedUser(null);
+          }}
+        />
       )}
 
-      <div className="overflow-x-auto">
-        <table className="w-full table-auto border border-gray-200 rounded-lg">
-          <thead className="bg-gray-100 text-left text-sm">
-            <tr>
-              {columns.map((col) => (
-                <th key={col.accessor} className="p-3">
-                  {col.header}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {employees.map((emp) => (
-              <tr key={emp.id} className="border-t text-sm">
-                {columns.map((col) => (
-                  <td key={col.accessor} className="p-3">
-                    {col.editable && editingId === emp.id ? (
-                      col.renderEdit ? (
-                        col.renderEdit(
-                          editForm[col.accessor],
-                          (value) =>
-                            setEditForm({
-                              ...editForm,
-                              [col.accessor]: value,
-                            })
-                        )
-                      ) : (
-                        <input
-                          className="border rounded px-2 py-1 w-full"
-                          value={editForm[col.accessor]}
-                          onChange={(e) =>
-                            setEditForm({
-                              ...editForm,
-                              [col.accessor]: e.target.value,
-                            })
-                          }
-                        />
-                      )
-                    ) : col.render ? (
-                      col.render(emp[col.accessor], emp.id)
-                    ) : (
-                      emp[col.accessor]
-                    )}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {showKycModal && selectedUser && (
+        <KycDetailsModal
+          formData={selectedUser}
+          onClose={() => {
+            setShowKycModal(false);
+            setSelectedUser(null);
+          }}
+        />
+      )}
     </div>
   );
-}
+};
+
+export default EmployeeMaster;

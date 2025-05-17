@@ -6,7 +6,7 @@ import Cookies from "js-cookie";
 export default function AdminForgotPasswordPage() {
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState(Array(4).fill("")); // Set OTP length here
-  const [userType, setUserType] = useState("Employee"); // New state for user type
+  const [userType, setUserType] = useState("1"); // New state for user type
 
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -44,11 +44,12 @@ export default function AdminForgotPasswordPage() {
 
     try {
       const response = await fetch(
+
         `${import.meta.env.VITE_BACKEND_URL}/api/users/ForgetPassword`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ Username: phone, UserType: "Admin" }),
+          body: JSON.stringify({ Username: phone, UserTypeId: "1" }),
         }
       );
 
@@ -177,7 +178,7 @@ export default function AdminForgotPasswordPage() {
             confirmButtonText: "OK",
           })
           .then(() => {
-            window.location.href = "/login";
+            window.location.href = "/administrator";
           });
       } else {
         setError(data.message || "Failed to reset password.");

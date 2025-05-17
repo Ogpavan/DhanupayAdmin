@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Phone, Lock, Eye, EyeSlash } from "phosphor-react";
-import loginpageimage from "/LoginPageImage.png"; // Replace with the correct image path
+import loginpageimage from "/LoginPageImage.png";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import Bowser from "bowser";
 import Cookies from "js-cookie";
 import DOMPurify from "dompurify";
+import axios from "axios";
 
 export default function LoginPage() {
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -16,31 +17,95 @@ export default function LoginPage() {
   const [tempUserId, settempUserId] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [userType, setUserType] = useState("");
+  const [userTypes, setUserTypes] = useState([]);
+  const [selectedUserType, setSelectedUserType] = useState("");
+
+  // Field-level error states
+  const [userTypeError, setUserTypeError] = useState(false);
+  const [phoneError, setPhoneError] = useState(false);
+  const [passwordError, setPasswordError] = useState(false);
 
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const fetchUserTypes = async () => {
+      try {
+        const response = await axios.post(
+          "https://gateway.dhanushop.com/api/TypeMaster/list"
+        );
+        setUserTypes(response.data);
+      } catch (err) {
+        setError("Failed to fetch user types.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUserTypes();
+  }, []);
+
   const isPhoneValid = /^\d{10}$/.test(phoneNumber) && /^[6-9]/.test(phoneNumber);
-  const isFormValid = isPhoneValid && password.length > 0 && !error;
+  const isFormValid = isPhoneValid && password.length > 0 && selectedUserType && !error;
+const checkESignStatusAndRedirect = async (userId, token) => {
+  console.log(userId, token);
+  try {
+    const response = await fetch("https://gateway.dhanushop.com/api/esign/request", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        UserId: userId,
+        // redirecturl: "/login"
+      })
+    });
+
+    const result = await response.json();
+
+    if (result?.signedUrl) {
+      window.location.href = result.signedUrl; // Redirect to eSign URL
+    } else {
+      setError("Failed to retrieve eSign URL.");
+    }
+  } catch (error) {
+    setError("Error checking eSign status.");
+  }
+};
 
   const handleLogin = async (e) => {
     e.preventDefault();
 
+    setUserTypeError(false);
+    setPhoneError(false);
+    setPasswordError(false);
+    setError("");
+
     const sanitizedPhoneNumber = DOMPurify.sanitize(phoneNumber.trim());
     const sanitizedPassword = DOMPurify.sanitize(password.trim());
 
-    if (!/^\d{10}$/.test(sanitizedPhoneNumber) || !/^[6-9]/.test(sanitizedPhoneNumber)) {
-      setError("Please enter a valid 10-digit Indian phone number.");
-      return;
+    let hasError = false;
+
+    if (!selectedUserType) {
+      setUserTypeError(true);
+      hasError = true;
+    }
+
+    if (!isPhoneValid) {
+      setPhoneError(true);
+      hasError = true;
     }
 
     if (!sanitizedPassword) {
-      setError("Please enter your password.");
+      setPasswordError(true);
+      hasError = true;
+    }
+
+    if (hasError) {
+      setError("Please fill in all required fields correctly.");
       return;
     }
 
     setLoading(true);
-    setError("");
 
     try {
       const ip = await fetch("https://api.ipify.org?format=json")
@@ -53,7 +118,9 @@ export default function LoginPage() {
       const os = browser.getOSName();
       const device = browser.getPlatformType();
 
-      const response = await fetch(
+      console.log(browserName, os, device,selectedUserType,sanitizedPhoneNumber,sanitizedPassword);
+       const response = await fetch(
+       
         `${import.meta.env.VITE_BACKEND_URL}/api/users/login`,
         {
           method: "POST",
@@ -65,60 +132,38 @@ export default function LoginPage() {
             OS: os,
             Browser: browserName,
             Device: device,
-            UserType: userType,
+            UserTypeId: selectedUserType,
           }),
         }
       );
 
       const data = await response.json();
+      console.log(data);
       settempToken(data.Token);
       settempUserId(data.UserId);
 
       if (response.ok && data?.Token) {
-        Cookies.set("token", data.Token, {
-          secure: true,
-          sameSite: "Strict",
-          expires: 1,
-        });
-        Cookies.set("loginid", data.loginid, {
-          secure: true,
-          sameSite: "Strict",
-          expires: 1,
-        });
-        Cookies.set("UserTypeName", data.UserTypeName, {
-          secure: true,
-          sameSite: "Strict",
-          expires: 1,
-        });
-        Cookies.set("UserName", data.UserName, {
-          secure: true,
-          sameSite: "Strict",
-          expires: 1,
-        });
-        Cookies.set("role", data.role, {
-          secure: true,
-          sameSite: "Strict",
-          expires: 1,
-        });
-        Cookies.set("UserId", data.UserId, {
-          secure: true,
-          sameSite: "Strict",
-          expires: 1,
-        });
+        Cookies.set("token", data.Token, { secure: true, sameSite: "Strict", expires: 1 });
+        Cookies.set("loginid", data.loginid, { secure: true, sameSite: "Strict", expires: 1 });
+        Cookies.set("UserTypeName", data.UserTypeName, { secure: true, sameSite: "Strict", expires: 1 });
+        Cookies.set("UserName", data.UserName, { secure: true, sameSite: "Strict", expires: 1 });
+        Cookies.set("role", data.role, { secure: true, sameSite: "Strict", expires: 1 });
+        Cookies.set("UserId", data.UserId, { secure: true, sameSite: "Strict", expires: 1 });
+        Cookies.set("AgentId", data.AgentId, { secure: true, sameSite: "Strict", expires: 1 });
 
-        if (data?.IsMPINSet === "0") {
-          navigate("/setup-mpin", {
-            state: {
-              UserId: data.UserId,
-              loginid: data.loginid,
-              message: "Please set your MPIN to continue.",
-            },
-          });
-        } else {
-          navigate("/otp", {
-            state: { message: data.Message, userId: data.UserId },
-          });
-        }
+      // Check for eSignStatus and redirect if pending
+if (data?.eSignStatus === "Pending") {
+  await checkESignStatusAndRedirect(data.UserId, data.Token);
+} else if (data?.IsMPINSet === "0") {
+  navigate("/setup-mpin", {
+    state: { UserId: data.UserId, loginid: data.loginid, message: "Please set your MPIN to continue." },
+  });
+} else {
+  navigate("/otp", {
+    state: { message: data.Message, userId: data.UserId, role: data.role },
+  });
+}
+
       } else {
         setError(data?.message || "Invalid credentials. Please try again.");
         if (data?.message === "User already logged in on another device.") {
@@ -140,59 +185,26 @@ export default function LoginPage() {
                       Authorization: `Bearer ${data.Token}`,
                       "Content-Type": "application/json",
                     },
-                    body: JSON.stringify({
-                      UserId: tempUserId,
-                    }),
+                    body: JSON.stringify({ UserId: tempUserId }),
                   }
                 );
 
                 const seconddata = await res.json();
                 if (res.ok && seconddata?.Token) {
-                  Cookies.set("token", seconddata.Token, {
-                    secure: true,
-                    sameSite: "Strict",
-                    expires: 1,
-                  });
-                  Cookies.set("loginid", seconddata.loginid, {
-                    secure: true,
-                    sameSite: "Strict",
-                    expires: 1,
-                  });
-                  Cookies.set("UserTypeName", seconddata.UserTypeName, {
-                    secure: true,
-                    sameSite: "Strict",
-                    expires: 1,
-                  });
-                  Cookies.set("UserName", seconddata.UserName, {
-                    secure: true,
-                    sameSite: "Strict",
-                    expires: 1,
-                  });
-                  Cookies.set("role", seconddata.role, {
-                    secure: true,
-                    sameSite: "Strict",
-                    expires: 1,
-                  });
-                  Cookies.set("UserId", seconddata.UserId, {
-                    secure: true,
-                    sameSite: "Strict",
-                    expires: 1,
-                  });
+                  Cookies.set("token", seconddata.Token, { secure: true, sameSite: "Strict", expires: 1 });
+                  Cookies.set("loginid", seconddata.loginid, { secure: true, sameSite: "Strict", expires: 1 });
+                  Cookies.set("UserTypeName", seconddata.UserTypeName, { secure: true, sameSite: "Strict", expires: 1 });
+                  Cookies.set("UserName", seconddata.UserName, { secure: true, sameSite: "Strict", expires: 1 });
+                  Cookies.set("role", seconddata.role, { secure: true, sameSite: "Strict", expires: 1 });
+                  Cookies.set("UserId", seconddata.UserId, { secure: true, sameSite: "Strict", expires: 1 });
 
                   if (seconddata?.IsMPINSet === "0") {
                     navigate("/setup-mpin", {
-                      state: {
-                        UserId: seconddata.UserId,
-                        loginid: seconddata.loginid,
-                        message: "Please set your MPIN to continue.",
-                      },
+                      state: { UserId: seconddata.UserId, loginid: seconddata.loginid, message: "Please set your MPIN to continue." },
                     });
                   } else {
                     navigate("/otp", {
-                      state: {
-                        message: seconddata.Message,
-                        userId: seconddata.UserId,
-                      },
+                      state: { message: seconddata.Message, userId: seconddata.UserId,role:seconddata.role },
                     });
                   }
                 } else {
@@ -206,11 +218,7 @@ export default function LoginPage() {
         }
       }
     } catch (err) {
-      setError(
-        err.message.includes("Failed to fetch")
-          ? "Unable to connect to the server."
-          : "An unexpected error occurred."
-      );
+      setError("Unable to connect to the server.");
     } finally {
       setLoading(false);
     }
@@ -219,11 +227,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex flex-col md:flex-row">
       <div className="w-full md:w-1/2 flex items-center justify-center p-8 bg-gray-100">
-        <img
-          src={loginpageimage}
-          alt="Login Illustration"
-          className="max-w-md w-full"
-        />
+        <img src={loginpageimage} alt="Login Illustration" className="max-w-md w-full" />
       </div>
 
       <div className="w-full md:w-1/2 flex items-center justify-center p-8">
@@ -231,52 +235,46 @@ export default function LoginPage() {
           <h2 className="text-2xl font-semibold text-gray-800 mb-1">Welcome to</h2>
           <h1 className="text-4xl font-bold text-indigo-600 mb-6">Dhanupay</h1>
 
-          {error && (
-            <div className="text-red-500 text-sm mb-4 text-center">{error}</div>
-          )}
+          {error && <div className="text-red-500 text-sm mb-4 text-center">{error}</div>}
 
           <form onSubmit={handleLogin} className="space-y-5">
+            {/* User Type */}
             <div className="space-y-2">
               <label className="text-gray-700 font-medium">Login As:</label>
-              <div className="flex justify-between text-sm">
-                {["Super Distributor", "Distributor", "Retailer"].map((type) => (
-                  <label key={type} className="flex items-center space-x-2">
-                    <input
-                      type="radio"
-                      name="userType"
-                      value={type}
-                      checked={userType === type}
-                      onChange={() => setUserType(type)}
-                      className="accent-indigo-600"
-                    />
-                    <span>{type}</span>
-                  </label>
-                ))}
-              </div>
+              <select
+                name="userType"
+                value={selectedUserType}
+                onChange={(e) => {
+                  setSelectedUserType(e.target.value);
+                  setUserTypeError(false);
+                }}
+                className={`w-full p-2 border rounded outline-none ${userTypeError ? "border-red-500" : "border-gray-300"}`}
+              >
+                <option value="" disabled>Select a User Type</option>
+                {userTypes
+                  .filter((ut) => ut.UserTypeName.toLowerCase() !== "employee")
+                  .map((ut) => (
+                    <option key={ut.UserTypeID} value={ut.UserTypeID}>
+                      {ut.UserTypeName}
+                    </option>
+                  ))}
+              </select>
+              {userTypeError && <p className="text-red-500 text-sm">User type is required.</p>}
             </div>
 
+            {/* Phone Number */}
             <div className="relative">
               <Phone className="absolute left-3 top-2.5 text-gray-400" size={20} />
               <input
                 type="text"
                 placeholder="Enter your 10-digit phone number"
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 outline-none"
+                className={`w-full pl-10 pr-4 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500 outline-none ${phoneError ? "border-red-500" : "border-gray-300"}`}
                 value={phoneNumber}
                 onChange={(e) => {
                   const input = e.target.value;
-
                   if (/^\d*$/.test(input) && input.length <= 10) {
                     setPhoneNumber(input);
-
-                    if (input.length === 10 && !/^[6-9]/.test(input)) {
-                      setError("Please enter  valid Indian phone number.");
-                    } else {
-                      setError("");
-                    }
-                  } else if (!/^\d*$/.test(input)) {
-                    setError("Only numeric characters are allowed.");
-                  } else {
-                    setError("Phone number must be a maximum of 10 digits.");
+                    setPhoneError(false);
                   }
                 }}
                 onPaste={(e) => {
@@ -285,32 +283,25 @@ export default function LoginPage() {
                 }}
                 onKeyDown={(e) => {
                   const invalidChars = ["e", "E", "+", "-", ".", " "];
-                  if (invalidChars.includes(e.key)) {
-                    e.preventDefault();
-                  }
+                  if (invalidChars.includes(e.key)) e.preventDefault();
                 }}
               />
+              {phoneError && <p className="text-red-500 text-sm mt-1">Valid phone number is required.</p>}
             </div>
 
+            {/* Password */}
             <div className="relative">
               <Lock className="absolute left-3 top-2.5 text-gray-400" size={20} />
               <input
                 type={showPassword ? "text" : "password"}
                 placeholder="Password"
-                className="w-full pl-10 pr-10 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500 outline-none"
+                className={`w-full pl-10 pr-10 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500 outline-none ${passwordError ? "border-red-500" : "border-gray-300"}`}
                 value={password}
                 maxLength={32}
                 onChange={(e) => {
-                  const sanitizedInput = e.target.value.replace(
-                    /[^a-zA-Z0-9!@#$%^&*()_+={}[\]:;'"<>,.?/|\\-]/g,
-                    ""
-                  );
-                  if (sanitizedInput !== e.target.value) {
-                    setError("Password contains invalid characters.");
-                  } else {
-                    setError("");
-                  }
+                  const sanitizedInput = e.target.value.replace(/[^a-zA-Z0-9!@#$%^&*()_+={}[\]:;'"<>,.?/|\\-]/g, "");
                   setPassword(sanitizedInput);
+                  setPasswordError(false);
                 }}
                 onKeyDown={(e) => {
                   const invalidChars = ["'", "`", "~", "<", ">", "|", "\\"];
@@ -332,6 +323,7 @@ export default function LoginPage() {
               >
                 {showPassword ? <EyeSlash size={20} /> : <Eye size={20} />}
               </button>
+              {passwordError && <p className="text-red-500 text-sm mt-1">Password is required.</p>}
             </div>
 
             <div className="flex items-center justify-between text-sm text-gray-600">
@@ -344,11 +336,7 @@ export default function LoginPage() {
                 />
                 <span>Remember me</span>
               </label>
-              <button
-                type="button"
-                onClick={() => navigate("/forgot-password")}
-                className="text-indigo-600 hover:underline"
-              >
+              <button type="button" onClick={() => navigate("/forgot-password")} className="text-indigo-600 hover:underline">
                 Forgot Password?
               </button>
             </div>
@@ -356,19 +344,18 @@ export default function LoginPage() {
             <button
               type="submit"
               className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-md font-semibold transition"
-              disabled={loading || !isFormValid}
+              disabled={loading}
             >
               {loading ? "Logging in..." : "Login"}
             </button>
-          
           </form>
-            <button
+
+          <button
             onClick={() => navigate("/registerretailer")}
-               className="w-full  mt-10  text-indigo-600 hover:text-indigo-700  underline"
-               
-            >
-              Register as Retailer
-            </button> 
+            className="w-full mt-10 text-indigo-600 hover:text-indigo-700 underline"
+          >
+            Register as Retailer
+          </button>
         </div>
       </div>
     </div>

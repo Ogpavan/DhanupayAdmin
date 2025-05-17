@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Lock, Eye, EyeSlash, Phone } from "phosphor-react";
 import swal from "sweetalert2";
 import Cookies from "js-cookie";
+import axios from "axios";
 
 export default function ForgotPasswordPage() {
   const [phone, setPhone] = useState("");
@@ -21,8 +22,29 @@ export default function ForgotPasswordPage() {
   const [otpId, setOtpId] = useState("");
   const [token, setToken] = useState("");
   const [userid, setUserid] = useState("");
+  const [userTypes, setUserTypes] = useState([]);
+  const [selectedUserType, setSelectedUserType] = useState("");
 
+  // Field-level error states
+  const [userTypeError, setUserTypeError] = useState(false);
   const otpRefs = useRef([]);
+
+  useEffect(() => {
+    const fetchUserTypes = async () => {
+      try {
+        const response = await axios.post(
+          "https://gateway.dhanushop.com/api/TypeMaster/list"
+        );
+        console.log(response.data);
+        setUserTypes(response.data);
+      } catch (err) {
+        setError("Failed to fetch user types.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUserTypes();
+  }, []);
 
   useEffect(() => {
     let timer = null;
@@ -34,6 +56,13 @@ export default function ForgotPasswordPage() {
 
   const handlePhoneSubmit = async (e) => {
     e.preventDefault();
+
+    if (!selectedUserType) {
+      setUserTypeError(true);
+      setError("Please select a user type.");
+      return;
+    }
+
     if (!phone) {
       setError("Please enter your phone number.");
       return;
@@ -43,12 +72,16 @@ export default function ForgotPasswordPage() {
     setError("");
 
     try {
+      console.log("Selected User Type:", selectedUserType, phone);
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/api/users/ForgetPassword`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ Username: phone, UserType: userType }),
+          body: JSON.stringify({
+            Username: phone,
+            UserTypeId: selectedUserType,
+          }),
         }
       );
 
@@ -276,24 +309,35 @@ export default function ForgotPasswordPage() {
 
           {step === 1 && (
             <form onSubmit={handlePhoneSubmit} className="space-y-5">
-              <div>
-                <p className="text-gray-600 mb-2">Select your user type:</p>
-                <div className="space-y-2">
-                  {["Distributor", "Retailer", "Super Distributor"].map(
-                    (type) => (
-                      <label key={type} className="flex items-center space-x-2">
-                        <input
-                          type="radio"
-                          value={type}
-                          checked={userType === type}
-                          onChange={() => setUserType(type)}
-                          className="text-indigo-600 focus:ring-0"
-                        />
-                        <span className="text-gray-700">{type}</span>
-                      </label>
+              <div className="space-y-2">
+                <label className="text-gray-700 font-medium">Login As:</label>
+                <select
+                  name="userType"
+                  value={selectedUserType}
+                  onChange={(e) => {
+                    setSelectedUserType(e.target.value);
+                    setUserTypeError(false);
+                  }}
+                  className={`w-full p-2 border rounded outline-none ${
+                    userTypeError ? "border-red-500" : "border-gray-300"
+                  }`}
+                >
+                  <option value="" disabled>
+                    Select a User Type
+                  </option>
+                  {userTypes
+                    .filter(
+                      (ut) => ut.UserTypeName.toLowerCase() !== "employee"
                     )
-                  )}
-                </div>
+                    .map((ut) => (
+                      <option key={ut.UserTypeID} value={ut.UserTypeID}>
+                        {ut.UserTypeName}
+                      </option>
+                    ))}
+                </select>
+                {userTypeError && (
+                  <p className="text-red-500 text-sm">User type is required.</p>
+                )}
               </div>
 
               <div className="relative">
@@ -306,6 +350,7 @@ export default function ForgotPasswordPage() {
                   placeholder="Enter your 10-digit phone number"
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 outline-none"
                   value={phone}
+                  maxLength={10}
                   onChange={(e) => {
                     const input = e.target.value;
                     if (/^\d*$/.test(input)) {
@@ -481,7 +526,6 @@ export default function ForgotPasswordPage() {
                   className="w-full pl-10 pr-10 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500 outline-none"
                   value={confirmPassword}
                   maxLength={50}
-
                   onChange={(e) => {
                     const sanitizedInput = e.target.value.replace(
                       /[^a-zA-Z0-9!@#$%^&*()_+={}[\]:;'"<>,.?/|]/g,

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 const UserDetailsModal = ({ formData = {}, onClose }) => {
   const renderField = (label, value) => (
@@ -56,6 +56,10 @@ const UserDetailsModal = ({ formData = {}, onClose }) => {
     ));
   };
 
+  useEffect(() => {
+    console.log("Form Data", formData.UserType);
+  }, []);
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
       <div className="bg-white w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded shadow-lg p-6">
@@ -86,14 +90,15 @@ const UserDetailsModal = ({ formData = {}, onClose }) => {
           renderField("Pincode", formData.PersonalPincode),
         ])}
 
-        {renderSection("Shop Details", [
-          renderField("Shop Address Line 1", formData.ShopAddressLine1),
-          renderField("Shop Address Line 2", formData.ShopAddressLine2),
-          renderField("Shop City", formData.shopcityname),
-          renderField("Shop State", formData.shopsatename),
-          renderField("Shop Pincode", formData.ShopPincode),
-          renderImageField("Shop Image", formData.ShopImage),
-        ])}
+     {formData.UserType !== "1" && renderSection("Shop Details", [
+  renderField("Shop Address Line 1", formData.ShopAddressLine1),
+  renderField("Shop Address Line 2", formData.ShopAddressLine2),
+  renderField("Shop City", formData.shopcityname),
+  renderField("Shop State", formData.shopsatename),
+  renderField("Shop Pincode", formData.ShopPincode),
+  renderImageField("Shop Image", formData.ShopImage),
+])}
+
 
         {renderSection("Document Details", [
           renderField("Aadhaar Number", formData.AadhaarNumber),

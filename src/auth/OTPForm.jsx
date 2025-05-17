@@ -8,9 +8,11 @@ export default function OTPForm() {
   const location = useLocation();
   const navigate = useNavigate();
   const {
-    message = "Please enter the OTP and MPIN sent to your registered number.",
-    userId = "",
-  } = location.state || {};
+  message = "Please enter the OTP and MPIN sent to your registered number.",
+  userId = "",
+  role = ""
+} = location.state || {};
+
   const BASE_URL =
     import.meta.env.VITE_BACKEND_URL || "https://gateway.dhanushop.com"; // API base URL
 
@@ -28,7 +30,7 @@ export default function OTPForm() {
   const token = Cookies.get("token");
   const loginid = Cookies.get("loginid");
   const UserId = Cookies.get("UserId");
-  const role = Cookies.get("role");
+  // const role = Cookies.get("role");
 
   // Resend OTP countdown timer
   useEffect(() => {
@@ -112,14 +114,18 @@ export default function OTPForm() {
       const data = await response.json();
       console.log(data);
 
-      if (response.ok && data?.success) {
-        // Navigate to user-specific dashboard
-        role === "Admin"
-          ? navigate("/admin")
-          : role === "user"
-          ? navigate("/user")
-          : setError("Unknown user type. Please contact support.");
-      } else {
+    if (response.ok && data?.success) {
+  
+console.log("Role:", role);
+  if (role === "Admin") {
+    navigate("/admin");
+  
+  } else {
+    navigate("/user");
+    // setError("Unknown user role. Please contact support.");
+  }
+}
+ else {
         setError(
           data?.message ||
             "Verification failed. Please check your details and try again."

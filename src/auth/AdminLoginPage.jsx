@@ -16,7 +16,7 @@ export default function AdminLoginPage() {
   const [tempUserId, settempUserId] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [userType, setUserType] = useState("Admin");
+  const [userType, setUserType] = useState("1");
 
   const navigate = useNavigate();
 
@@ -58,7 +58,7 @@ export default function AdminLoginPage() {
       const device = browser.getPlatformType();
 
       const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/api/users/login`,
+         `${import.meta.env.VITE_BACKEND_URL}/api/users/login`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -69,12 +69,12 @@ export default function AdminLoginPage() {
             OS: os,
             Browser: browserName,
             Device: device,
-            UserType: userType,
+            UserTypeId: "1",
           }),
         }
       );
-
       const data = await response.json();
+      console.log(data);
       settempToken(data.Token);
       settempUserId(data.UserId);
 
@@ -120,7 +120,7 @@ export default function AdminLoginPage() {
           });
         } else {
           navigate("/otp", {
-            state: { message: data.Message, userId: data.UserId },
+            state: { message: data.Message, userId: data.UserId,role:data.role },
           });
         }
       } else {
@@ -196,6 +196,7 @@ export default function AdminLoginPage() {
                       state: {
                         message: seconddata.Message,
                         userId: seconddata.UserId,
+                        role: seconddata.role,
                       },
                     });
                   }

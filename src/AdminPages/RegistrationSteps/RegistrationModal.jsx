@@ -59,7 +59,6 @@ export default function RegistrationModal() {
     altMobile: "",
     email: "",
     resHouseNo: "",
-    
     resArea: "",
     resLandmark: "",
     resPincode: "",
@@ -83,6 +82,7 @@ export default function RegistrationModal() {
     latitude: "",
     longitude: "",
     websiteUrl: "",
+    referralId: "", // <-- ✅ Add this line
   });
 
   const isStepValid = () => {
@@ -107,21 +107,21 @@ export default function RegistrationModal() {
       );
     }
 
-if (currentStep === 2) {
-  const isWhiteLabel = formData.userType === "2";
+    if (currentStep === 2) {
+      const isWhiteLabel = formData.userType === "2";
 
-  const isValid =
-    formData.shopName.trim() !== "" &&
-    formData.shopAddress.trim() !== "" &&
-    formData.busPincode.length === 6 &&
-    formData.busState !== "" &&
-    formData.busCity !== "" &&
-    formData.latitude !== "" &&
-    formData.longitude !== "" &&
-    (!isWhiteLabel || formData.websiteUrl.trim() !== "");
+      const isValid =
+        formData.shopName.trim() !== "" &&
+        formData.shopAddress.trim() !== "" &&
+        formData.busPincode.length === 6 &&
+        formData.busState !== "" &&
+        formData.busCity !== "" &&
+        formData.latitude !== "" &&
+        formData.longitude !== "" &&
+        (!isWhiteLabel || formData.websiteUrl.trim() !== "");
 
-  return isValid;
-}
+      return isValid;
+    }
 
     if (currentStep === 3) {
       return (
@@ -186,7 +186,7 @@ if (currentStep === 2) {
           setCities(
             response.map((city) => ({
               label: city.CityName,
-              value: city.CityName,
+              value: city.CityId,
             }))
           );
         } catch (err) {
@@ -275,7 +275,8 @@ if (currentStep === 2) {
           IFSCCode: formData.ifscCode,
           BankName: formData.bankName,
           BranchName: formData.branchName,
-          websiteUrl: formData.websiteUrl
+          websiteUrl: formData.websiteUrl,
+          ReferalID: formData.referralId,
         };
 
         console.log("Payload:", payload);
@@ -379,7 +380,7 @@ if (currentStep === 2) {
   const handleUserTypeChange = async (e) => {
     const selectedUserType = e.target.value;
     console.log("Selected User Type:", selectedUserType);
-    
+
     setFormData({ ...formData, userType: selectedUserType });
     setSelectedRole(""); // reset selected role
 
@@ -425,10 +426,10 @@ if (currentStep === 2) {
   //     longitude <= 180
   //   );
   // };
-const selectedUserType = userTypes.find(
-  (ut) => ut.UserTypeID.toString() === formData.userType?.toString()
-);
- 
+  const selectedUserType = userTypes.find(
+    (ut) => ut.UserTypeID.toString() === formData.userType?.toString()
+  );
+
   return (
     <div className="max-w-3xl mx-auto px-6 py-5 bg-white rounded-xl relative">
       <div className="flex items-center justify-between mb-10 relative">
@@ -508,9 +509,6 @@ const selectedUserType = userTypes.find(
                 </select>
               </div>
 
-             
-
-
               <div>
                 <label
                   htmlFor="role"
@@ -570,7 +568,6 @@ const selectedUserType = userTypes.find(
                 className="w-1/2"
                 pattern="^[a-zA-Z\s'-]{1,17}$"
                 title="Last name should only contain alphabets, spaces, hyphens, or apostrophes, and be up to 50 characters."
-                
               />
             </div>
             <div className="flex gap-4 items-center">
@@ -608,30 +605,55 @@ const selectedUserType = userTypes.find(
                 pattern="^[6-9]\d{9}$"
                 title="Mobile number must be exactly 10 digits."
                 maxLength={10}
-                 
               />
             </div>
-            <Input
-              label="Email "
-              name="email"
-              value={formData.email}
-              onChange={(e) => {
-                let value = e.target.value;
+            <div className="flex gap-4 items-center  ">
+              <Input
+                label="Email "
+                name="email"
+                className="w-1/2"
+                value={formData.email}
+                onChange={(e) => {
+                  let value = e.target.value;
 
-                // Regex to allow only valid email characters
-                const emailPattern = /^[a-zA-Z0-9@._-]*$/;
+                  // Regex to allow only valid email characters
+                  const emailPattern = /^[a-zA-Z0-9@._-]*$/;
 
-                // Limit input length to 50 characters, ensure valid characters, and convert to lowercase
-                if (emailPattern.test(value) && value.length <= 50) {
-                  value = value.toLowerCase(); // Convert to lowercase
-                  handleChange({ target: { name: "email", value } }); // Pass updated value to handler
-                }
-              }}
-              pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
-              title="Please enter a valid email address."
-              maxLength={50}
-              required
-            />
+                  // Limit input length to 50 characters, ensure valid characters, and convert to lowercase
+                  if (emailPattern.test(value) && value.length <= 50) {
+                    value = value.toLowerCase(); // Convert to lowercase
+                    handleChange({ target: { name: "email", value } }); // Pass updated value to handler
+                  }
+                }}
+                pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                title="Please enter a valid email address."
+                maxLength={50}
+                required
+              />
+              {/* Referral ID input */}
+            
+                <Input
+                  label="Have a Referral ID?"
+                  name="referralId"
+                  value={formData.referralId || ""}
+                  onChange={(e) => {
+                    const value = e.target.value.toUpperCase(); // Optional: force uppercase
+                    if (value.length <= 10) {
+                      handleChange({
+                        target: {
+                          name: "referralId",
+                          value: value,
+                        },
+                      });
+                    }
+                  }}
+                  maxLength={10} // HTML enforcement
+                  pattern="^DP\w{8}$"
+                  title="Referral ID must start with 'DP' and be exactly 10 characters."
+                  className="w-1/2"
+                />
+              
+            </div>
           </>
         )}
 
@@ -653,7 +675,6 @@ const selectedUserType = userTypes.find(
                 pattern="^\d{5}$"
                 title="House No."
                 maxLength={10}
-                 
               />
               <Input
                 label="Residential Area "
@@ -732,187 +753,184 @@ const selectedUserType = userTypes.find(
           </>
         )}
 
-       {currentStep === 2 && (
-  <>
- 
-    {/* Group 1: Shop Name + Address */}
-    <div className="flex  gap-4">
-      <Input
-        label="Shop Name "
-        name="shopName"
-        value={formData.shopName}
-        onChange={(e) => {
-          const value = e.target.value;
-          if (
-            value.length <= 100 &&
-            /^[a-zA-Z0-9\s.,'-]*$/.test(value)
-          ) {
-            handleChange(e);
-          }
-        }}
-        maxLength={100}
-        className="w-full md:w-1/2"
-        pattern="^[a-zA-Z0-9\s.,'-]+$"
-        title="Please enter a valid shop name"
-        required
-      />
+        {currentStep === 2 && (
+          <>
+            {/* Group 1: Shop Name + Address */}
+            <div className="flex  gap-4">
+              <Input
+                label="Shop Name "
+                name="shopName"
+                value={formData.shopName}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (
+                    value.length <= 100 &&
+                    /^[a-zA-Z0-9\s.,'-]*$/.test(value)
+                  ) {
+                    handleChange(e);
+                  }
+                }}
+                maxLength={100}
+                className="w-full md:w-1/2"
+                pattern="^[a-zA-Z0-9\s.,'-]+$"
+                title="Please enter a valid shop name"
+                required
+              />
 
-      <Input
-        label="Shop Address "
-        name="shopAddress"
-        value={formData.shopAddress}
-        onChange={(e) => {
-          const value = e.target.value;
-          if (
-            value.length <= 100 &&
-            /^[a-zA-Z0-9\s.,'-]*$/.test(value)
-          ) {
-            handleChange(e);
-          }
-        }}
-        maxLength={100}
-        className="w-full md:w-1/2"
-        pattern="^[a-zA-Z0-9\s.,'-]+$"
-        title="Please enter a valid shop address"
-        required
-      />
-       </div>
-<div className="flex justify-end w-full ">         <span
-        type="button"
-        className="text-blue-500 rounded-md text-xs cursor-pointer "
-        onClick={copyResidentialToBusiness}
-      >
-        Same as Residential Address
-      </span>
-      </div>
+              <Input
+                label="Shop Address "
+                name="shopAddress"
+                value={formData.shopAddress}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (
+                    value.length <= 100 &&
+                    /^[a-zA-Z0-9\s.,'-]*$/.test(value)
+                  ) {
+                    handleChange(e);
+                  }
+                }}
+                maxLength={100}
+                className="w-full md:w-1/2"
+                pattern="^[a-zA-Z0-9\s.,'-]+$"
+                title="Please enter a valid shop address"
+                required
+              />
+            </div>
+            <div className="flex justify-end w-full ">
+              {" "}
+              <span
+                type="button"
+                className="text-blue-500 rounded-md text-xs cursor-pointer "
+                onClick={copyResidentialToBusiness}
+              >
+                Same as Residential Address
+              </span>
+            </div>
 
-   
+            {/* Group 2: Latitude + Longitude */}
+            <div className="flex  gap-4 items-center">
+              <Input
+                label="Latitude "
+                name="latitude"
+                value={formData.latitude}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (/^-?\d{0,2}(\.\d{0,10})?$/.test(value)) {
+                    handleChange(e);
+                  }
+                }}
+                className="w-full md:w-1/2"
+                inputMode="decimal"
+                title="Latitude must be between -90 and 90"
+                required
+              />
 
-    {/* Group 2: Latitude + Longitude */}
-    <div className="flex  gap-4 items-center">
-      <Input
-        label="Latitude "
-        name="latitude"
-        value={formData.latitude}
-        onChange={(e) => {
-          const value = e.target.value;
-          if (/^-?\d{0,2}(\.\d{0,10})?$/.test(value)) {
-            handleChange(e);
-          }
-        }}
-        className="w-full md:w-1/2"
-        inputMode="decimal"
-        title="Latitude must be between -90 and 90"
-        required
-      />
+              <Input
+                label="Longitude "
+                name="longitude"
+                value={formData.longitude}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (/^-?\d{0,3}(\.\d{0,10})?$/.test(value)) {
+                    handleChange(e);
+                  }
+                }}
+                className="w-full md:w-1/2"
+                inputMode="decimal"
+                title="Longitude must be between -180 and 180"
+                required
+              />
 
-      <Input
-        label="Longitude "
-        name="longitude"
-        value={formData.longitude}
-        onChange={(e) => {
-          const value = e.target.value;
-          if (/^-?\d{0,3}(\.\d{0,10})?$/.test(value)) {
-            handleChange(e);
-          }
-        }}
-        className="w-full md:w-1/2"
-        inputMode="decimal"
-        title="Longitude must be between -180 and 180"
-        required
-      />
-    
+              {/* Map Button */}
+              <div className="mt-2">
+                <button className="flex items-center hover:text-blue-500">
+                  <span className="mr-2 text-nowrap">Locate on Map</span>
+                  <IoMdLocate size={30} />
+                </button>
+              </div>
+            </div>
 
-    {/* Map Button */}
-    <div className="mt-2">
-      <button className="flex items-center hover:text-blue-500">
-        <span className="mr-2 text-nowrap">Locate on Map</span>
-        <IoMdLocate size={30} />
-      </button>
-    </div>
-    </div>
+            {/* Website URL for Whitelabel */}
+            {formData.userType === "2" && (
+              <div className="mt-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Website URL <span className="text-red-600">*</span>
+                </label>
+                <input
+                  type="url"
+                  name="websiteUrl"
+                  value={formData.websiteUrl}
+                  onChange={handleChange}
+                  className="border border-gray-300 px-2 py-2 rounded-md w-full"
+                  placeholder="https://yourdomain.com"
+                  pattern="https?://.*"
+                  title="Enter a valid URL"
+                  required
+                />
+              </div>
+            )}
 
-    {/* Website URL for Whitelabel */}
-    {formData.userType === "2" && (
-      <div className="mt-4">
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Website URL <span className="text-red-600">*</span>
-        </label>
-        <input
-          type="url"
-          name="websiteUrl"
-          value={formData.websiteUrl }
-          onChange={handleChange}
-          className="border border-gray-300 px-2 py-2 rounded-md w-full"
-          placeholder="https://yourdomain.com"
-          pattern="https?://.*"
-          title="Enter a valid URL"
-          required
-        />
-      </div>
-    )}
+            {/* Group 3: Landmark + Pincode */}
+            <div className="flex  gap-4">
+              <Input
+                label="Landmark (optional)"
+                name="busLandmark"
+                value={formData.busLandmark}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (
+                    value.length <= 100 &&
+                    /^[a-zA-Z0-9\s.,'-]*$/.test(value)
+                  ) {
+                    handleChange(e);
+                  }
+                }}
+                maxLength={100}
+                className="w-full md:w-1/2"
+                pattern="^[a-zA-Z0-9\s.,'-]+$"
+                title="Enter a valid landmark"
+              />
 
-    {/* Group 3: Landmark + Pincode */}
-    <div className="flex  gap-4">
-      <Input
-        label="Landmark (optional)"
-        name="busLandmark"
-        value={formData.busLandmark}
-        onChange={(e) => {
-          const value = e.target.value;
-          if (
-            value.length <= 100 &&
-            /^[a-zA-Z0-9\s.,'-]*$/.test(value)
-          ) {
-            handleChange(e);
-          }
-        }}
-        maxLength={100}
-        className="w-full md:w-1/2"
-        pattern="^[a-zA-Z0-9\s.,'-]+$"
-        title="Enter a valid landmark"
-      />
+              <Input
+                label="Pincode "
+                name="busPincode"
+                value={formData.busPincode}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (/^\d{0,6}$/.test(value)) {
+                    handleChange(e);
+                  }
+                }}
+                className="w-full md:w-1/2"
+                inputMode="numeric"
+                pattern="^\d{6}$"
+                title="Pincode"
+                maxLength={6}
+                required
+              />
 
-      <Input
-        label="Pincode "
-        name="busPincode"
-        value={formData.busPincode}
-        onChange={(e) => {
-          const value = e.target.value;
-          if (/^\d{0,6}$/.test(value)) {
-            handleChange(e);
-          }
-        }}
-        className="w-full md:w-1/2"
-        inputMode="numeric"
-        pattern="^\d{6}$"
-        title="Pincode"
-        maxLength={6}
-        required
-      />
-   
-
-      <Selectlistbyapi
-        label="State "
-        name="busState"
-        value={formData.busState}
-        onChange={handleChange}
-        options={states}
-        className="w-full md:w-1/2"
-        required
-      />
-      <Selectlistbyapi
-        label="City "
-        name="busCity"
-        value={formData.busCity}
-        onChange={handleChange}
-        options={cities}
-        className="w-full md:w-1/2"
-        required
-      />
-    </div>
-  </>
-)}
+              <Selectlistbyapi
+                label="State "
+                name="busState"
+                value={formData.busState}
+                onChange={handleChange}
+                options={states}
+                className="w-full md:w-1/2"
+                required
+              />
+              <Selectlistbyapi
+                label="City "
+                name="busCity"
+                value={formData.busCity}
+                onChange={handleChange}
+                options={cities}
+                className="w-full md:w-1/2"
+                required
+              />
+            </div>
+          </>
+        )}
 
         {currentStep === 3 && (
           <>
@@ -982,70 +1000,73 @@ const selectedUserType = userTypes.find(
               />
             </div>
 
-            
-  <div className="flex gap-4">
-      {/* Account Number Field */}
-      <div className="relative w-full">
-        <Input
-          label="Account Number"
-          name="accountNumber"
-          value={formData.accountNumber}
-          onChange={(e) => {
-            const value = e.target.value;
-            if (/^\d{0,20}$/.test(value)) {
-              handleChange(e);
-            }
-          }}
-          inputMode="numeric"
-          className="w-full pr-10" // Reserve space for icon
-          type={showAccount ? "text" : "password"}
-          pattern="^\d{8,20}$"
-          title="Account number must be between 8 and 20 digits."
-          maxLength={20}
-          required
-        />
-        <div className="absolute inset-y-0 right-2 top-5 flex items-center">
-          <button
-            type="button"
-            onClick={() => setShowAccount((prev) => !prev)}
-            className="text-gray-500 focus:outline-none"
-          >
-            {showAccount ? <EyeOff size={18} /> : <Eye size={18} />}
-          </button>
-        </div>
-      </div>
+            <div className="flex gap-4">
+              {/* Account Number Field */}
+              <div className="relative w-full">
+                <Input
+                  label="Account Number"
+                  name="accountNumber"
+                  value={formData.accountNumber}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (/^\d{0,20}$/.test(value)) {
+                      handleChange(e);
+                    }
+                  }}
+                  inputMode="numeric"
+                  className="w-full pr-10" // Reserve space for icon
+                  type={showAccount ? "text" : "password"}
+                  pattern="^\d{8,20}$"
+                  title="Account number must be between 8 and 20 digits."
+                  maxLength={20}
+                  required
+                />
+                <div className="absolute inset-y-0 right-2 top-5 flex items-center">
+                  <button
+                    type="button"
+                    onClick={() => setShowAccount((prev) => !prev)}
+                    className="text-gray-500 focus:outline-none"
+                  >
+                    {showAccount ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+              </div>
 
-      {/* Confirm Account Number Field */}
-      <div className="relative w-full">
-        <Input
-          label="Confirm Account Number"
-          name="confirmAccountNumber"
-          value={formData.confirmAccountNumber}
-          onChange={(e) => {
-            const value = e.target.value;
-            if (/^\d{0,20}$/.test(value)) {
-              handleChange(e);
-            }
-          }}
-          inputMode="numeric"
-          className="w-full pr-10"
-          type={showConfirmAccount ? "text" : "password"}
-          pattern="^\d{8,20}$"
-          title="Must match the account number above."
-          maxLength={20}
-          required
-        />
-        <div className="absolute inset-y-0 right-2 top-5 flex items-center">
-          <button
-            type="button"
-            onClick={() => setShowConfirmAccount((prev) => !prev)}
-            className="text-gray-500 focus:outline-none"
-          >
-            {showConfirmAccount ? <EyeOff size={18} /> : <Eye size={18} />}
-          </button>
-        </div>
-      </div>
-    </div>
+              {/* Confirm Account Number Field */}
+              <div className="relative w-full">
+                <Input
+                  label="Confirm Account Number"
+                  name="confirmAccountNumber"
+                  value={formData.confirmAccountNumber}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (/^\d{0,20}$/.test(value)) {
+                      handleChange(e);
+                    }
+                  }}
+                  inputMode="numeric"
+                  className="w-full pr-10"
+                  type={showConfirmAccount ? "text" : "password"}
+                  pattern="^\d{8,20}$"
+                  title="Must match the account number above."
+                  maxLength={20}
+                  required
+                />
+                <div className="absolute inset-y-0 right-2 top-5 flex items-center">
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmAccount((prev) => !prev)}
+                    className="text-gray-500 focus:outline-none"
+                  >
+                    {showConfirmAccount ? (
+                      <EyeOff size={18} />
+                    ) : (
+                      <Eye size={18} />
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
           </>
         )}
       </div>
@@ -1102,7 +1123,7 @@ function Input({
   value,
   onChange,
   className = "",
-  required = false,  // new prop to indicate if required
+  required = false, // new prop to indicate if required
 }) {
   return (
     <div className={className}>
@@ -1125,9 +1146,6 @@ function Input({
     </div>
   );
 }
-
-
- 
 
 // Reusable Select component
 function Selectlistbyapi({
