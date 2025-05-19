@@ -55,6 +55,7 @@ const KycDetailsModal = ({ formData = {}, onClose }) => {
         }
       );
 
+      console.log(res.data);
       if (res.data.success && Array.isArray(res.data.users)) {
         const groupedDocs = {
           Aadhaar: [],
@@ -133,11 +134,21 @@ const KycDetailsModal = ({ formData = {}, onClose }) => {
   };
 
   const handleFileChange = (e, key) => {
-    const file = e.target.files[0];
-    if (file) {
-      setDocuments((prev) => ({ ...prev, [key]: file }));
+  const file = e.target.files[0];
+
+  if (file) {
+    const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
+
+    if (!allowedTypes.includes(file.type)) {
+      Swal.fire("warning", "Only JPEG, JPG, and PNG image formats are allowed.");
+      e.target.value = ""; // Clear the input
+      return;
     }
-  };
+
+    setDocuments((prev) => ({ ...prev, [key]: file }));
+  }
+};
+
 
   //verify
   const verifyDocument = async (type, status) => {
@@ -249,7 +260,7 @@ const KycDetailsModal = ({ formData = {}, onClose }) => {
       if (!documents.CancelCheque) {
         Swal.fire(
           "Missing Fields",
-          "Please provide Cancel Check document.",
+          "Please provide Cancel Cheque document.",
           "warning"
         );
         setUploading("");
@@ -267,7 +278,7 @@ const KycDetailsModal = ({ formData = {}, onClose }) => {
 
       if (response.data.success === true) {
         Swal.fire("Success", "Documents uploaded successfully", "success");
-
+        await fetchExistingDocs();
         const docs = response.data.documents || {};
 
         setDocuments((prev) => ({
@@ -325,86 +336,81 @@ const KycDetailsModal = ({ formData = {}, onClose }) => {
     }
   };
 
-  const renderRow = (label, key) => {
-    const file = documents[key];
-    const isUploaded = typeof file === "string";
+ const renderRow = (label, key) => {
+  const file = documents[key];
+  const isUploaded = typeof file === "string";
 
-    // Map keys to document types for status
-    const keyToTypeMap = {
-      aadhaarFront: "Aadhaar",
-      aadhaarBack: "Aadhaar",
-      panImage: "PAN",
-      profilePhoto: "KYC",
-      shopPhoto: "KYC",
-      video: "KYC",
-      CancelCheque: "CancelCheque",
-    };
-
-    const type = keyToTypeMap[key];
-    const status = documents.status?.[type] || "Pending";
-    const isApproved = status === "Approved";
-
-    return (
-      <tr key={key}>
-        <td className="p-2 font-semibold border">{label}</td>
-        <td className="p-2 border text-center">
-          <input
-            type="file"
-            hidden
-            ref={(el) => (fileRefs.current[key] = el)}
-            onChange={(e) => handleFileChange(e, key)}
-            disabled={uploading !== ""}
-          />
-          {file ? (
-            <>
-              {isUploaded ? (
-                <>
-                  <button
-                    onClick={() => handleViewImage(file)}
-                    className="text-indigo-600 underline mr-2"
-                  >
-                    View
-                  </button>
-                
-                    <button
-                      onClick={() => handleUploadClick(key)}
-                      className="text-blue-600 hover:underline"
-                      disabled={uploading !== ""}
-                    >
-                      Change
-                    </button>
-               
-                </>
-              ) : (
-                <>
-                  <span className="mr-2">{file.name}</span>
-                  {!isApproved && (
-                    <button
-                      onClick={() => handleUploadClick(key)}
-                      className="text-blue-600 hover:underline"
-                      disabled={uploading !== ""}
-                    >
-                      Change
-                    </button>
-                  )}
-                </>
-              )}
-            </>
-          ) : (
-            !isApproved && (
-              <button
-                onClick={() => handleUploadClick(key)}
-                className="text-indigo-600 hover:underline"
-                disabled={uploading !== ""}
-              >
-                Select File
-              </button>
-            )
-          )}
-        </td>
-      </tr>
-    );
+  // Map keys to document types for status
+  const keyToTypeMap = {
+    aadhaarFront: "Aadhaar",
+    aadhaarBack: "Aadhaar",
+    panImage: "PAN",
+    profilePhoto: "KYC",
+    shopPhoto: "KYC",
+    video: "KYC",
+    CancelCheque: "CancelCheque",
   };
+
+  const type = keyToTypeMap[key];
+  const status = documents.status?.[type] || "Pending";
+  const isApproved = status === "Approved";
+
+  return (
+    <tr key={key}>
+      <td className="p-2 font-semibold border">{label}</td>
+      <td className="p-2 border text-center">
+        <input
+          type="file"
+          hidden
+          ref={(el) => (fileRefs.current[key] = el)}
+          onChange={(e) => handleFileChange(e, key)}
+          disabled={uploading !== ""}
+        />
+        {file ? (
+          <>
+            {isUploaded ? (
+              <>
+                <button
+                  onClick={() => handleViewImage(file)}
+                  className="text-indigo-600 underline mr-2"
+                >
+                  View
+                </button>
+                <button
+                  onClick={() => handleUploadClick(key)}
+                  className="text-blue-600 hover:underline"
+                  disabled={uploading !== ""}
+                >
+                  Change
+                </button>
+              </>
+            ) : (
+              <>
+                <span className="mr-2">{file.name}</span>
+                <button
+                  onClick={() => handleUploadClick(key)}
+                  className="text-blue-600 hover:underline"
+                  disabled={uploading !== ""}
+                >
+                  Change
+                </button>
+              </>
+            )}
+          </>
+        ) : (
+          <button
+            onClick={() => handleUploadClick(key)}
+            className="text-indigo-600 hover:underline"
+            disabled={uploading !== ""}
+          >
+            Select File
+          </button>
+        )}
+      </td>
+    </tr>
+  );
+};
+
 
   const handleChange = (e) => {
     let value = e.target.value;
@@ -423,7 +429,7 @@ const KycDetailsModal = ({ formData = {}, onClose }) => {
     if (value.length < 12) {
       setError("Aadhaar number must be 12 digits");
     } else if (/^(\d)\1{11}$/.test(value)) {
-      // Check for 12 identical digits (invalid Aadhaar)
+      // Cheque for 12 identical digits (invalid Aadhaar)
       setError("Invalid Aadhaar number");
     } else {
       setError("");
@@ -584,8 +590,8 @@ const KycDetailsModal = ({ formData = {}, onClose }) => {
               {renderRow("Shop Photo", "shopPhoto")}
               {renderRow("Video", "video")}
               {renderUploadButton("KYC", "KYC")}
-              {renderRow("Cancel Check", "CancelCheque")}
-              {renderUploadButton("CancelCheque", "Cancel Check")}
+              {renderRow("Cancel Cheque", "CancelCheque")}
+              {renderUploadButton("CancelCheque", "Cancel Cheque")}
             </tbody>
           </table>
           {activeVerification && (
@@ -722,6 +728,7 @@ const KycDetailsModal = ({ formData = {}, onClose }) => {
                         className="w-[40vh] h-auto rounded border cursor-pointer"
                         onClick={() => handleViewImage(documents.CancelCheque)}
                       />
+                      
                     )}
                   </>
                 )}

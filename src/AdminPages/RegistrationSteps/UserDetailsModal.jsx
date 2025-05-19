@@ -35,26 +35,7 @@ const UserDetailsModal = ({ formData = {}, onClose }) => {
   );
 
   // Bank Details placeholder - you can add when data available
-  const renderBankDetails = () => {
-    const banks = Array.isArray(formData.bankDetails)
-      ? formData.bankDetails
-      : formData.bankDetails
-      ? [formData.bankDetails]
-      : [];
-
-    if (banks.length === 0) {
-      return <div>No bank details available</div>;
-    }
-
-    return banks.map((bank, idx) => (
-      <div key={idx} className="border rounded p-3 mb-4">
-        {renderField("Account Holder Name", bank.AccountHolderName)}
-        {renderField("Bank Name", bank.BankName)}
-        {renderField("Account Number", bank.AccountNumber)}
-        {renderField("Bank Branch", bank.BankBranch)}
-      </div>
-    ));
-  };
+   
 
   useEffect(() => {
     console.log("Form Data", formData.UserType);
@@ -116,7 +97,7 @@ const UserDetailsModal = ({ formData = {}, onClose }) => {
           renderField("User Status", formData.UserStatus),
         ])}
 
-        {renderSection("Bank Details", renderBankDetails())}
+        
       </div>
     </div>
   );

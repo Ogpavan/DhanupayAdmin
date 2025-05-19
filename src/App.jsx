@@ -32,9 +32,9 @@ import ForgotMpin from "./auth/ForgotMpin.jsx";
 import SetupMpinPage from "./auth/SetupMpinPage.jsx";
 import ReportViewer from "./UserPages/ReportViewer/Reportviewer.jsx";
 import UserTypeAndRoleManager from "./AdminPages/UserTypeAndRoleManager.jsx";
- 
+
 import AdminLoginPage from "./auth/AdminLoginPage.jsx";
- import AdminForgotPasswordPage from "./auth/AdminForgotPasswordPage.jsx";
+import AdminForgotPasswordPage from "./auth/AdminForgotPasswordPage.jsx";
 import ServiceMaster from "./AdminPages/ServiceMaster.jsx";
 import LoadWallet from "./AdminPages/LoadWallet.jsx";
 import RegistrationForm from "./AdminPages/RegistrationSteps/RegistrationForm.jsx";
@@ -46,10 +46,17 @@ import AEPSServices from "./UserPages/AEPSServices.jsx";
 import RechargesAndBillPay from "./UserPages/RechargesAndBillPay.jsx";
 import RegisterRetailer from "./auth/RegisterRetailer.jsx";
 import EmployeeRegistration from "./AdminPages/EmployeeRegistration.jsx";
+import BasicDetails from "./auth/RegisterRetailer/BasicDetails.jsx";
+import ResidentialDetails from "./auth/RegisterRetailer/ResidentialDetails.jsx";
+import BankDetail from "./auth/RegisterRetailer/BankDetail.jsx";
+import AadhaarDetails from "./auth/RegisterRetailer/AadhaarDetails.jsx";
+import PanDetails from "./auth/RegisterRetailer/PanDetails.jsx";
+import VideoKYC from "./auth/RegisterRetailer/VideoKYC.jsx";
+import BusinessDetails from "./auth/RegisterRetailer/BusinessDetails.jsx";
 
 function App() {
   return (
-    <LoaderProvider >
+    <LoaderProvider>
       <GlobalLoader />
       <BrowserRouter>
         <Routes>
@@ -60,9 +67,21 @@ function App() {
           <Route path="/forgot-mpin" element={<ForgotMpin />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
-          <Route path="/admin-forgot-password" element={<AdminForgotPasswordPage />} />
+          <Route
+            path="/admin-forgot-password"
+            element={<AdminForgotPasswordPage />}
+          />
           <Route path="/setup-mpin" element={<SetupMpinPage />} />
           <Route path="/registerretailer" element={<RegisterRetailer />} />
+
+          <Route path="/basic-details" element={<BasicDetails />} />
+          <Route path="/business-details" element={<BusinessDetails />} />
+          <Route path="/residential-details" element={<ResidentialDetails />} />
+          <Route path="/bank-detail" element={<BankDetail />} />
+          <Route path="/aadhaar-details" element={<AadhaarDetails />} />
+          <Route path="/pan-details" element={<PanDetails />} />
+          <Route path="/video-kyc" element={<VideoKYC />} />
+
           <Route
             path="/admin"
             element={
@@ -81,11 +100,17 @@ function App() {
             <Route path="financial" element={<Financial />} />
             <Route path="employeemaster" element={<EmployeeMaster />} />
             <Route path="fundtransfer" element={<FundTransfer />} />
-            <Route path="UserTypeAndRoleManager" element={<UserTypeAndRoleManager />} /> 
+            <Route
+              path="UserTypeAndRoleManager"
+              element={<UserTypeAndRoleManager />}
+            />
             <Route path="ServiceMaster" element={<ServiceMaster />} />
             <Route path="loadwallet" element={<LoadWallet />} />
             <Route path="registrationmodal" element={<RegistrationModal />} />
-            <Route path="employeeregistration" element={<EmployeeRegistration />} />
+            <Route
+              path="employeeregistration"
+              element={<EmployeeRegistration />}
+            />
           </Route>
 
           <Route
@@ -117,11 +142,10 @@ function App() {
             <Route path="financials" element={<Financials />} />
             <Route path="wallet" element={<Wallet />} />
             <Route path="reportviewer" element={<ReportViewer />} />
-
           </Route>
         </Routes>
       </BrowserRouter>
-    </LoaderProvider >
+    </LoaderProvider>
   );
 }
 

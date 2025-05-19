@@ -29,8 +29,7 @@ const bankList = [
 const steps = [
   "Basic Details",
   "Residential Details",
-  "Business Details",
-  "Bank Details",
+   "Bank Details",
   // New Step
 ];
 
@@ -107,23 +106,9 @@ export default function EmployeeRegistration() {
       );
     }
 
+ 
+
     if (currentStep === 2) {
-      const isWhiteLabel = formData.userType === "2";
-
-      const isValid =
-        formData.shopName.trim() !== "" &&
-        formData.shopAddress.trim() !== "" &&
-        formData.busPincode.length === 6 &&
-        formData.busState !== "" &&
-        formData.busCity !== "" &&
-        formData.latitude !== "" &&
-        formData.longitude !== "" &&
-        (!isWhiteLabel || formData.websiteUrl.trim() !== "");
-
-      return isValid;
-    }
-
-    if (currentStep === 3) {
       return (
         formData.accountHolderName.trim() !== "" &&
         formData.accountNumber.length >= 8 &&
@@ -318,7 +303,7 @@ export default function EmployeeRegistration() {
           Swal.fire({
             icon: "success",
             title: "Registration Successful",
-            text: "User registration has been completed successfully!",
+            text: "Employee registration has been completed successfully!",
           }).then((result) => {
             if (result.isConfirmed) {
               window.location.href = "/admin/employeeregistration";
@@ -754,186 +739,9 @@ export default function EmployeeRegistration() {
           </>
         )}
 
+       
+
         {currentStep === 2 && (
-          <>
-            {/* Group 1: Shop Name + Address */}
-            <div className="flex  gap-4">
-              <Input
-                label="Shop Name "
-                name="shopName"
-                value={formData.shopName}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  if (
-                    value.length <= 100 &&
-                    /^[a-zA-Z0-9\s.,'-]*$/.test(value)
-                  ) {
-                    handleChange(e);
-                  }
-                }}
-                maxLength={100}
-                className="w-full md:w-1/2"
-                pattern="^[a-zA-Z0-9\s.,'-]+$"
-                title="Please enter a valid shop name"
-                required
-              />
-
-              <Input
-                label="Shop Address "
-                name="shopAddress"
-                value={formData.shopAddress}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  if (
-                    value.length <= 100 &&
-                    /^[a-zA-Z0-9\s.,'-]*$/.test(value)
-                  ) {
-                    handleChange(e);
-                  }
-                }}
-                maxLength={100}
-                className="w-full md:w-1/2"
-                pattern="^[a-zA-Z0-9\s.,'-]+$"
-                title="Please enter a valid shop address"
-                required
-              />
-            </div>
-            <div className="flex justify-end w-full ">
-              {" "}
-              <span
-                type="button"
-                className="text-blue-500 rounded-md text-xs cursor-pointer "
-                onClick={copyResidentialToBusiness}
-              >
-                Same as Residential Address
-              </span>
-            </div>
-
-            {/* Group 2: Latitude + Longitude */}
-            <div className="flex  gap-4 items-center">
-              <Input
-                label="Latitude "
-                name="latitude"
-                value={formData.latitude}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  if (/^-?\d{0,2}(\.\d{0,10})?$/.test(value)) {
-                    handleChange(e);
-                  }
-                }}
-                className="w-full md:w-1/2"
-                inputMode="decimal"
-                title="Latitude must be between -90 and 90"
-                required
-              />
-
-              <Input
-                label="Longitude "
-                name="longitude"
-                value={formData.longitude}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  if (/^-?\d{0,3}(\.\d{0,10})?$/.test(value)) {
-                    handleChange(e);
-                  }
-                }}
-                className="w-full md:w-1/2"
-                inputMode="decimal"
-                title="Longitude must be between -180 and 180"
-                required
-              />
-
-              {/* Map Button */}
-              <div className="mt-2">
-                <button className="flex items-center hover:text-blue-500">
-                  <span className="mr-2 text-nowrap">Locate on Map</span>
-                  <IoMdLocate size={30} />
-                </button>
-              </div>
-            </div>
-
-            {/* Website URL for Whitelabel */}
-            {formData.userType === "2" && (
-              <div className="mt-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Website URL <span className="text-red-600">*</span>
-                </label>
-                <input
-                  type="url"
-                  name="websiteUrl"
-                  value={formData.websiteUrl}
-                  onChange={handleChange}
-                  className="border border-gray-300 px-2 py-2 rounded-md w-full"
-                  placeholder="https://yourdomain.com"
-                  pattern="https?://.*"
-                  title="Enter a valid URL"
-                  required
-                />
-              </div>
-            )}
-
-            {/* Group 3: Landmark + Pincode */}
-            <div className="flex  gap-4">
-              <Input
-                label="Landmark (optional)"
-                name="busLandmark"
-                value={formData.busLandmark}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  if (
-                    value.length <= 100 &&
-                    /^[a-zA-Z0-9\s.,'-]*$/.test(value)
-                  ) {
-                    handleChange(e);
-                  }
-                }}
-                maxLength={100}
-                className="w-full md:w-1/2"
-                pattern="^[a-zA-Z0-9\s.,'-]+$"
-                title="Enter a valid landmark"
-              />
-
-              <Input
-                label="Pincode "
-                name="busPincode"
-                value={formData.busPincode}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  if (/^\d{0,6}$/.test(value)) {
-                    handleChange(e);
-                  }
-                }}
-                className="w-full md:w-1/2"
-                inputMode="numeric"
-                pattern="^\d{6}$"
-                title="Pincode"
-                maxLength={6}
-                required
-              />
-
-              <Selectlistbyapi
-                label="State "
-                name="busState"
-                value={formData.busState}
-                onChange={handleChange}
-                options={states}
-                className="w-full md:w-1/2"
-                required
-              />
-              <Selectlistbyapi
-                label="City "
-                name="busCity"
-                value={formData.busCity}
-                onChange={handleChange}
-                options={cities}
-                className="w-full md:w-1/2"
-                required
-              />
-            </div>
-          </>
-        )}
-
-        {currentStep === 3 && (
           <>
             <div className="flex gap-4">
               <Input

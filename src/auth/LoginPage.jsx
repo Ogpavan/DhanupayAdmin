@@ -43,34 +43,39 @@ export default function LoginPage() {
     fetchUserTypes();
   }, []);
 
-  const isPhoneValid = /^\d{10}$/.test(phoneNumber) && /^[6-9]/.test(phoneNumber);
-  const isFormValid = isPhoneValid && password.length > 0 && selectedUserType && !error;
-const checkESignStatusAndRedirect = async (userId, token) => {
-  console.log(userId, token);
-  try {
-    const response = await fetch("https://gateway.dhanushop.com/api/esign/request", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        UserId: userId,
-        // redirecturl: "/login"
-      })
-    });
+  const isPhoneValid =
+    /^\d{10}$/.test(phoneNumber) && /^[6-9]/.test(phoneNumber);
+  const isFormValid =
+    isPhoneValid && password.length > 0 && selectedUserType && !error;
+  const checkESignStatusAndRedirect = async (userId, token) => {
+    console.log(userId, token);
+    try {
+      const response = await fetch(
+        "https://gateway.dhanushop.com/api/esign/request",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            UserId: userId,
+            // redirecturl: "/login"
+          }),
+        }
+      );
 
-    const result = await response.json();
+      const result = await response.json();
 
-    if (result?.signedUrl) {
-      window.location.href = result.signedUrl; // Redirect to eSign URL
-    } else {
-      setError("Failed to retrieve eSign URL.");
+      if (result?.signedUrl) {
+        window.location.href = result.signedUrl; // Redirect to eSign URL
+      } else {
+        setError("Failed to retrieve eSign URL.");
+      }
+    } catch (error) {
+      setError("Error checking eSign status.");
     }
-  } catch (error) {
-    setError("Error checking eSign status.");
-  }
-};
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -118,9 +123,15 @@ const checkESignStatusAndRedirect = async (userId, token) => {
       const os = browser.getOSName();
       const device = browser.getPlatformType();
 
-      console.log(browserName, os, device,selectedUserType,sanitizedPhoneNumber,sanitizedPassword);
-       const response = await fetch(
-       
+      console.log(
+        browserName,
+        os,
+        device,
+        selectedUserType,
+        sanitizedPhoneNumber,
+        sanitizedPassword
+      );
+      const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/api/users/login`,
         {
           method: "POST",
@@ -143,27 +154,62 @@ const checkESignStatusAndRedirect = async (userId, token) => {
       settempUserId(data.UserId);
 
       if (response.ok && data?.Token) {
-        Cookies.set("token", data.Token, { secure: true, sameSite: "Strict", expires: 1 });
-        Cookies.set("loginid", data.loginid, { secure: true, sameSite: "Strict", expires: 1 });
-        Cookies.set("UserTypeName", data.UserTypeName, { secure: true, sameSite: "Strict", expires: 1 });
-        Cookies.set("UserName", data.UserName, { secure: true, sameSite: "Strict", expires: 1 });
-        Cookies.set("role", data.role, { secure: true, sameSite: "Strict", expires: 1 });
-        Cookies.set("UserId", data.UserId, { secure: true, sameSite: "Strict", expires: 1 });
-        Cookies.set("AgentId", data.AgentId, { secure: true, sameSite: "Strict", expires: 1 });
+        Cookies.set("token", data.Token, {
+          secure: true,
+          sameSite: "Strict",
+          expires: 1,
+        });
+        Cookies.set("loginid", data.loginid, {
+          secure: true,
+          sameSite: "Strict",
+          expires: 1,
+        });
+        Cookies.set("UserTypeName", data.UserTypeName, {
+          secure: true,
+          sameSite: "Strict",
+          expires: 1,
+        });
+        Cookies.set("UserName", data.UserName, {
+          secure: true,
+          sameSite: "Strict",
+          expires: 1,
+        });
+        Cookies.set("role", data.role, {
+          secure: true,
+          sameSite: "Strict",
+          expires: 1,
+        });
+        Cookies.set("UserId", data.UserId, {
+          secure: true,
+          sameSite: "Strict",
+          expires: 1,
+        });
+        Cookies.set("AgentId", data.AgentId, {
+          secure: true,
+          sameSite: "Strict",
+          expires: 1,
+        });
 
-      // Check for eSignStatus and redirect if pending
-if (data?.eSignStatus === "Pending") {
-  await checkESignStatusAndRedirect(data.UserId, data.Token);
-} else if (data?.IsMPINSet === "0") {
-  navigate("/setup-mpin", {
-    state: { UserId: data.UserId, loginid: data.loginid, message: "Please set your MPIN to continue." },
-  });
-} else {
-  navigate("/otp", {
-    state: { message: data.Message, userId: data.UserId, role: data.role },
-  });
-}
-
+        // Check for eSignStatus and redirect if pending
+        if (data?.IsMPINSet === "0") {
+          navigate("/setup-mpin", {
+            state: {
+              UserId: data.UserId,
+              loginid: data.loginid,
+              message: "Please set your MPIN to continue.",
+            },
+          });
+        } else if (data?.eSignStatus === "Pending") {
+          await checkESignStatusAndRedirect(data.UserId, data.Token);
+        } else {
+          navigate("/otp", {
+            state: {
+              message: data.Message,
+              userId: data.UserId,
+              role: data.role,
+            },
+          });
+        }
       } else {
         setError(data?.message || "Invalid credentials. Please try again.");
         if (data?.message === "User already logged in on another device.") {
@@ -191,24 +237,58 @@ if (data?.eSignStatus === "Pending") {
 
                 const seconddata = await res.json();
                 if (res.ok && seconddata?.Token) {
-                  Cookies.set("token", seconddata.Token, { secure: true, sameSite: "Strict", expires: 1 });
-                  Cookies.set("loginid", seconddata.loginid, { secure: true, sameSite: "Strict", expires: 1 });
-                  Cookies.set("UserTypeName", seconddata.UserTypeName, { secure: true, sameSite: "Strict", expires: 1 });
-                  Cookies.set("UserName", seconddata.UserName, { secure: true, sameSite: "Strict", expires: 1 });
-                  Cookies.set("role", seconddata.role, { secure: true, sameSite: "Strict", expires: 1 });
-                  Cookies.set("UserId", seconddata.UserId, { secure: true, sameSite: "Strict", expires: 1 });
+                  Cookies.set("token", seconddata.Token, {
+                    secure: true,
+                    sameSite: "Strict",
+                    expires: 1,
+                  });
+                  Cookies.set("loginid", seconddata.loginid, {
+                    secure: true,
+                    sameSite: "Strict",
+                    expires: 1,
+                  });
+                  Cookies.set("UserTypeName", seconddata.UserTypeName, {
+                    secure: true,
+                    sameSite: "Strict",
+                    expires: 1,
+                  });
+                  Cookies.set("UserName", seconddata.UserName, {
+                    secure: true,
+                    sameSite: "Strict",
+                    expires: 1,
+                  });
+                  Cookies.set("role", seconddata.role, {
+                    secure: true,
+                    sameSite: "Strict",
+                    expires: 1,
+                  });
+                  Cookies.set("UserId", seconddata.UserId, {
+                    secure: true,
+                    sameSite: "Strict",
+                    expires: 1,
+                  });
 
                   if (seconddata?.IsMPINSet === "0") {
                     navigate("/setup-mpin", {
-                      state: { UserId: seconddata.UserId, loginid: seconddata.loginid, message: "Please set your MPIN to continue." },
+                      state: {
+                        UserId: seconddata.UserId,
+                        loginid: seconddata.loginid,
+                        message: "Please set your MPIN to continue.",
+                      },
                     });
                   } else {
                     navigate("/otp", {
-                      state: { message: seconddata.Message, userId: seconddata.UserId,role:seconddata.role },
+                      state: {
+                        message: seconddata.Message,
+                        userId: seconddata.UserId,
+                        role: seconddata.role,
+                      },
                     });
                   }
                 } else {
-                  setError(seconddata?.message || "Failed to proceed with login.");
+                  setError(
+                    seconddata?.message || "Failed to proceed with login."
+                  );
                 }
               } catch (err) {
                 setError("An error occurred while confirming login.");
@@ -227,15 +307,23 @@ if (data?.eSignStatus === "Pending") {
   return (
     <div className="min-h-screen flex flex-col md:flex-row">
       <div className="w-full md:w-1/2 flex items-center justify-center p-8 bg-gray-100">
-        <img src={loginpageimage} alt="Login Illustration" className="max-w-md w-full" />
+        <img
+          src={loginpageimage}
+          alt="Login Illustration"
+          className="max-w-md w-full"
+        />
       </div>
 
       <div className="w-full md:w-1/2 flex items-center justify-center p-8">
         <div className="bg-white rounded-2xl p-8 w-full max-w-md">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-1">Welcome to</h2>
+          <h2 className="text-2xl font-semibold text-gray-800 mb-1">
+            Welcome to
+          </h2>
           <h1 className="text-4xl font-bold text-indigo-600 mb-6">Dhanupay</h1>
 
-          {error && <div className="text-red-500 text-sm mb-4 text-center">{error}</div>}
+          {error && (
+            <div className="text-red-500 text-sm mb-4 text-center">{error}</div>
+          )}
 
           <form onSubmit={handleLogin} className="space-y-5">
             {/* User Type */}
@@ -248,9 +336,13 @@ if (data?.eSignStatus === "Pending") {
                   setSelectedUserType(e.target.value);
                   setUserTypeError(false);
                 }}
-                className={`w-full p-2 border rounded outline-none ${userTypeError ? "border-red-500" : "border-gray-300"}`}
+                className={`w-full p-2 border rounded outline-none ${
+                  userTypeError ? "border-red-500" : "border-gray-300"
+                }`}
               >
-                <option value="" disabled>Select a User Type</option>
+                <option value="" disabled>
+                  Select a User Type
+                </option>
                 {userTypes
                   .filter((ut) => ut.UserTypeName.toLowerCase() !== "employee")
                   .map((ut) => (
@@ -259,16 +351,23 @@ if (data?.eSignStatus === "Pending") {
                     </option>
                   ))}
               </select>
-              {userTypeError && <p className="text-red-500 text-sm">User type is required.</p>}
+              {userTypeError && (
+                <p className="text-red-500 text-sm">User type is required.</p>
+              )}
             </div>
 
             {/* Phone Number */}
             <div className="relative">
-              <Phone className="absolute left-3 top-2.5 text-gray-400" size={20} />
+              <Phone
+                className="absolute left-3 top-2.5 text-gray-400"
+                size={20}
+              />
               <input
                 type="text"
                 placeholder="Enter your 10-digit phone number"
-                className={`w-full pl-10 pr-4 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500 outline-none ${phoneError ? "border-red-500" : "border-gray-300"}`}
+                className={`w-full pl-10 pr-4 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500 outline-none ${
+                  phoneError ? "border-red-500" : "border-gray-300"
+                }`}
                 value={phoneNumber}
                 onChange={(e) => {
                   const input = e.target.value;
@@ -286,20 +385,32 @@ if (data?.eSignStatus === "Pending") {
                   if (invalidChars.includes(e.key)) e.preventDefault();
                 }}
               />
-              {phoneError && <p className="text-red-500 text-sm mt-1">Valid phone number is required.</p>}
+              {phoneError && (
+                <p className="text-red-500 text-sm mt-1">
+                  Valid phone number is required.
+                </p>
+              )}
             </div>
 
             {/* Password */}
             <div className="relative">
-              <Lock className="absolute left-3 top-2.5 text-gray-400" size={20} />
+              <Lock
+                className="absolute left-3 top-2.5 text-gray-400"
+                size={20}
+              />
               <input
                 type={showPassword ? "text" : "password"}
                 placeholder="Password"
-                className={`w-full pl-10 pr-10 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500 outline-none ${passwordError ? "border-red-500" : "border-gray-300"}`}
+                className={`w-full pl-10 pr-10 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500 outline-none ${
+                  passwordError ? "border-red-500" : "border-gray-300"
+                }`}
                 value={password}
                 maxLength={32}
                 onChange={(e) => {
-                  const sanitizedInput = e.target.value.replace(/[^a-zA-Z0-9!@#$%^&*()_+={}[\]:;'"<>,.?/|\\-]/g, "");
+                  const sanitizedInput = e.target.value.replace(
+                    /[^a-zA-Z0-9!@#$%^&*()_+={}[\]:;'"<>,.?/|\\-]/g,
+                    ""
+                  );
                   setPassword(sanitizedInput);
                   setPasswordError(false);
                 }}
@@ -323,7 +434,11 @@ if (data?.eSignStatus === "Pending") {
               >
                 {showPassword ? <EyeSlash size={20} /> : <Eye size={20} />}
               </button>
-              {passwordError && <p className="text-red-500 text-sm mt-1">Password is required.</p>}
+              {passwordError && (
+                <p className="text-red-500 text-sm mt-1">
+                  Password is required.
+                </p>
+              )}
             </div>
 
             <div className="flex items-center justify-between text-sm text-gray-600">
@@ -336,7 +451,11 @@ if (data?.eSignStatus === "Pending") {
                 />
                 <span>Remember me</span>
               </label>
-              <button type="button" onClick={() => navigate("/forgot-password")} className="text-indigo-600 hover:underline">
+              <button
+                type="button"
+                onClick={() => navigate("/forgot-password")}
+                className="text-indigo-600 hover:underline"
+              >
                 Forgot Password?
               </button>
             </div>

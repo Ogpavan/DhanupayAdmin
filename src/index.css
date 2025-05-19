@@ -49,3 +49,17 @@ body {
    /* Tailwind's red-500 color */
 }
 
+  
+.input-field {
+  width: 100%;
+  padding: 0.5rem 1rem; /* px-4 py-2 */
+  border-radius: 0.75rem ; /* rounded-md */
+  border: 1px solid #D1D5DB; /* border-gray-300 */
+  font-size: 0.875rem; /* text-sm */
+  outline: none;
+}
+
+.input-field:focus {
+  box-shadow: 0 0 0 2px #2C2DCB; /* focus:ring-2 focus:ring-[#2C2DCB] */
+  border-color: #2C2DCB;
+}

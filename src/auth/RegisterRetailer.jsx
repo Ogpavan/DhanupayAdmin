@@ -1,9 +1,10 @@
+ 
+import BasicDetails from "./RegisterRetailer/BasicDetails";
+import loginpageimage from "/LoginPageImage.png";
+ 
 
-import loginpageimage from "/LoginPageImage.png"; // Replace with the correct  
-
-export default function RegisterRetailer() {
-   
-
+export default function registerretailer() {
+ 
   return (
     <div className="min-h-screen flex flex-col md:flex-row">
       <div className="w-full md:w-1/2 flex items-center justify-center p-8 bg-gray-100">
@@ -13,8 +14,9 @@ export default function RegisterRetailer() {
           className="max-w-md w-full"
         />
       </div>
-
-        
+      <div className="w-full md:w-1/2 flex items-center justify-center p-8">
+        <BasicDetails />
+       </div>
     </div>
   );
 }

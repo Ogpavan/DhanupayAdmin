@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import UserDetailsModal from "./UserDetailsModal";
-import KycDetailsModal from "./KycDetailsModal";
+import KycDetailsModal from "./KYCDetailsModal";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Cookies from "js-cookie";
@@ -21,42 +21,44 @@ const UserSummaryTable = () => {
   const token = Cookies.get("token");
   const userId = Cookies.get("UserId");
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      setLoading(true);
-      try {
-        if (!token || !userId) {
-          console.error("Missing token or userId in cookies");
-          setUsers([]);
-          setLoading(false);
-          return;
-        }
-
-        const response = await axios.post(
-          "https://gateway.dhanushop.com/api/users/AllUserDetails",
-          { UserID: userId },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        if (response.data.success) {
-          setUsers(response.data.users || []);
-        } else {
-          setUsers([]);
-        }
-      } catch (error) {
-        console.error("Failed to fetch users:", error);
+  // Add fetchUsers outside useEffect so it's reusable
+  const fetchUsers = async () => {
+    setLoading(true);
+    try {
+      if (!token || !userId) {
+        console.error("Missing token or userId in cookies");
         setUsers([]);
-      } finally {
         setLoading(false);
+        return;
       }
-    };
 
+      const response = await axios.post(
+        "https://gateway.dhanushop.com/api/users/AllUserDetails",
+        { UserID: userId },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.data.success) {
+        setUsers(response.data.users || []);
+      } else {
+        setUsers([]);
+      }
+    } catch (error) {
+      console.error("Failed to fetch users:", error);
+      setUsers([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchUsers();
-  }, [token, userId]);
+  }, []);
 
   const handleViewDetails = (user) => {
     setSelectedUser(user);
@@ -121,12 +123,11 @@ const UserSummaryTable = () => {
     }
   };
 
-   
   // Filter & Paginate
   const filteredUsers = users.filter(
     (user) => user.UserType?.toLowerCase() !== "1"
   );
-  console.log(filteredUsers);
+
   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
   const currentUsers = filteredUsers.slice(
     (currentPage - 1) * itemsPerPage,
@@ -183,6 +184,7 @@ const UserSummaryTable = () => {
             <th className="px-4 py-2 border">KYC</th>
             <th className="px-4 py-2 border">eSign</th>
             <th className="px-4 py-2 border">User Status</th>
+            <th className="px-4 py-2 border">Login Status</th>
             <th className="px-4 py-2 border">Actions</th>
           </tr>
         </thead>
@@ -213,11 +215,14 @@ const UserSummaryTable = () => {
                 </td>
                 <td
                   className={`px-4 py-2 border ${
-                    isEsignVerified ? "text-green-600" : "text-red-600"
+                    user.EsignStatus?.toLowerCase() === "verified"
+                      ? "text-green-600"
+                      : "text-yellow-600"
                   }`}
                 >
-                  {isEsignVerified ? "Verified" : "Not Verified"}
+                  {user.EsignStatus}
                 </td>
+
                 <td className="px-4 py-2 border">
                   <select
                     disabled={isLoading}
@@ -236,6 +241,16 @@ const UserSummaryTable = () => {
                     <option value="Blocked">Blocked</option>
                   </select>
                 </td>
+                <td
+                  className={`px-4 py-2 border ${
+                    user.LoginStatus.toLowerCase() === "active"
+                      ? "text-green-600"
+                      : "text-red-600"
+                  }`}
+                >
+                  {user.LoginStatus.toLowerCase()}
+                </td>
+
                 <td className="px-4 py-2 border">
                   <button
                     onClick={() => handleViewDetails(user)}
@@ -301,6 +316,7 @@ const UserSummaryTable = () => {
           onClose={() => {
             setShowKycModal(false);
             setSelectedUser(null);
+            fetchUsers(); // 🔁 Reload table data after KYC modal closes
           }}
         />
       )}
