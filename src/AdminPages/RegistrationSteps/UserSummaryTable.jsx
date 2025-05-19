@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import UserDetailsModal from "./UserDetailsModal";
-import KycDetailsModal from "./KYCDetailsModal";
+import KycDetailsModal from "./KycDetailsModal";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Cookies from "js-cookie";
