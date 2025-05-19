@@ -558,7 +558,7 @@ const BankDetail = () => {
   };
 
   return (
-    <div className="font-poppins min-h-screen overflow-x-auto   mb-10  ">
+    <div className="font-poppins min-h-screen    mb-10 max-w-md mx-auto flex items-center  ">
     
 
       <div  className="  bg-white rounded-t-3xl px-4 py-6     -mt-6">

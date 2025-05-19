@@ -129,7 +129,7 @@ const AadhaarDetails = () => {
     !aadhaarBack.preview;
 
   return (
-    <div className="font-poppins min-h-screen  ">
+    <div className="font-poppins  min-h-screen  max-w-md mx-auto flex items-center">
  
 
       <div className="bg-white rounded-t-3xl px-4 py-6     -mt-6">

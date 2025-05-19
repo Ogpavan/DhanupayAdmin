@@ -132,7 +132,7 @@ const VideoKYC = () => {
   };
 
   return (
-    <div className="font-poppins min-h-screen  ">
+    <div className="font-poppins min-h-screen max-w-md mx-auto flex items-center  ">
      
 
       <div style={{ height: "calc(100vh - 15vh)" }} className="bg-white rounded-t-3xl px-4 py-6     -mt-6">
