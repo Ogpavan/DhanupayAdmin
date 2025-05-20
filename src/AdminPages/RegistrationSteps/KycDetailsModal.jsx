@@ -46,6 +46,7 @@ const KycDetailsModal = ({ formData = {}, onClose }) => {
     setZoomImage(null);
   };
   const fetchExistingDocs = async () => {
+    console.log(token)
     try {
       const res = await axios.post(
         `${BASE_URL}/api/users/GetAllDocumentsbyUser`,
