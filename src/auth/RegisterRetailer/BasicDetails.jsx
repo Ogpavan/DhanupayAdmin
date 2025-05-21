@@ -302,195 +302,195 @@ const BasicDetails = () => {
   };
 
   return (
-    <div className="font-poppins min-h-screen max-w-md mx-auto flex items-center  ">
-     
-      <div style={{ height: "calc(100vh - 15vh)" }} className=" bg-white rounded-t-3xl px-4 py-6     -mt-6 relative">
-        <Stepper currentStep={0} />
-        <h1 className="poppins-semibold text-[#121649] text-center py-4">
-          Basic Details
-        </h1>
-        <form className="space-y-3">
-          {/* First & Last Name */}
-          <div className="flex space-x-2">
-            <div className="w-1/2">
-              <div className="flex">
-                <label className="text-sm text-gray-600 mb-1">First Name <span className="text-red-500">*</span></label>
+      <div className="font-poppins    max-w-xl mx-auto mt-10 w-full ">
+      
+        <div   className=" bg-white rounded-t-3xl px-4 py-6     -mt-6 relative">
+          <Stepper currentStep={0} />
+          <h1 className="poppins-semibold text-[#121649] text-center py-4">
+            Basic Details
+          </h1>
+          <form className="space-y-3">
+            {/* First & Last Name */}
+            <div className="flex space-x-2">
+              <div className="w-1/2">
+                <div className="flex">
+                  <label className="text-sm text-gray-600 mb-1">First Name <span className="text-red-500">*</span></label>
+                </div>
+                <input
+                  type="text"
+                  placeholder="First Name"
+                  className={`input-field w-full ${errors.firstName ? 'border-red-500' : ''}`}
+                  maxLength="10"
+                  name="firstName"
+                  value={formData.firstName}
+                  onChange={handleInputChange}
+                  onKeyDown={(e) => {
+                    const key = e.key;
+                    if (!/^[a-zA-Z]$/.test(key) && key !== "Backspace" && key !== "Tab") {
+                      e.preventDefault();
+                    }
+                  }}
+                />
+                {errors.firstName && (
+                  <p className="text-red-500 text-xs mt-1">{errors.firstName}</p>
+                )}
               </div>
-              <input
-                type="text"
-                placeholder="First Name"
-                className={`input-field w-full ${errors.firstName ? 'border-red-500' : ''}`}
-                maxLength="10"
-                name="firstName"
-                value={formData.firstName}
-                onChange={handleInputChange}
-                onKeyDown={(e) => {
-                  const key = e.key;
-                  if (!/^[a-zA-Z]$/.test(key) && key !== "Backspace" && key !== "Tab") {
-                    e.preventDefault();
-                  }
-                }}
-              />
-              {errors.firstName && (
-                <p className="text-red-500 text-xs mt-1">{errors.firstName}</p>
+              <div className="w-1/2">
+                <div className="flex">
+                  <label className="text-sm text-gray-600 mb-1">Last Name</label>
+                </div>
+                <input
+                  type="text"
+                  placeholder="Last Name"
+                  className="input-field w-full"
+                  maxLength="10"
+                  name="lastName"
+                  value={formData.lastName}
+                  onChange={handleInputChange}
+                  onKeyDown={(e) => {
+                    const key = e.key;
+                    if (!/^[a-zA-Z]$/.test(key) && key !== "Backspace" && key !== "Tab") {
+                      e.preventDefault();
+                    }
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Mobile Number */}
+            <div>
+              <div className="flex">
+                <label className="text-sm text-gray-600 mb-1">Mobile Number <span className="text-red-500">*</span></label>
+              </div>
+              <div className="relative">
+                <input
+                  type="tel"
+                  placeholder="Mobile Number"
+                  className={`input-field w-full pr-24 ${errors.mobile ? 'border-red-500' : ''}`}
+                  maxLength="10"
+                  inputMode="numeric"
+                  name="mobile"
+                  value={formData.mobile}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    // Allow only digits
+                    if (/^\d*$/.test(value)) {
+                      // First digit must be 6-9
+                      if (value.length === 1 && !/^[6-9]$/.test(value)) return;
+                      setFormData({ ...formData, mobile: value });
+                      // Validate on change
+                      const errorMessage = validateField("mobile", value);
+                      setErrors({ ...errors, mobile: errorMessage });
+                    }
+                  }}
+                  disabled={verifiedFields.mobile}
+                />
+                <button
+                  type="button"
+                  onClick={() => handleVerifyClick("Mobile Number")}
+                  className={`absolute right-3 top-1/2 transform -translate-y-1/2 text-sm font-semibold ${verifiedFields.mobile ? "text-green-400" : "text-[#2C2DCB]"}`}
+                  disabled={verifiedFields.mobile || !formData.mobile || !/^\d{10}$/.test(formData.mobile)}
+                >
+                  {verifiedFields.mobile ? "Verified" : "Verify"}
+                </button>
+              </div>
+              {errors.mobile && (
+                <p className="text-red-500 text-xs mt-1">{errors.mobile}</p>
               )}
             </div>
-            <div className="w-1/2">
+
+            {/* Alternate Mobile Number */}
+            <div>
               <div className="flex">
-                <label className="text-sm text-gray-600 mb-1">Last Name</label>
+                <label className="text-sm text-gray-600 mb-1">Alternate Mobile Number</label>
+              </div>
+              <div className="relative">
+                <input
+                  type="tel"
+                  placeholder="Alternate Mobile Number"
+                  className="input-field w-full pr-24"
+                  maxLength="10"
+                  inputMode="numeric"
+                  name="alternateMobile"
+                  value={formData.alternateMobile}
+                  disabled={!verifiedFields.mobile}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    // Allow only digits
+                    if (/^\d*$/.test(value)) {
+                      // First digit must be 6-9
+                      if (value.length === 1 && !/^[6-9]$/.test(value)) return;
+                      setFormData({ ...formData, alternateMobile: value });
+                    }
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Email */}
+            <div>
+              <div className="flex">
+                <label className="text-sm text-gray-600 mb-1">Email ID <span className="text-red-500">*</span></label>
               </div>
               <input
-                type="text"
-                placeholder="Last Name"
-                className="input-field w-full"
-                maxLength="10"
-                name="lastName"
-                value={formData.lastName}
+                type="email"
+                placeholder="Email ID"
+                className={`input-field w-full ${errors.email ? 'border-red-500' : ''}`}
+                name="email"
+                value={formData.email}
                 onChange={handleInputChange}
-                onKeyDown={(e) => {
-                  const key = e.key;
-                  if (!/^[a-zA-Z]$/.test(key) && key !== "Backspace" && key !== "Tab") {
-                    e.preventDefault();
-                  }
-                }}
-              />
-            </div>
-          </div>
-
-          {/* Mobile Number */}
-          <div>
-            <div className="flex">
-              <label className="text-sm text-gray-600 mb-1">Mobile Number <span className="text-red-500">*</span></label>
-            </div>
-            <div className="relative">
-              <input
-                type="tel"
-                placeholder="Mobile Number"
-                className={`input-field w-full pr-24 ${errors.mobile ? 'border-red-500' : ''}`}
-                maxLength="10"
-                inputMode="numeric"
-                name="mobile"
-                value={formData.mobile}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  // Allow only digits
-                  if (/^\d*$/.test(value)) {
-                    // First digit must be 6-9
-                    if (value.length === 1 && !/^[6-9]$/.test(value)) return;
-                    setFormData({ ...formData, mobile: value });
-                    // Validate on change
-                    const errorMessage = validateField("mobile", value);
-                    setErrors({ ...errors, mobile: errorMessage });
-                  }
-                }}
-                disabled={verifiedFields.mobile}
-              />
-              <button
-                type="button"
-                onClick={() => handleVerifyClick("Mobile Number")}
-                className={`absolute right-3 top-1/2 transform -translate-y-1/2 text-sm font-semibold ${verifiedFields.mobile ? "text-green-400" : "text-[#2C2DCB]"}`}
-                disabled={verifiedFields.mobile || !formData.mobile || !/^\d{10}$/.test(formData.mobile)}
-              >
-                {verifiedFields.mobile ? "Verified" : "Verify"}
-              </button>
-            </div>
-            {errors.mobile && (
-              <p className="text-red-500 text-xs mt-1">{errors.mobile}</p>
-            )}
-          </div>
-
-          {/* Alternate Mobile Number */}
-          <div>
-            <div className="flex">
-              <label className="text-sm text-gray-600 mb-1">Alternate Mobile Number</label>
-            </div>
-            <div className="relative">
-              <input
-                type="tel"
-                placeholder="Alternate Mobile Number"
-                className="input-field w-full pr-24"
-                maxLength="10"
-                inputMode="numeric"
-                name="alternateMobile"
-                value={formData.alternateMobile}
                 disabled={!verifiedFields.mobile}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  // Allow only digits
-                  if (/^\d*$/.test(value)) {
-                    // First digit must be 6-9
-                    if (value.length === 1 && !/^[6-9]$/.test(value)) return;
-                    setFormData({ ...formData, alternateMobile: value });
-                  }
-                }}
               />
+              {errors.email && (
+                <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+              )}
             </div>
-          </div>
 
-          {/* Email */}
-          <div>
-            <div className="flex">
-              <label className="text-sm text-gray-600 mb-1">Email ID <span className="text-red-500">*</span></label>
+            {/* Parent ID */}
+            <div>
+              <div className="flex">
+                <label className="text-sm text-gray-600 mb-1">Enter Referral ID (optional)</label>
+              </div>
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Referral ID"
+                  className="input-field w-full pr-24"
+                  maxLength="10"
+                  name="ParentID"
+                  value={formData.ParentID}
+                  disabled={!verifiedFields.mobile}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    // Allow only alphanumeric characters
+                    if (/^[a-zA-Z0-9]*$/.test(value)) {
+                      setFormData({ ...formData, ParentID: value });
+                    }
+                  }}
+                />
+
+              </div>
             </div>
-            <input
-              type="email"
-              placeholder="Email ID"
-              className={`input-field w-full ${errors.email ? 'border-red-500' : ''}`}
-              name="email"
-              value={formData.email}
-              onChange={handleInputChange}
-              disabled={!verifiedFields.mobile}
-            />
-            {errors.email && (
-              <p className="text-red-500 text-xs mt-1">{errors.email}</p>
-            )}
-          </div>
+          </form>
 
-          {/* Parent ID */}
-          <div>
-            <div className="flex">
-              <label className="text-sm text-gray-600 mb-1">Enter Referral ID (optional)</label>
-            </div>
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Referral ID"
-                className="input-field w-full pr-24"
-                maxLength="10"
-                name="ParentID"
-                value={formData.ParentID}
-                disabled={!verifiedFields.mobile}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  // Allow only alphanumeric characters
-                  if (/^[a-zA-Z0-9]*$/.test(value)) {
-                    setFormData({ ...formData, ParentID: value });
-                  }
-                }}
-              />
+          <button
+            onClick={handleSubmit}
+            disabled={btnLoading}
+            className="mt-6 w-full bg-[#2C2DCB] text-white text-lg py-2 rounded-xl font-semibold"
+          >
+            {btnLoading ? 'Processing...' : 'Save & Next →'}
+          </button>
 
-            </div>
-          </div>
-        </form>
-
-        <button
-          onClick={handleSubmit}
-          disabled={btnLoading}
-          className="mt-6 w-full bg-[#2C2DCB] text-white text-lg py-2 rounded-xl font-semibold"
-        >
-          {btnLoading ? 'Processing...' : 'Save & Next →'}
-        </button>
-
-        <OtpModal
-          isOpen={showOTPModal}
-          onClose={() => setShowOTPModal(false)}
-          onSubmit={handleOTPSubmit}
-          otp={otp}
-          setOtp={setOtp}
-          verifyingField={verifyingField}
-        />
+          <OtpModal
+            isOpen={showOTPModal}
+            onClose={() => setShowOTPModal(false)}
+            onSubmit={handleOTPSubmit}
+            otp={otp}
+            setOtp={setOtp}
+            verifyingField={verifyingField}
+          />
+        </div>
       </div>
-    </div>
   );
 };
 

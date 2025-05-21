@@ -1660,7 +1660,7 @@ function BasicSettings() {
 
             <div className="flex flex-col lg:flex-row space-y-4 lg:space-x-8 lg:space-y-0">
 
-              
+              {/* Left Side: Form */}
               <div className="w-full lg:w-1/2">
                 <h2 className="text-xl font-semibold">{settingsData[modalVisible].title}</h2>
                 <div className="mt-4">
@@ -1702,7 +1702,8 @@ function BasicSettings() {
 
                 </div>
               </div>
- 
+
+              {/* Right Side: Table of Usertype */}
               <div className="w-full lg:w-[70%] p-4 overflow-auto">
                 <h2 className="text-xl font-semibold mb-4">List of UserType</h2>
                 <div style={{ maxHeight: '70vh', overflowY: 'auto' }}>
