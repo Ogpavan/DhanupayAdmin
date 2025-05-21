@@ -54,6 +54,7 @@ import PanDetails from "./auth/RegisterRetailer/PanDetails.jsx";
 import VideoKYC from "./auth/RegisterRetailer/VideoKYC.jsx";
 import BusinessDetails from "./auth/RegisterRetailer/BusinessDetails.jsx";
 import ServicesPage from "./AdminPages/ServicePage.jsx";
+// import AssignServices from "./AdminPages/AssignServices.jsx";
 
 function App() {
   return (
@@ -83,6 +84,7 @@ function App() {
           <Route path="/pan-details" element={<PanDetails />} />
           <Route path="/video-kyc" element={<VideoKYC />} />
 
+
           <Route
             path="/admin"
             element={
@@ -109,6 +111,7 @@ function App() {
             <Route path="servicepage" element={<ServicesPage />} />
             <Route path="loadwallet" element={<LoadWallet />} />
             <Route path="registrationmodal" element={<RegistrationModal />} />
+            {/* <Route path="assignservices" element={<AssignServices />} /> */}
             <Route
               path="employeeregistration"
               element={<EmployeeRegistration />}

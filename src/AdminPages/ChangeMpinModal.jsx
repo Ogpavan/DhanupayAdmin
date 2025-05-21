@@ -1,179 +1,159 @@
-// ChangeMpinModal.js
-import React, { useState, useRef } from "react";
+import React, { useRef, useState } from "react";
+import { Eye, EyeSlash, Lock } from "phosphor-react";
 import Swal from "sweetalert2";
+import Cookies from "js-cookie";
 
-const ChangeMpinModal = ({ onClose }) => {
+export default function ChangeMpinModal({ onClose }) {
   const [oldMpin, setOldMpin] = useState(["", "", "", ""]);
   const [newMpin, setNewMpin] = useState(["", "", "", ""]);
   const [confirmMpin, setConfirmMpin] = useState(["", "", "", ""]);
-  const [mpinError, setMpinError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [show, setShow] = useState(false);
+  const [error, setError] = useState("");
 
-  const oldMpinRefs = useRef([]);
-  const newMpinRefs = useRef([]);
-  const confirmMpinRefs = useRef([]);
+  const oldRefs = useRef([]);
+  const newRefs = useRef([]);
+  const confirmRefs = useRef([]);
 
-  const handleOtpChange = (e, index, type) => {
-    const value = e.target.value.replace(/\D/g, ""); // only digits
-    const stateMap = {
-      old: [oldMpin, setOldMpin, oldMpinRefs],
-      new: [newMpin, setNewMpin, newMpinRefs],
-      confirm: [confirmMpin, setConfirmMpin, confirmMpinRefs],
-    };
+  const userId = Cookies.get("UserId");
+  const token = Cookies.get("token");
+// Check if all MPIN fields are filled
+const isFormComplete = [...oldMpin, ...newMpin, ...confirmMpin].every((val) => val !== "");
 
-    const [state, setState, refs] = stateMap[type];
-    const updated = [...state];
-    updated[index] = value;
-    setState(updated);
-
-    if (index < 3 && refs.current[index + 1]) {
-      refs.current[index + 1].focus();
+  const handleInput = (index, value, setter, state, refs) => {
+    if (/^\d?$/.test(value)) {
+      const updated = [...state];
+      updated[index] = value;
+      setter(updated);
+      setError("");
+      if (value && index < 3) refs.current[index + 1]?.focus();
     }
   };
 
-  const handleOtpKeyDown = (e, index, type) => {
-    const refs =
-      type === "old" ? oldMpinRefs.current :
-      type === "new" ? newMpinRefs.current :
-      confirmMpinRefs.current;
-
-    if (e.key === "Backspace" && !e.target.value && index > 0) {
-      refs[index - 1].focus();
-    }
-
-    if (!/^[0-9]$/.test(e.key) && e.key !== "Backspace" && e.key !== "Tab") {
-      e.preventDefault();
+  const handleKeyDown = (e, index, setter, state, refs) => {
+    if (e.key === "Backspace" && !state[index] && index > 0) {
+      const updated = [...state];
+      updated[index - 1] = "";
+      setter(updated);
+      refs.current[index - 1]?.focus();
     }
   };
 
-  const handleMpinChange = () => {
-    const oldPin = oldMpin.join("");
-    const newPin = newMpin.join("");
-    const confirmPin = confirmMpin.join("");
+  const getValue = (arr) => arr.join("");
 
-    // Validation
-    if (oldPin.length !== 4 || newPin.length !== 4 || confirmPin.length !== 4) {
-      setMpinError("All MPIN fields must be 4 digits.");
+  const renderInputGroup = (state, setter, refs) => (
+    <div className="flex gap-3 justify-center">
+      {state.map((val, i) => (
+        <input
+          key={i}
+          ref={(el) => (refs.current[i] = el)}
+          type={show ? "text" : "password"}
+          value={val}
+          maxLength={1}
+          onChange={(e) => handleInput(i, e.target.value, setter, state, refs)}
+          onKeyDown={(e) => handleKeyDown(e, i, setter, state, refs)}
+          className="w-12 h-12 text-center border border-gray-300 rounded-md text-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        />
+      ))}
+    </div>
+  );
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (getValue(newMpin) !== getValue(confirmMpin)) {
+      setError("New MPIN and Confirm MPIN do not match.");
       return;
     }
 
-    if (!/^\d{4}$/.test(newPin) || !/^\d{4}$/.test(confirmPin)) {
-      setMpinError("MPIN must contain only digits.");
+    if (!userId || !token) {
+      Swal.fire("Error", "User not logged in or token missing.", "error");
       return;
     }
 
-    if (newPin !== confirmPin) {
-      setMpinError("New MPIN and Confirm MPIN do not match.");
-      return;
+    try {
+      const response = await fetch("https://gateway.dhanushop.com/api/users/Change_mpin", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          UserId: userId,
+          MPin: getValue(oldMpin),
+          NewMPin: getValue(newMpin),
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        Swal.fire("Success", data.message || "MPIN changed successfully.", "success").then(onClose);
+      } else {
+        Swal.fire("Failed", data.message || "Something went wrong.", "error");
+      }
+    } catch (error) {
+      console.error("Change MPIN error:", error);
+      Swal.fire("Error", "Network error or server issue.", "error");
     }
-
-    // Clear error and show loading
-    setMpinError("");
-    setLoading(true);
-
-    setTimeout(() => {
-      setLoading(false);
-      setOldMpin(["", "", "", ""]);
-      setNewMpin(["", "", "", ""]);
-      setConfirmMpin(["", "", "", ""]);
-      onClose();
-      Swal.fire("Success", "MPIN updated successfully", "success");
-    }, 1500);
   };
 
   return (
-    <div className="fixed inset-0 bg-gray-500 bg-opacity-50 z-50 flex justify-center items-center">
-      <div className="bg-white p-6 rounded-lg w-full sm:w-96 shadow-lg">
+    <div className="fixed inset-0 z-50 flex justify-center items-center bg-gray-500 bg-opacity-50">
+      <div className="bg-white rounded-lg p-8 w-96">
         <h2 className="text-xl font-semibold mb-4">Change MPIN</h2>
-
-        <div className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
           {/* Old MPIN */}
           <div>
-            <label className="block mb-1 font-medium">Old MPIN</label>
-            <div className="flex gap-2 justify-center">
-              {oldMpin.map((value, index) => (
-                <input
-                  key={index}
-                  type="password"
-                  inputMode="numeric"
-                  maxLength={1}
-                  className="w-12 h-12 text-center border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 outline-none caret-transparent"
-                  value={value}
-                  onChange={(e) => handleOtpChange(e, index, "old")}
-                  onFocus={(e) => e.target.select()}
-                  onKeyDown={(e) => handleOtpKeyDown(e, index, "old")}
-                  ref={(el) => (oldMpinRefs.current[index] = el)}
-                />
-              ))}
-            </div>
+            <label className="block text-sm mb-1 font-medium">Old MPIN</label>
+            {renderInputGroup(oldMpin, setOldMpin, oldRefs)}
           </div>
 
           {/* New MPIN */}
           <div>
-            <label className="block mb-1 font-medium">New MPIN</label>
-            <div className="flex gap-2 justify-center">
-              {newMpin.map((value, index) => (
-                <input
-                  key={index}
-                  type="password"
-                  inputMode="numeric"
-                  maxLength={1}
-                  className="w-12 h-12 text-center border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 outline-none caret-transparent"
-                  value={value}
-                  onChange={(e) => handleOtpChange(e, index, "new")}
-                  onFocus={(e) => e.target.select()}
-                  onKeyDown={(e) => handleOtpKeyDown(e, index, "new")}
-                  ref={(el) => (newMpinRefs.current[index] = el)}
-                />
-              ))}
-            </div>
+            <label className="block text-sm mb-1 font-medium">New MPIN</label>
+            {renderInputGroup(newMpin, setNewMpin, newRefs)}
           </div>
 
           {/* Confirm MPIN */}
           <div>
-            <label className="block mb-1 font-medium">Confirm MPIN</label>
-            <div className="flex gap-2 justify-center">
-              {confirmMpin.map((value, index) => (
-                <input
-                  key={index}
-                  type="password"
-                  inputMode="numeric"
-                  maxLength={1}
-                  className="w-12 h-12 text-center border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 outline-none caret-transparent"
-                  value={value}
-                  onChange={(e) => handleOtpChange(e, index, "confirm")}
-                  onFocus={(e) => e.target.select()}
-                  onKeyDown={(e) => handleOtpKeyDown(e, index, "confirm")}
-                  ref={(el) => (confirmMpinRefs.current[index] = el)}
-                />
-              ))}
-            </div>
-            {mpinError && (
-              <p className="text-red-500 text-sm mt-2">{mpinError}</p>
-            )}
+            <label className="block text-sm mb-1 font-medium">Confirm MPIN</label>
+            {renderInputGroup(confirmMpin, setConfirmMpin, confirmRefs)}
           </div>
-        </div>
 
-        <div className="flex justify-end gap-4 mt-6">
+          {/* Toggle visibility */}
+          <div className="flex items-center text-sm text-gray-600 gap-2">
+            <button type="button" onClick={() => setShow(!show)} className="flex items-center gap-1">
+              {show ? <EyeSlash size={18} /> : <Eye size={18} />}
+              {show ? "Hide MPIN" : "Show MPIN"}
+            </button>
+          </div>
+
+          {/* Error */}
+          {error && (
+            <p className="text-red-500 text-sm mt-1">{error}</p>
+          )}
+
+          {/* Buttons */}
+          <div className="flex justify-between mt-4">
+            <button
+              type="button"
+              className="text-gray-500"
+              onClick={onClose}
+            >
+              Cancel
+            </button>
           <button
-            onClick={onClose}
-            className="text-gray-600 hover:text-gray-800"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleMpinChange}
-            disabled={loading}
-            className={`${
-              loading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
-            } text-white px-4 py-2 rounded-md transition`}
-          >
-            {loading ? "Updating..." : "Update MPIN"}
-          </button>
-        </div>
+  type="submit"
+  disabled={!isFormComplete}
+  className={`px-4 py-2 rounded-md text-white 
+    ${isFormComplete ? "bg-indigo-600 hover:bg-indigo-700" : "bg-gray-400 cursor-not-allowed"}`}
+>
+  Change MPIN
+</button>
+
+          </div>
+        </form>
       </div>
     </div>
   );
-};
-
-export default ChangeMpinModal;
+}

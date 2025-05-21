@@ -109,6 +109,11 @@ export default function AdminLoginPage() {
           sameSite: "Strict",
           expires: 1,
         });
+        Cookies.set("AgentId", data.AgentId, {
+          secure: true,
+          sameSite: "Strict",
+          expires: 1,
+        });
 
         if (data?.IsMPINSet === "0") {
           navigate("/setup-mpin", {
@@ -182,6 +187,11 @@ export default function AdminLoginPage() {
                     sameSite: "Strict",
                     expires: 1,
                   });
+                  Cookies.set("AgentId", seconddata.AgentId, {
+                    secure: true,
+                    sameSite: "Strict",
+                    expires: 1,
+                  })
 
                   if (seconddata?.IsMPINSet === "0") {
                     navigate("/setup-mpin", {

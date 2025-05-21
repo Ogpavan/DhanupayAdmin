@@ -91,10 +91,10 @@ export default function Sidebar() {
     { to: "/admin/profile", label: "My Profile", icon: <UserCircleGear size={24} weight="fill" /> },
     { to: "/admin/registration", label: "Manage Users", icon: <Users size={24} weight="fill" /> },
     { to: "/admin/settings", label: "Basic Settings", icon: <Gear size={24} weight="fill" /> },
-    { to: "/admin/commission", label: "Commission", icon: <Gear size={24} weight="fill" /> },
+    // { to: "/admin/commission", label: "Commission", icon: <Gear size={24} weight="fill" /> },
     { to: "/admin/employeemaster", label: "Employee Master", icon: <Gear size={24} weight="fill" /> },
     { to: "/admin/fundtransfer", label: "Fund Transfer", icon: <Gear size={24} weight="fill" /> },
-    { to: "/admin/ChangePassword", label: "Change Password", icon: <Gear size={24} weight="fill" /> },
+    // { to: "/admin/ChangePassword", label: "Change Password", icon: <Gear size={24} weight="fill" /> },
     { to: "/admin/ServiceMaster", label: "Service Master", icon: <Gear size={24} weight="fill" /> },
   ];
 
@@ -120,7 +120,7 @@ export default function Sidebar() {
     { to: "/user/registration", label: "Registration", icon: <Users size={24} weight="fill" /> },
     { to: "/user/reports", label: "Reports", icon: <Notepad size={24} weight="fill" /> },
     { to: "/user/settings", label: "Basic Settings", icon: <Gear size={24} weight="fill" /> },
-    { to: "/user/commission", label: "Commission", icon: <Gear size={24} weight="fill" /> },
+    // { to: "/user/commission", label: "Commission", icon: <Gear size={24} weight="fill" /> },
     { to: "/user/financials", label: "Financial", icon: <Gear size={24} weight="fill" /> },
     { to: "/user/wallet", label: "Wallet", icon: <Gear size={24} weight="fill" /> },
   ];

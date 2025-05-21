@@ -4,7 +4,7 @@ import KycDetailsModal from "./KycDetailsModal";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Cookies from "js-cookie";
-
+import AssignServicesModal from "../AssignServicesModal";
 const UserSummaryTable = () => {
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -13,6 +13,9 @@ const UserSummaryTable = () => {
   const [loading, setLoading] = useState(true);
   const [statusLoadingIds, setStatusLoadingIds] = useState([]);
   const [statusMessages, setStatusMessages] = useState({});
+const [showAssignModal, setShowAssignModal] = useState(false);
+const [assignUser, setAssignUser] = useState(null);
+
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -69,6 +72,12 @@ const UserSummaryTable = () => {
     setSelectedUser(user);
     setShowKycModal(true);
   };
+
+  const handleAssignServices = (user) => {
+  setAssignUser(user);
+  setShowAssignModal(true);
+};
+
 
   const handleStatusChange = async (user, newStatus) => {
     if (!token || !userId) {
@@ -174,18 +183,20 @@ const UserSummaryTable = () => {
         </button>
       </div>
 
-      <table className="min-w-full border border-gray-300 text-sm text-center">
+
+      <table className=" border border-gray-300 text-sm text-center">
         <thead className="bg-gray-100">
           <tr>
             <th className="px-4 py-2 border">User Type</th>
             <th className="px-4 py-2 border">First Name</th>
             <th className="px-4 py-2 border">Last Name</th>
             <th className="px-4 py-2 border">Mobile</th>
-            <th className="px-4 py-2 border">Email</th>
+            {/* <th className="px-4 py-2 border">Email</th> */}
             <th className="px-4 py-2 border">KYC</th>
             <th className="px-4 py-2 border">eSign</th>
             <th className="px-4 py-2 border">User Status</th>
             <th className="px-4 py-2 border">Login Status</th>
+            <th className ="px-4 py-2 border">Assign Services</th>
             <th className="px-4 py-2 border">Actions</th>
           </tr>
         </thead>
@@ -201,7 +212,7 @@ const UserSummaryTable = () => {
                 <td className="px-4 py-2 border">{user.FirstName}</td>
                 <td className="px-4 py-2 border">{user.LastName}</td>
                 <td className="px-4 py-2 border">{user.MobileNumber}</td>
-                <td className="px-4 py-2 border">{user.Email}</td>
+                {/* <td className="px-4 py-2 border">{user.Email}</td> */}
                 <td className="px-4 py-2 border">
                   <button
                     onClick={() => handleViewKyc(user)}
@@ -251,7 +262,16 @@ const UserSummaryTable = () => {
                 >
                   {user.LoginStatus.toLowerCase()}
                 </td>
+<td className="px-4 py-2 border">
+  <button
+    onClick={() => handleAssignServices(user)}
+    className="text-indigo-600 hover:underline"
+  >
+    Assign
+  </button>
+</td>
 
+                  
                 <td className="px-4 py-2 border">
                   <button
                     onClick={() => handleViewDetails(user)}
@@ -321,6 +341,21 @@ const UserSummaryTable = () => {
           }}
         />
       )}
+
+    {showAssignModal && assignUser && (
+  <AssignServicesModal
+    user={assignUser}
+    onClose={() => {
+      setShowAssignModal(false);
+      setAssignUser(null);
+    }}
+    onSuccess={() => {
+      // Optionally refetch users or show a toast
+    }}
+  />
+)}
+
+
     </div>
   );
 };

@@ -14,7 +14,7 @@ export default function Navbar() {
   ]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [adminBalance, setAdminBalance] = useState(3000);
-
+ const UserTypeName = Cookies.get("UserTypeName");
   // const fetchAdminBalance = async () => {
   //   if (!token) return;
   //   try {
@@ -46,6 +46,7 @@ const AgentId = Cookies.get("AgentId") || "";
   const handleLogout = async () => {
     const userId = Cookies.get("UserId");
     const token = Cookies.get("token");
+   
 
     if (!userId || !token) {
       Swal.fire({
@@ -96,6 +97,7 @@ const AgentId = Cookies.get("AgentId") || "";
             Cookies.remove("loginid");
             Cookies.remove("newUserId");
             Cookies.remove("role");
+            Cookies.remove("AgentId");
             localStorage.clear();
 
             // Navigate based on UserTypeId from response
@@ -145,7 +147,11 @@ const AgentId = Cookies.get("AgentId") || "";
         </div> */}
 <div className="flex flex-col items-end  text-white">
   <span className="font-semibold">{UserName}</span>
-  <span className="text-xs">Agent ID: {AgentId}</span>
+ <span className="text-xs">
+  {UserTypeName === "Employee"
+    ? `Employee ID: ${AgentId}`
+    : `Agent ID: ${AgentId}`}
+</span>
 </div>
 
         <p className="flex flex-col">

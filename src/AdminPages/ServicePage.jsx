@@ -288,65 +288,86 @@
 
 // export default ServicePage;
 
-
-import React, { useState, useEffect } from 'react';
-import Cookies from 'js-cookie';
-import Swal from 'sweetalert2';
+import React, { useState, useEffect } from "react";
+import Cookies from "js-cookie";
+import Swal from "sweetalert2";
 
 const ServicesPage = () => {
   const [services, setServices] = useState([]);
   const [categories, setCategories] = useState([]);
   const [formData, setFormData] = useState({
-    Action: '1',
-    ServiceID: '',
-    CategoryID: '',
-    ServiceName: '',
-    StatusChangeRemark: '',
-    CreatedBy: ''
+    Action: "insert",
+    ServiceID: "",
+    CategoryID: "",
+    ServiceName: "",
+    StatusChangeRemark: "",
+    CreatedBy: "",
   });
-  const [modalType, setModalType] = useState(null); // 'add' or 'update'
+  const [modalType, setModalType] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
-  const token = Cookies.get('token');
-  const userid = Cookies.get('UserId');
+  const token = Cookies.get("token");
+  const userid = Cookies.get("UserId");
 
   useEffect(() => {
-    setFormData((prev) => ({ ...prev, CreatedBy: userid }));
+    if (userid) {
+      setFormData((prev) => ({ ...prev, CreatedBy: userid }));
+    }
     fetchServices();
     fetchCategories();
-  }, []);
+  }, [userid]);
 
   const fetchServices = async () => {
     try {
-      const response = await fetch('https://gateway.dhanushop.com/api/Service/Services', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ Action: 'select' })
-      });
+      console.log(token);
+      const response = await fetch(
+        "https://gateway.dhanushop.com/api/Service/Services",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            Action: "select",
+            ServiceID: " ",
+            CategoryID: " ",
+            ServiceName: " ",
+            StatusChangeRemark: " ",
+            CreatedBy: "",
+          }),
+        }
+      );
       const data = await response.json();
       setServices(Array.isArray(data) ? data : []);
     } catch (error) {
-      console.error('Error fetching services:', error);
+      console.error("Fetch services error:", error);
     }
   };
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch('https://gateway.dhanushop.com/api/Service/Servicecategory', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ Action: 'select', CategoryID: '', CategoryName: 'BBPS', CreatedBy: userid })
-      });
+      const response = await fetch(
+        "https://gateway.dhanushop.com/api/Service/Servicecategory",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            Action: "select",
+            CategoryID: "2",
+            CategoryName: "BBPS",
+            StatusChangeRemark: "Testing",
+            CreatedBy: "2",
+          }),
+        }
+      );
       const data = await response.json();
       setCategories(Array.isArray(data) ? data : []);
     } catch (error) {
-      console.error('Error fetching categories:', error);
+      console.error("Fetch categories error:", error);
     }
   };
 
@@ -357,85 +378,95 @@ const ServicesPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.ServiceName || !formData.CategoryID) {
-      return Swal.fire('Error', 'Please fill all required fields.', 'error');
+      return Swal.fire("Error", "Please fill all required fields.", "error");
     }
 
-    const action = modalType === 'add' ? 'insert' : 'update';
+ 
 
     try {
-      const response = await fetch('https://gateway.dhanushop.com/api/Service/Services', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ ...formData, Action: action, CreatedBy: userid })
-      });
+      const response = await fetch(
+        "https://gateway.dhanushop.com/api/Service/Services",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            ...formData,
+            Action: "insert",
+            CreatedBy: userid,
+          }),
+        }
+      );
       const result = await response.json();
-      Swal.fire('Success', result.message || 'Operation successful', 'success');
+      Swal.fire("Success", result.message || "Operation successful", "success");
       fetchServices();
       closeModal();
     } catch (error) {
-      console.error('Error submitting form:', error);
-      Swal.fire('Error', 'Operation failed.', 'error');
+      console.error("Submit error:", error);
+      Swal.fire("Error", "Operation failed.", "error");
     }
   };
 
   const handleDelete = async (service) => {
     const result = await Swal.fire({
       title: `Delete "${service.ServiceName}"?`,
-      text: 'This action cannot be undone.',
-      icon: 'warning',
+      text: "This action cannot be undone.",
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
-      confirmButtonText: 'Yes, delete it!'
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
     });
 
     if (result.isConfirmed) {
       try {
-        const response = await fetch('https://gateway.dhanushop.com/api/Service/Services', {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            Action: 'delete',
-            ServiceID: service.ServiceID,
-            CategoryID: service.CategoryID,
-            StatusChangeRemark: 'Deleted',
-            CreatedBy: userid
-          })
-        });
+        const response = await fetch(
+          "https://gateway.dhanushop.com/api/Service/Services",
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              Action: "delete",
+              ServiceID: service.ServiceID,
+              CategoryID: service.CategoryID,
+              StatusChangeRemark: "Deleted",
+              CreatedBy: userid,
+            }),
+          }
+        );
         const result = await response.json();
-        Swal.fire('Deleted!', result.message || 'Service deleted.', 'success');
+        Swal.fire("Deleted!", result.message || "Service deleted.", "success");
         fetchServices();
       } catch (error) {
-        console.error('Delete error:', error);
-        Swal.fire('Error', 'Failed to delete service.', 'error');
+        console.error("Delete error:", error);
+        Swal.fire("Error", "Failed to delete service.", "error");
       }
     }
   };
 
   const openModal = (type, service = null) => {
-    if (type === 'update' && service) {
+    if (type === "update" && service) {
       setFormData({
-        Action: '2',
+        Action: "update",
         ServiceID: service.ServiceID,
         CategoryID: service.CategoryID,
         ServiceName: service.ServiceName,
-        StatusChangeRemark: service.StatusChangeRemark || '',
-        CreatedBy: userid
+        StatusChangeRemark: "",
+        CreatedBy: userid,
       });
     } else {
       setFormData({
-        Action: '1',
-        ServiceID: '',
-        CategoryID: '',
-        ServiceName: '',
-        StatusChangeRemark: '',
-        CreatedBy: userid
+        Action: "insert",
+        ServiceID: "",
+        CategoryID: "",
+        ServiceName: "",
+        StatusChangeRemark: "",
+        CreatedBy: userid,
       });
     }
     setModalType(type);
@@ -451,7 +482,10 @@ const ServicesPage = () => {
     <div className="p-6 max-w-7xl mx-auto">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">Services</h1>
-        <button onClick={() => openModal('add')} className="bg-green-600 text-white px-4 py-2 rounded">
+        <button
+          onClick={() => openModal("add")}
+          className="bg-green-600 text-white px-4 py-2 rounded"
+        >
           Add Service
         </button>
       </div>
@@ -473,8 +507,18 @@ const ServicesPage = () => {
                 <td className="border p-2">{srv.ServiceName}</td>
                 <td className="border p-2">{srv.CategoryID}</td>
                 <td className="border p-2 space-x-2">
-                  <button onClick={() => openModal('update', srv)} className="text-blue-500">Edit</button>
-                  <button onClick={() => handleDelete(srv)} className="text-red-600">Delete</button>
+                  <button
+                    onClick={() => openModal("update", srv)}
+                    className="text-blue-500"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(srv)}
+                    className="text-red-600"
+                  >
+                    Delete
+                  </button>
                 </td>
               </tr>
             ))}
@@ -486,7 +530,7 @@ const ServicesPage = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white p-6 rounded shadow w-full max-w-md">
             <h2 className="text-xl font-bold mb-4">
-              {modalType === 'add' ? 'Add Service' : 'Update Service'}
+              {modalType === "add" ? "Add Service" : "Update Service"}
             </h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
@@ -518,11 +562,18 @@ const ServicesPage = () => {
                 </select>
               </div>
               <div className="flex justify-end space-x-2">
-                <button type="button" onClick={closeModal} className="bg-gray-400 text-white px-4 py-2 rounded">
+                <button
+                  type="button"
+                  onClick={closeModal}
+                  className="bg-gray-400 text-white px-4 py-2 rounded"
+                >
                   Cancel
                 </button>
-                <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">
-                  {modalType === 'add' ? 'Add' : 'Update'}
+                <button
+                  type="submit"
+                  className="bg-blue-600 text-white px-4 py-2 rounded"
+                >
+                  {modalType === "add" ? "Add" : "Update"}
                 </button>
               </div>
             </form>
@@ -534,4 +585,3 @@ const ServicesPage = () => {
 };
 
 export default ServicesPage;
-
