@@ -174,6 +174,7 @@ const KycDetailsModal = ({ formData = {}, onClose }) => {
     }
 
     try {
+      console.log(userId,formData.NewUserID,type,status)
       const response = await axios.post(
         `${BASE_URL}/api/users/VerifyDocument`,
         {

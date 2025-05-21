@@ -53,6 +53,7 @@ import AadhaarDetails from "./auth/RegisterRetailer/AadhaarDetails.jsx";
 import PanDetails from "./auth/RegisterRetailer/PanDetails.jsx";
 import VideoKYC from "./auth/RegisterRetailer/VideoKYC.jsx";
 import BusinessDetails from "./auth/RegisterRetailer/BusinessDetails.jsx";
+import ServicesPage from "./AdminPages/ServicePage.jsx";
 
 function App() {
   return (
@@ -105,6 +106,7 @@ function App() {
               element={<UserTypeAndRoleManager />}
             />
             <Route path="ServiceMaster" element={<ServiceMaster />} />
+            <Route path="servicepage" element={<ServicesPage />} />
             <Route path="loadwallet" element={<LoadWallet />} />
             <Route path="registrationmodal" element={<RegistrationModal />} />
             <Route

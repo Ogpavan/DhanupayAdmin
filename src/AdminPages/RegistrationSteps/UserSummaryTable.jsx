@@ -97,6 +97,7 @@ const UserSummaryTable = () => {
       );
 
       if (response.data.success) {
+        console.log("Status updated successfully");
         setStatusMessages((msgs) => ({
           ...msgs,
           [newUserId]: "Status updated successfully",

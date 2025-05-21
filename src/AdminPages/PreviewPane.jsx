@@ -1,3 +1,7 @@
+import { useEffect, useState } from "react";
+import { fetchStatesList } from "../api/stateListApi";
+import { fetchCitiesByState } from "../api/CityListApi";
+
 function PreviewPane({
   formData,
   onClose,
@@ -5,11 +9,70 @@ function PreviewPane({
   agreeTerms,
   setAgreeTerms,
 }) {
-  // Check if user is white label
-  const isWhiteLabel = formData.userType === "2";
-  console.log("User Type:", formData);
+  const [stateList, setStateList] = useState([]);
+  const [resCityList, setResCityList] = useState([]);
+const [busCityList, setBusCityList] = useState([]);
 
-  // Main section data
+useEffect(() => {
+  const loadStates = async () => {
+    try {
+      const stateRes = await fetchStatesList();
+      const states = Array.isArray(stateRes) ? stateRes : stateRes?.data || [];
+      setStateList(states);
+    } catch (err) {
+      console.error("Error loading states:", err);
+    }
+  };
+
+  loadStates();
+}, []); // only once on mount
+
+useEffect(() => {
+  const loadResCities = async () => {
+    try {
+      if (formData.resState) {
+        const resCities = await fetchCitiesByState(formData.resState);
+        setResCityList(Array.isArray(resCities) ? resCities : resCities?.data || []);
+      }
+    } catch (err) {
+      console.error("Error loading residential cities:", err);
+    }
+  };
+
+  loadResCities();
+}, [formData.resState]);
+
+useEffect(() => {
+  const loadBusCities = async () => {
+    try {
+      if (formData.busState) {
+        const busCities = await fetchCitiesByState(formData.busState);
+        setBusCityList(Array.isArray(busCities) ? busCities : busCities?.data || []);
+      }
+    } catch (err) {
+      console.error("Error loading business cities:", err);
+    }
+  };
+
+  loadBusCities();
+}, [formData.busState]);
+
+  const getStateName = (id) => {
+    const state = stateList.find((s) => Number(s.StateId) === Number(id));
+    return state ? state.StateName : id;
+  };
+
+const getCityName = (id, cityList) => {
+  if (!id || !cityList.length) return "Loading...";
+  const city = cityList.find((c) => Number(c.CityId) === Number(id));
+  console.log(city);
+  return city ? city.CityName : `City ID: ${id}`;
+};
+
+
+
+  const isWhiteLabel = formData.userType === "2";
+
   const sections = {
     "Basic Details": [
       ["First Name", formData.firstName],
@@ -17,24 +80,25 @@ function PreviewPane({
       ["Mobile", formData.mobile],
       ["Alternate Mobile", formData.altMobile],
       ["Email", formData.email],
-      // ["User Type", formData.userType],
     ],
     "Residential Details": [
       ["House No", formData.resHouseNo],
       ["Area", formData.resArea],
       ["Landmark", formData.resLandmark],
-      ["City", formData.resCity],
-      ["State", formData.resState],
+      ["City", getCityName(formData.resCity, resCityList)],
+
+
+      ["State", getStateName(formData.resState)],
       ["Pincode", formData.resPincode],
     ],
     "Business Details": [
       ["Shop Name", formData.shopName],
       ["Shop Address", formData.shopAddress],
       ["Landmark", formData.busLandmark],
-      ["City", formData.busCity],
-      ["State", formData.busState],
+    ["City", getCityName(formData.busCity, busCityList)],
+      ["State", getStateName(formData.busState)],
       ["Pincode", formData.busPincode],
-      ...(isWhiteLabel ? [["Website URL", formData.websiteUrl]] : []), // conditional field
+      ...(isWhiteLabel ? [["Website URL", formData.websiteUrl]] : []),
     ],
     "Account Details": [
       ["Bank Name", formData.bankName],
@@ -51,7 +115,11 @@ function PreviewPane({
         <h2 className="text-xl font-bold mb-4">Preview</h2>
         <div className="max-h-96 overflow-y-auto border-t border-b border-gray-200 px-5 py-2 space-y-6">
           {Object.entries(sections)
-            .filter(([sectionTitle]) => !(sectionTitle === "Business Details" && formData.userType === "1"))
+            .filter(
+              ([sectionTitle]) =>
+                !(sectionTitle === "Business Details" &&
+                  formData.userType === "1")
+            )
             .map(([sectionTitle, fields]) => (
               <div key={sectionTitle}>
                 <h3 className="text-lg font-semibold mb-2">{sectionTitle}</h3>
@@ -123,7 +191,7 @@ function PreviewPane({
                 return;
               }
 
-              const success = await onSubmit(3); // final submission step
+              const success = await onSubmit(3);
               if (success) {
                 onClose();
               }

@@ -1,8 +1,9 @@
 // src/api/stateApi.js
+import Cookies from "js-cookie";
 
 export const fetchDepartmentList = async () => {
-    const token = localStorage.getItem("token");
-    const userId = localStorage.getItem("userId");
+    const token = Cookies.get("token");
+    const userId = Cookies.get("UserId");
   
     try {
       const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/department/list`, {
