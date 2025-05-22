@@ -14,7 +14,8 @@ const UserDetailsModal = ({ formData = {}, onClose }) => {
       <div>
         {url ? (
           <img
-            src={`https://gateway.dhanushop.com${url}`}
+            src={`${import.meta.env.VITE_BACKEND_URL}${url}`}
+            // src={`https://gateway.dhanushop.com${url}`}
             alt={label}
             className="max-h-20 rounded shadow"
           />
@@ -33,7 +34,7 @@ const UserDetailsModal = ({ formData = {}, onClose }) => {
           <video
             controls
             className="max-h-32 rounded shadow"
-            src={`https://gateway.dhanushop.com${url}`}
+            src={`${import.meta.env.VITE_BACKEND_URL}${url}`}
           />
         ) : (
           "—"

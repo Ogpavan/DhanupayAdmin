@@ -5,7 +5,7 @@ import Cookies from "js-cookie";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import KycToggle from "./KycToggle";
 
-const BASE_URL = "https://gateway.dhanushop.com";
+const BASE_URL = `${import.meta.env.VITE_BACKEND_URL}`;
 const API_UPLOAD_DOCS = `${BASE_URL}/api/users/uploadDocuments`;
 
 const userId = Cookies.get("UserId");

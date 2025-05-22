@@ -14,7 +14,7 @@ const UserDetailsModal = ({ formData = {}, onClose }) => {
       <div>
         {url ? (
           <img
-            src={`https://gateway.dhanushop.com${url}`}
+            src={`${import.meta.env.VITE_BACKEND_URL}${url}`}
             alt={label}
             className="max-h-20 rounded shadow"
           />

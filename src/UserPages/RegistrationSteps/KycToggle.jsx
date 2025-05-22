@@ -47,7 +47,7 @@ function KycToggle({ userId, token, NewUserId, initialKycStatus }) {
       const newStatus = checked ? "Approved" : "Pending ";
 
       const response = await axios.post(
-        "https://gateway.dhanushop.com/api/users/KYCStatusChange",
+        `${import.meta.env.VITE_BACKEND_URL}/api/users/KYCStatusChange`,
         {
           UserID: userId,
           NewUserId: NewUserId,
