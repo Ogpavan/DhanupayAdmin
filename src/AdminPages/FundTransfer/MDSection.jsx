@@ -268,7 +268,7 @@ if (transactionType=="Debit") {
                       setSelectedMasterDistributer(value);
 
                       const matchedUser = users.find(
-                        (user) => user.NewUserID?.toString() === value
+                        (user) => user.AgentId?.toString() === value
                       );
                       setSelectedUser(matchedUser || null);
                     }}
@@ -276,29 +276,30 @@ if (transactionType=="Debit") {
                     onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
                   />
 
-                  {selectedMasterDistributer.length > 0 && showDropdown && (
-                    <ul className="absolute z-10 w-full bg-white border border-gray-200 rounded-md shadow-lg max-h-48 overflow-y-auto">
-                      {users
-                        .filter((user) =>
-                          user.NewUserID?.toString().includes(selectedMasterDistributer)
-                        )
-                        .slice(0, 10)
-                        .map((user) => (
-                          <li
-                            key={user.NewUserID}
-                            className="px-4 py-2 hover:bg-indigo-100 cursor-pointer"
-                            onClick={() => {
-                              setSelectedMasterDistributer(user.NewUserID);
-                              setSelectedUser(user);
-                              setShowDropdown(false);
-                            }}
-                          >
-                            <span className="font-medium">{user.AgentId}</span> -{" "}
-                            {user.FirstName} {user.LastName}
-                          </li>
-                        ))}
-                    </ul>
-                  )}
+               {selectedMasterDistributer.length > 0 && showDropdown && (
+  <ul className="absolute z-10 w-full bg-white border border-gray-200 rounded-md shadow-lg max-h-48 overflow-y-auto">
+    {users
+      .filter((user) =>
+        user.AgentId?.toString().toLowerCase().includes(selectedMasterDistributer.toLowerCase())
+      )
+      .slice(0, 10)
+      .map((user) => (
+        <li
+          key={user.AgentId}
+          className="px-4 py-2 hover:bg-indigo-100 cursor-pointer"
+          onClick={() => {
+            setSelectedMasterDistributer(user.NewUserID);
+            setSelectedUser(user);
+            setShowDropdown(false);
+          }}
+        >
+          <span className="font-medium">{user.AgentId}</span> -{" "}
+          {user.FirstName} {user.LastName}
+        </li>
+      ))}
+  </ul>
+)}
+
                 </div>
 
                 {selectedUser && (
