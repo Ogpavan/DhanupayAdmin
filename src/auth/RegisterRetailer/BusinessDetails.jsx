@@ -522,7 +522,7 @@ const BusinessDetails = () => {
 
       Swal.fire("Success", "Business details submitted successfully!", "success");
       setbtnLoading(false);
-      navigate("/bank-detail");
+      navigate("/aadhaar-details");
     } catch (error) {
       console.error("API Error:", error);
       Swal.fire("Error", "Failed to submit business details.", "error");

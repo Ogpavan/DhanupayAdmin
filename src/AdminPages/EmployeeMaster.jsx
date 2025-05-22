@@ -181,7 +181,7 @@ const EmployeeMaster = () => {
             <th className="px-4 py-2 border">Mobile</th>
             <th className="px-4 py-2 border">Email</th>
             <th className="px-4 py-2 border">KYC</th>
-            <th className="px-4 py-2 border">eSign</th>
+            
             <th className="px-4 py-2 border">User Status</th>
             <th className="px-4 py-2 border">Login Status</th>
             <th className="px-4 py-2 border">Actions</th>
@@ -189,7 +189,7 @@ const EmployeeMaster = () => {
         </thead>
         <tbody>
           {currentUsers.map((user) => {
-            const isEsignVerified = user.IsEsignVerified === "True";
+             
             const userStatus = user.UserStatus || "Pending";
             const isLoading = statusLoadingIds.includes(user.NewUserID);
 
@@ -212,15 +212,7 @@ const EmployeeMaster = () => {
                     {user.KycStatus === "Approved" ? "Verified" : "Pending"}
                   </button>
                 </td>
-                  <td
-                  className={`px-4 py-2 border ${
-                    user.EsignStatus?.toLowerCase() === "verified"
-                      ? "text-green-600"
-                      : "text-yellow-600"
-                  }`}
-                >
-                  {user.EsignStatus}
-                </td>
+                 
                 <td className="px-4 py-2 border">
                   <select
                     disabled={isLoading}

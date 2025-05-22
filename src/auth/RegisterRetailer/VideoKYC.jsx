@@ -18,7 +18,10 @@ const VideoKYC = () => {
   const { combinedData } = location.state || {};
 
   // Store both file and preview URL
-  const [profilePhoto, setProfilePhoto] = useState({ file: null, preview: null });
+  const [profilePhoto, setProfilePhoto] = useState({
+    file: null,
+    preview: null,
+  });
   const [shopPhoto, setShopPhoto] = useState({ file: null, preview: null });
   const [kycVideo, setKycVideo] = useState({ file: null, preview: null });
 
@@ -34,7 +37,7 @@ const VideoKYC = () => {
     if (file) {
       const preview = URL.createObjectURL(file);
       setProfilePhoto({ file, preview });
-      setErrors(prev => ({ ...prev, profilePhoto: "" }));
+      setErrors((prev) => ({ ...prev, profilePhoto: "" }));
     }
   };
 
@@ -43,7 +46,7 @@ const VideoKYC = () => {
     if (file) {
       const preview = URL.createObjectURL(file);
       setShopPhoto({ file, preview });
-      setErrors(prev => ({ ...prev, shopPhoto: "" }));
+      setErrors((prev) => ({ ...prev, shopPhoto: "" }));
     }
   };
 
@@ -52,7 +55,7 @@ const VideoKYC = () => {
     if (file) {
       const preview = URL.createObjectURL(file);
       setKycVideo({ file, preview });
-      setErrors(prev => ({ ...prev, kycVideo: "" }));
+      setErrors((prev) => ({ ...prev, kycVideo: "" }));
     }
   };
 
@@ -123,7 +126,21 @@ const VideoKYC = () => {
       localStorage.setItem("finalKycData", JSON.stringify({ ...combinedData }));
       setbtnLoading(false);
       localStorage.clear();
-      Swal.fire("Success", "Registration Completed!", "success");
+      Swal.fire({
+        title: "Success",
+        text: "Registration Completed!",
+        icon: "success",
+        confirmButtonText: "OK",
+      }).then(() => {
+        Swal.fire({
+          title: "Thank You",
+          text: "Thank you for registration. We will get back to you in some time.",
+          icon: "info",
+          confirmButtonText: "OK",
+        }).then(() => {
+          navigate("/login");
+        });
+      });
     } catch (error) {
       console.error("API Error:", error);
       Swal.fire("Error", "Failed to submit Video KYC.", "error");
@@ -133,9 +150,10 @@ const VideoKYC = () => {
 
   return (
     <div className="font-poppins    max-w-xl mx-auto mt-10 w-full ">
-     
-
-      <div style={{ height: "calc(100vh - 15vh)" }} className="bg-white rounded-t-3xl px-4 py-6     -mt-6">
+      <div
+        style={{ height: "calc(100vh - 15vh)" }}
+        className="bg-white rounded-t-3xl px-4 py-6     -mt-6"
+      >
         <Stepper currentStep={6} />
 
         <h1 className="poppins-semibold text-[#121649] text-center py-4">
@@ -171,7 +189,9 @@ const VideoKYC = () => {
                 />
               </div>
               {errors.profilePhoto && (
-                <p className="text-red-600 text-xs mt-1">{errors.profilePhoto}</p>
+                <p className="text-red-600 text-xs mt-1">
+                  {errors.profilePhoto}
+                </p>
               )}
             </div>
 
@@ -209,7 +229,8 @@ const VideoKYC = () => {
 
           <div>
             <label className="block text-[#2C2DCB] text-sm font-semibold mb-2">
-              Upload KYC Video (Max 30 seconds) <span className="text-red-600">*</span>
+              Upload KYC Video (Max 30 seconds){" "}
+              <span className="text-red-600">*</span>
             </label>
             <div className="relative w-full h-40 bg-gray-100 rounded-xl overflow-hidden cursor-pointer">
               {kycVideo.preview ? (
