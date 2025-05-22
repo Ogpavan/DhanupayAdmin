@@ -43,7 +43,7 @@ const ManageRole = () => {
         title: 'Error',
         text: 'Failed to load data. Please try again.',
         toast: true,
-        position: 'top-end',
+        position: 'center',
         showConfirmButton: false,
         timer: 3000
       });
@@ -93,7 +93,7 @@ const ManageRole = () => {
           title: 'Success!',
           text: result.message || 'Role created successfully',
           toast: true,
-          position: 'top-end',
+          position: 'center',
           showConfirmButton: false,
           timer: 3000
         });
@@ -173,7 +173,7 @@ const ManageRole = () => {
           title: 'Updated!',
           text: result.message || 'Role updated successfully',
           toast: true,
-          position: 'top-end',
+          position: 'center',
           showConfirmButton: false,
           timer: 3000
         });
@@ -225,7 +225,7 @@ const ManageRole = () => {
           title: 'Deleted!',
           text: 'Role deleted successfully',
           toast: true,
-          position: 'top-end',
+          position: 'center',
           showConfirmButton: false,
           timer: 3000
         });

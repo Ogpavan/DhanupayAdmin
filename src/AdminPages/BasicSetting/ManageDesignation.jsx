@@ -43,17 +43,42 @@ const ManageDesignation = () => {
 
   const handleEdit = async (designation) => {
     const { value: form } = await Swal.fire({
-      title: 'Edit Designation',
-      html: `
-        <input id="name" class="swal2-input" value="${designation.DesignationName}">
-        <input id="desc" class="swal2-input" value="${designation.DesignationDescription}">
-      `,
-      preConfirm: () => ({
-        desingnationName: document.getElementById('name').value,
-        desingnationDescription: document.getElementById('desc').value,
-      }),
-      showCancelButton: true,
-    });
+  title: 'Edit Designation',
+  html: `
+    <input id="name" class="swal2-input" placeholder="Designation Name" value="${designation.DesignationName || ''}" maxlength="50">
+    <input id="desc" class="swal2-input" placeholder="Description" value="${designation.DesignationDescription || ''}" maxlength="200">
+  `,
+  showCancelButton: true,
+  focusConfirm: false,
+  preConfirm: () => {
+    const name = document.getElementById('name').value.trim();
+    const desc = document.getElementById('desc').value.trim();
+
+    // Validations
+    if (!name) {
+      Swal.showValidationMessage('Designation name is required');
+      return false;
+    }
+    if (!/^[a-zA-Z]+$/.test(name)) {
+      Swal.showValidationMessage('Designation name must contain only alphabets (A–Z, a–z)');
+      return false;
+    }
+    if (name.length > 50) {
+      Swal.showValidationMessage('Designation name must be 50 characters or fewer');
+      return false;
+    }
+    if (desc.length > 200) {
+      Swal.showValidationMessage('Description must be 200 characters or fewer');
+      return false;
+    }
+
+    return {
+      desingnationName: name,
+      desingnationDescription: desc,
+    };
+  }
+});
+
 
     if (form) {
       await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/desingnation/update`, {
@@ -97,6 +122,7 @@ const ManageDesignation = () => {
             value={designationName}
             onChange={(e) => setDesignationName(e.target.value)}
             placeholder="e.g., Manager, Assistant, Executive"
+             maxLength={50}
           />
 
           <label className="block text-sm font-medium mb-1">Description</label>
