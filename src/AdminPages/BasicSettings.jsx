@@ -893,39 +893,10 @@ function BasicSettings() {
     Swal.fire('Error', 'API Under Development', 'error'); 
     setLoading(false);
 
-
-    // Implement API call to delete state
-    // try {
-    //   const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/UserType/delete`, {
-    //     method: 'POST',
-    //     headers: {
-    //       'Authorization': `Bearer ${token}`,
-    //       'Content-Type': 'application/json'
-    //     },
-
-    //     body: JSON.stringify({
-    //       userId: parseInt(userId),
-    //       DepartmentID: parseInt(UserTypeID)
-    //     })
-    //   });
-    //   const result = await response.json();
-    //   console.log(result)
-    //   if (response.ok && result.success) {
-    //     setLoading(false);
-    //     Swal.fire('Success!', result.message, 'success');
-    //   } else {
-    //     setLoading(false);
-    //     Swal.fire('Error', result.message || 'Failed to delete UserType.', 'error');
-    //   }
-
-    // } catch (error) {
-    //   setLoading(false);
-    //   console.error('Error deleting state:', error);
-    //   Swal.fire('Error', 'An error occurred while deleting the UserType', 'error');
-    // }
+ 
   };
 
-  //************************************************************************************* */  
+ 
   // handle USERtYPE CRUD Operation end
 
 

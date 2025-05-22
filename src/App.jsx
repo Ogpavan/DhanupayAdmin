@@ -54,6 +54,7 @@ import PanDetails from "./auth/RegisterRetailer/PanDetails.jsx";
 import VideoKYC from "./auth/RegisterRetailer/VideoKYC.jsx";
 import BusinessDetails from "./auth/RegisterRetailer/BusinessDetails.jsx";
 import ServicesPage from "./AdminPages/ServicePage.jsx";
+import PageMasterManager from "./AdminPages/PageMasterManager.jsx";
 // import AssignServices from "./AdminPages/AssignServices.jsx";
 
 function App() {
@@ -116,6 +117,7 @@ function App() {
               path="employeeregistration"
               element={<EmployeeRegistration />}
             />
+            <Route path="pagemastermanager" element={<PageMasterManager />} />
           </Route>
 
           <Route

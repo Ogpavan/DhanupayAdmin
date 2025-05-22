@@ -96,6 +96,7 @@ export default function Sidebar() {
     { to: "/admin/fundtransfer", label: "Fund Transfer", icon: <Gear size={24} weight="fill" /> },
     // { to: "/admin/ChangePassword", label: "Change Password", icon: <Gear size={24} weight="fill" /> },
     { to: "/admin/ServiceMaster", label: "Service Master", icon: <Gear size={24} weight="fill" /> },
+    { to: "/admin/pagemastermanager", label: "Page Master", icon: <Gear size={24} weight="fill" /> },
   ];
 
   const usersidebarLinks = [
