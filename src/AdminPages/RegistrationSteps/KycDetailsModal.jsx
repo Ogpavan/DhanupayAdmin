@@ -5,7 +5,7 @@ import Cookies from "js-cookie";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import KycToggle from "./KycToggle";
 
-const BASE_URL = '${import.meta.env.VITE_BACKEND_URL}';
+const BASE_URL = `${import.meta.env.VITE_BACKEND_URL}`;
 const API_UPLOAD_DOCS = `${BASE_URL}/api/users/uploadDocuments`;
 
 const userId = Cookies.get("UserId");
@@ -50,7 +50,7 @@ const KycDetailsModal = ({ formData = {}, onClose }) => {
     try {
       const res = await axios.post(
         `${BASE_URL}/api/users/GetAllDocumentsbyUser`,
-        { UserID: formData.NewUserID },
+        { UserID:  userId,NewUserId: formData.NewUserID },
         {
           headers: { Authorization: `Bearer ${token}` },
         }
