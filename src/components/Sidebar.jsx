@@ -32,7 +32,7 @@
 //     { to: "/user/commission", label: "Commission", icon: <Gear size={24} weight="fill" /> },
 //     { to: "/user/financials", label: "Financial", icon: <Gear size={24} weight="fill" /> },
 //     { to: "/user/wallet", label: "Wallet", icon: <Gear size={24} weight="fill" /> },
-    
+
 //   ];
 
 //   // Get user type from Cookies and provide fallback
@@ -114,10 +114,13 @@ export default function Sidebar() {
         { to: "/user/services/dmt", label: "DMT" },
       ],
     },
+
     { to: "/user/profile", label: "My Profile", icon: <UserCircleGear size={24} weight="fill" /> },
+    { to: "/user/registration", label: "Manage Users", icon: <Users size={24} weight="fill" /> },
+
     { to: "/user/users", label: "Users & Account", icon: <Users size={24} weight="fill" /> },
     { to: "/user/transactions", label: "Transactions", icon: <Wallet size={24} weight="fill" /> },
-    { to: "/user/registration", label: "Registration", icon: <Users size={24} weight="fill" /> },
+    // { to: "/user/registration", label: "Registration", icon: <Users size={24} weight="fill" /> },
     { to: "/user/reports", label: "Reports", icon: <Notepad size={24} weight="fill" /> },
     { to: "/user/settings", label: "Basic Settings", icon: <Gear size={24} weight="fill" /> },
     // { to: "/user/commission", label: "Commission", icon: <Gear size={24} weight="fill" /> },
@@ -140,7 +143,7 @@ export default function Sidebar() {
                   className="flex items-center justify-between w-full px-4 py-2 rounded-lg text-left hover:text-indigo-700 transition-colors"
                 >
                   <div className="flex items-center space-x-2">
-                  <span className="w-auto">  {link.icon}</span>
+                    <span className="w-auto">  {link.icon}</span>
                     <span>{link.label}</span>
                   </div>
                   {isServicesOpen ? <CaretUp size={20} /> : <CaretDown size={20} />}
@@ -153,8 +156,7 @@ export default function Sidebar() {
                         to={nestedLink.to}
                         onClick={() => setIsServicesOpen(false)}
                         className={({ isActive }) =>
-                          `flex items-center space-x-2 text-sm py-1 hover:text-indigo-700 ${
-                            isActive ? "text-indigo-700 font-semibold" : "text-gray-800"
+                          `flex items-center space-x-2 text-sm py-1 hover:text-indigo-700 ${isActive ? "text-indigo-700 font-semibold" : "text-gray-800"
                           }`
                         }
                       >
@@ -174,8 +176,7 @@ export default function Sidebar() {
               to={link.to}
               end={link.to === "/admin" || link.to === "/user"}
               className={({ isActive }) =>
-                `flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
-                  isActive ? "bg-indigo-700 text-white" : "text-gray-900 hover:text-indigo-700"
+                `flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${isActive ? "bg-indigo-700 text-white" : "text-gray-900 hover:text-indigo-700"
                 }`
               }
             >
