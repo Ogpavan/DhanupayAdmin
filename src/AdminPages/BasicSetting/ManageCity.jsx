@@ -78,8 +78,21 @@ const ManageCity = () => {
       title: 'Edit City Name',
       input: 'text',
       inputValue: city.CityName,
-      showCancelButton: true
+      showCancelButton: true,
+      inputValidator: (value) => {
+        if (!value) {
+          return 'City name is required';
+        }
+        if (!/^[a-zA-Z\s]*$/.test(value)) {
+          return 'Only alphabets and spaces are allowed';
+        }
+        if (value.length > 20) {
+          return 'City name must be 20 characters or fewer';
+        }
+        return null;
+      }
     });
+
 
     if (newCityName) {
       try {
@@ -135,7 +148,7 @@ const ManageCity = () => {
     }
   };
 
- return (
+  return (
     <div className="h-[80vh]  overflow-y-auto hide-scrollbar w-full ">
       {/* Header */}
       <div className="w-full bg-white shadow-sm border-b border-slate-200">
@@ -149,7 +162,7 @@ const ManageCity = () => {
               </div>
               <h1 className="text-xl font-bold text-slate-900">City Management</h1>
             </div>
-            
+
           </div>
         </div>
       </div>
@@ -157,7 +170,7 @@ const ManageCity = () => {
       {/* Main Content */}
       <div className="w-full p-3">
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 h-full">
-          
+
           {/* Left Panel - Add City Form */}
           <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
             <div className="px-4 py-3 bg-slate-50 border-b border-slate-200">
@@ -168,7 +181,7 @@ const ManageCity = () => {
                 Add New City
               </h2>
             </div>
-            
+
             <div className="p-4 space-y-4">
               {/* State Selection */}
               <div>
@@ -206,10 +219,17 @@ const ManageCity = () => {
                 <input
                   type="text"
                   value={addCity}
-                  onChange={(e) => setAddCity(e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    // Allow only letters (case-insensitive) and max 20 characters
+                    if (/^[a-zA-Z\s]*$/.test(value) && value.length <= 20) {
+                      setAddCity(value);
+                    }
+                  }}
                   placeholder="Enter city name"
                   className="w-full px-3 py-2 text-slate-900 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 placeholder-slate-400"
                 />
+
               </div>
 
               {/* Add Button */}
@@ -255,7 +275,7 @@ const ManageCity = () => {
                 </span>
               )}
             </div>
-            
+
             <div className="flex-1 overflow-hidden min-h-0">
               {selectedState ? (
                 <div className="h-full overflow-y-auto">

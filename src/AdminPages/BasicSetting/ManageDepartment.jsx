@@ -36,7 +36,7 @@ const ManageDepartment = () => {
         title: 'Error',
         text: 'Failed to load departments. Please try again.',
         toast: true,
-        position: 'top-end',
+        position: 'center',
         showConfirmButton: false,
         timer: 3000
       });
@@ -54,7 +54,7 @@ const ManageDepartment = () => {
   const handleCreate = async () => {
     const trimmedName = departmentName.trim();
     const trimmedDesc = departmentDesc.trim();
-    
+
     if (!trimmedName) {
       Swal.fire({
         icon: 'warning',
@@ -78,14 +78,14 @@ const ManageDepartment = () => {
       });
 
       const result = await response.json();
-      
+
       if (result.success) {
         Swal.fire({
           icon: 'success',
           title: 'Success!',
           text: result.message || 'Department created successfully',
           toast: true,
-          position: 'top-end',
+          position: 'center',
           showConfirmButton: false,
           timer: 3000
         });
@@ -112,34 +112,41 @@ const ManageDepartment = () => {
     const { value: formValues } = await Swal.fire({
       title: 'Edit Department',
       html: `
-        <div class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Department Name</label>
-            <input id="swal-input1" class="swal2-input" placeholder="Department Name" value="${item.departmentName || ''}" style="margin: 0;">
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-            <textarea id="swal-input2" class="swal2-textarea" placeholder="Description" style="margin: 0;">${item.departmentDescription || ''}</textarea>
-          </div>
-        </div>
-      `,
+    <div class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Department Name</label>
+        <input id="swal-input1" class="swal2-input" placeholder="Department Name" value="${item.departmentName || ''}" maxlength="50" style="margin: 0;">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+        <textarea id="swal-input2" class="swal2-textarea" placeholder="Description" maxlength="200" style="margin: 0;">${item.departmentDescription || ''}</textarea>
+      </div>
+    </div>
+  `,
       focusConfirm: false,
       showCancelButton: true,
-      confirmButtonText: 'Update',
-      cancelButtonText: 'Cancel',
-      confirmButtonColor: '#10B981',
-      cancelButtonColor: '#6B7280',
       preConfirm: () => {
-        const name = document.getElementById('swal-input1').value;
-        const desc = document.getElementById('swal-input2').value;
-        if (!name.trim()) {
+        const name = document.getElementById('swal-input1').value.trim();
+        const description = document.getElementById('swal-input2').value.trim();
+
+        if (!name) {
           Swal.showValidationMessage('Department name is required');
           return false;
         }
-        return { 
-          departmentName: name.trim(), 
-          departmentDescription: desc.trim() 
-        };
+        if (!/^[a-zA-Z\s]*$/.test(name)) {
+          Swal.showValidationMessage('Department name can only contain letters and spaces');
+          return false;
+        }
+        if (name.length > 50) {
+          Swal.showValidationMessage('Department name must be 50 characters or fewer');
+          return false;
+        }
+        if (description.length > 200) {
+          Swal.showValidationMessage('Description must be 200 characters or fewer');
+          return false;
+        }
+
+        return { name, description };
       }
     });
 
@@ -157,14 +164,14 @@ const ManageDepartment = () => {
       });
 
       const result = await response.json();
-      
+
       if (result?.success !== false) {
         Swal.fire({
           icon: 'success',
           title: 'Updated!',
           text: result?.message || 'Department updated successfully',
           toast: true,
-          position: 'top-end',
+          position: 'center',
           showConfirmButton: false,
           timer: 3000
         });
@@ -209,14 +216,14 @@ const ManageDepartment = () => {
       });
 
       const apiResult = await response.json();
-      
+
       if (apiResult?.success !== false) {
         Swal.fire({
           icon: 'success',
           title: 'Deleted!',
           text: 'Department deleted successfully',
           toast: true,
-          position: 'top-end',
+          position: 'center',
           showConfirmButton: false,
           timer: 3000
         });
@@ -249,7 +256,7 @@ const ManageDepartment = () => {
   return (
     <div className="h-screen max-h-screen bg-gray-50 p-4 overflow-hidden">
       <div className="max-w-full mx-auto h-full flex flex-col">
-        
+
         {/* Compact Header - Fixed height */}
         <div className="flex-shrink-0 mb-4">
           <div className="flex items-center justify-between">
@@ -269,11 +276,11 @@ const ManageDepartment = () => {
         {/* Main Content - Flexible height using remaining space */}
         <div className="flex-1 min-h-0 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
           <div className="h-full flex flex-col lg:flex-row">
-            
+
             {/* Left Panel - Add Department Form - Fixed width on desktop */}
             <div className="flex-shrink-0 lg:w-96 border-b lg:border-b-0 lg:border-r border-gray-200 p-4">
               <div className="h-full flex flex-col">
-                
+
                 {/* Form Header */}
                 <div className="flex-shrink-0 mb-4">
                   <h2 className="text-lg font-semibold text-gray-900">Add New Department</h2>
@@ -336,7 +343,7 @@ const ManageDepartment = () => {
                         'Add Department'
                       )}
                     </button>
-                    
+
                     <button
                       type="button"
                       onClick={handleReset}
@@ -352,7 +359,7 @@ const ManageDepartment = () => {
 
             {/* Right Panel - Departments List - Takes remaining space */}
             <div className="flex-1 min-w-0 p-4 flex flex-col">
-              
+
               {/* Table Header */}
               <div className="flex-shrink-0 flex items-center justify-between mb-3">
                 <div>

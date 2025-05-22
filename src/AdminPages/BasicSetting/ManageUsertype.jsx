@@ -36,7 +36,7 @@ const ManageUsertype = () => {
         title: 'Error',
         text: 'Failed to load user types. Please try again.',
         toast: true,
-        position: 'top-end',
+        position: 'center',
         showConfirmButton: false,
         timer: 3000
       });
@@ -85,7 +85,7 @@ const ManageUsertype = () => {
           title: 'Success!',
           text: result.message || 'User type created successfully',
           toast: true,
-          position: 'top-end',
+          position: 'center',
           showConfirmButton: false,
           timer: 3000
         });

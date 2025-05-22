@@ -35,7 +35,7 @@ const ManageStates = () => {
         title: 'Error',
         text: 'Failed to load states. Please try again.',
         toast: true,
-        position: 'top-end',
+        position: 'center',
         showConfirmButton: false,
         timer: 3000
       });
@@ -52,7 +52,7 @@ const ManageStates = () => {
   // Create new state
   const handleCreateState = async () => {
     const trimmedName = newStateName.trim();
-    
+
     if (!trimmedName) {
       Swal.fire({
         icon: 'warning',
@@ -62,6 +62,16 @@ const ManageStates = () => {
       });
       return;
     }
+
+
+    const handleStateNameChange = (e) => {
+  const value = e.target.value;
+  // Allow only alphabets (no spaces, no numbers, no special chars)
+  if (/^[a-zA-Z]*$/.test(value)) {
+    setNewStateName(value);
+  }
+};
+
 
     setIsSubmitting(true);
     try {
@@ -75,14 +85,14 @@ const ManageStates = () => {
       });
 
       const result = await response.json();
-      
+
       if (result.success) {
         Swal.fire({
           icon: 'success',
           title: 'Success!',
           text: result.message || 'State created successfully',
           toast: true,
-          position: 'top-end',
+          position: 'center',
           showConfirmButton: false,
           timer: 3000
         });
@@ -116,12 +126,28 @@ const ManageStates = () => {
       cancelButtonText: 'Cancel',
       confirmButtonColor: '#10B981',
       cancelButtonColor: '#6B7280',
+      inputAttributes: {
+        maxlength: 50 // limits input length at the field level
+      },
       inputValidator: (value) => {
-        if (!value?.trim()) {
+        const trimmed = value.trim();
+
+        if (!trimmed) {
           return 'State name is required!';
         }
+
+        if (!/^[a-zA-Z]+$/.test(trimmed)) {
+          return 'Only alphabets (A–Z, a–z) are allowed!';
+        }
+
+        if (trimmed.length > 50) {
+          return 'State name must be 50 characters or fewer!';
+        }
+
+        return null; // valid
       }
     });
+
 
     if (!newName) return;
 
@@ -137,14 +163,14 @@ const ManageStates = () => {
       });
 
       const result = await response.json();
-      
+
       if (result.success) {
         Swal.fire({
           icon: 'success',
           title: 'Updated!',
           text: result.message || 'State updated successfully',
           toast: true,
-          position: 'top-end',
+          position: 'center',
           showConfirmButton: false,
           timer: 3000
         });
@@ -189,14 +215,14 @@ const ManageStates = () => {
       });
 
       const apiResult = await response.json();
-      
+
       if (apiResult.success) {
         Swal.fire({
           icon: 'success',
           title: 'Deleted!',
           text: apiResult.message || 'State deleted successfully',
           toast: true,
-          position: 'top-end',
+          position: 'center',
           showConfirmButton: false,
           timer: 3000
         });
@@ -223,7 +249,7 @@ const ManageStates = () => {
   return (
     <div className="h-screen max-h-screen bg-gray-50 p-4 overflow-hidden">
       <div className="max-w-full mx-auto h-full flex flex-col">
-        
+
         {/* Compact Header - Fixed height */}
         <div className="flex-shrink-0 mb-4">
           <div className="flex items-center justify-between">
@@ -243,11 +269,11 @@ const ManageStates = () => {
         {/* Main Content - Flexible height using remaining space */}
         <div className="flex-1 min-h-0 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
           <div className="h-full flex flex-col lg:flex-row">
-            
+
             {/* Left Panel - Add State Form - Fixed width on desktop */}
             <div className="flex-shrink-0 lg:w-80 border-b lg:border-b-0 lg:border-r border-gray-200 p-4">
               <div className="h-full flex flex-col">
-                
+
                 {/* Form Header */}
                 <div className="flex-shrink-0 mb-4">
                   <h2 className="text-lg font-semibold text-gray-900">Add New State</h2>
@@ -264,12 +290,13 @@ const ManageStates = () => {
                       <input
                         type="text"
                         value={newStateName}
-                        onChange={(e) => setNewStateName(e.target.value)}
+                        onChange={handleStateNameChange}
                         placeholder="Enter state name"
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm"
                         disabled={isSubmitting}
                         maxLength={100}
                       />
+
                     </div>
                   </div>
 
@@ -299,7 +326,7 @@ const ManageStates = () => {
 
             {/* Right Panel - States List - Takes remaining space */}
             <div className="flex-1 min-w-0 p-4 flex flex-col">
-              
+
               {/* Table Header */}
               <div className="flex-shrink-0 flex items-center justify-between mb-3">
                 <div>
