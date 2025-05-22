@@ -57,6 +57,15 @@ import ServicesPage from "./AdminPages/ServicePage.jsx";
 import PageMasterManager from "./AdminPages/PageMasterManager.jsx";
 // import AssignServices from "./AdminPages/AssignServices.jsx";
 
+//for setting nested routes
+import ManageCity from "./AdminPages/BasicSetting/ManageCity.jsx";
+import ManageState from "./AdminPages/BasicSetting/ManageStates.jsx";
+import ManageRole from "./AdminPages/BasicSetting/ManageRole.jsx";
+import ManageDesignation from "./AdminPages/BasicSetting/ManageDesignation.jsx";
+import ManageUsertype from "./AdminPages/BasicSetting/ManageUsertype.jsx";
+import ManageDepartment from "./AdminPages/BasicSetting/ManageDepartment.jsx";
+
+
 function App() {
   return (
     <LoaderProvider>
@@ -98,6 +107,15 @@ function App() {
             <Route path="users" element={<Users />} />
             <Route path="transactions" element={<Transactions />} />
             <Route path="settings" element={<BasicSettings />} />
+
+            <Route path="/admin/settings" element={<BasicSettings />}>
+              <Route path="city" element={<ManageCity />} />
+              <Route path="state" element={<ManageState />} />
+              <Route path="department" element={<ManageDepartment />} />
+              <Route path="designation" element={<ManageDesignation />} />
+              <Route path="usertype" element={<ManageUsertype />} />
+              <Route path="role" element={<ManageRole />} />
+            </Route>
             <Route path="profile" element={<Profile />} />
             <Route path="commission" element={<Commision />} />
             <Route path="registration" element={<RegistrationForm />} />
@@ -133,8 +151,8 @@ function App() {
             <Route path="users" element={<UserUsers />} />
             {/* <Route path="services" element={<Services />} /> */}
             <Route path="registration" element={<RegistrationuserForm />} />
-             
-<Route path="userRegistration" element={<RegistrationuserModal />} />
+
+            <Route path="userRegistration" element={<RegistrationuserModal />} />
             <Route path="services" element={<Services />}>
               <Route path="recharges" element={<RechargesAndBillPay />} />
               <Route path="aeps" element={<Financials />} />

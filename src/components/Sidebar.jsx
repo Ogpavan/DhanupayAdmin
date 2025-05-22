@@ -65,7 +65,7 @@
 
 
 import { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import {
   House,
   Users,
@@ -81,6 +81,9 @@ import billpayments from "/billpayments.png";
 
 export default function Sidebar() {
   const [isServicesOpen, setIsServicesOpen] = useState(false);
+  const [openMenu, setOpenMenu] = useState(null);
+const location = useLocation();
+
 
   const toggleServicesMenu = () => {
     setIsServicesOpen((prev) => !prev);
@@ -90,7 +93,20 @@ export default function Sidebar() {
     { to: "/admin", label: "Dashboard", icon: <House size={24} weight="fill" /> },
     { to: "/admin/profile", label: "My Profile", icon: <UserCircleGear size={24} weight="fill" /> },
     { to: "/admin/registration", label: "Manage Users", icon: <Users size={24} weight="fill" /> },
-    { to: "/admin/settings", label: "Basic Settings", icon: <Gear size={24} weight="fill" /> },
+    // { to: "/admin/settings", label: "Basic Settings", icon: <Gear size={24} weight="fill" /> },
+    {
+      label: "Basic Settings",
+      icon: <Gear size={24} weight="fill" />,
+      nested: [
+        { to: "/admin/settings/city", label: "City" },
+        { to: "/admin/settings/state", label: "State" },
+        { to: "/admin/settings/department", label: "Department" },
+        { to: "/admin/settings/designation", label: "Designation" },
+        { to: "/admin/settings/usertype", label: "User Type" },
+        { to: "/admin/settings/role", label: "Role" },
+      ],
+    },
+
     // { to: "/admin/commission", label: "Commission", icon: <Gear size={24} weight="fill" /> },
     { to: "/admin/employeemaster", label: "Employee Master", icon: <Gear size={24} weight="fill" /> },
     { to: "/admin/fundtransfer", label: "Fund Transfer", icon: <Gear size={24} weight="fill" /> },
@@ -135,57 +151,78 @@ export default function Sidebar() {
   return (
     <div className="w-60 bg-gray-200 text-gray-900 p-4 h-[calc(100vh-16.5vh)] hide-scrollbar overflow-y-scroll">
       <nav className="flex flex-col space-y-2">
-        {sidebarLinks.map((link, index) => {
-          if (link.nested) {
-            return (
-              <div key={index}>
-                <button
-                  onClick={toggleServicesMenu}
-                  className="flex items-center justify-between w-full px-4 py-2 rounded-lg text-left hover:text-indigo-700 transition-colors"
-                >
-                  <div className="flex items-center space-x-2">
-                    <span className="w-auto">  {link.icon}</span>
-                    <span>{link.label}</span>
-                  </div>
-                  {isServicesOpen ? <CaretUp size={20} /> : <CaretDown size={20} />}
-                </button>
-                {isServicesOpen && (
-                  <div className="pl-10 flex flex-col space-y-1 mt-1">
-                    {link.nested.map((nestedLink, nestedIndex) => (
-                      <NavLink
-                        key={nestedIndex}
-                        to={nestedLink.to}
-                        onClick={() => setIsServicesOpen(false)}
-                        className={({ isActive }) =>
-                          `flex items-center space-x-2 text-sm py-1 hover:text-indigo-700 ${isActive ? "text-indigo-700 font-semibold" : "text-gray-800"
-                          }`
-                        }
-                      >
-                        {nestedLink.icon && <span>{nestedLink.icon}</span>}
-                        <span>{nestedLink.label}</span>
-                      </NavLink>
-                    ))}
-                  </div>
-                )}
-              </div>
-            );
-          }
+       {sidebarLinks.map((link, index) => {
+  if (link.nested) {
+    const isNestedActive = link.nested.some((nested) =>
+      location.pathname.startsWith(nested.to)
+    );
 
-          return (
-            <NavLink
-              key={index}
-              to={link.to}
-              end={link.to === "/admin" || link.to === "/user"}
-              className={({ isActive }) =>
-                `flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${isActive ? "bg-indigo-700 text-white" : "text-gray-900 hover:text-indigo-700"
-                }`
-              }
-            >
-              {link.icon}
-              <span>{link.label}</span>
-            </NavLink>
-          );
-        })}
+    const isOpen = openMenu === link.label || isNestedActive;
+
+    const handleToggle = () => {
+      // Toggle open state, but close others
+      if (openMenu === link.label) {
+        setOpenMenu(null);
+      } else {
+        setOpenMenu(link.label);
+      }
+    };
+
+    return (
+      <div key={index}>
+        <button
+          onClick={handleToggle}
+          className={`flex items-center justify-between w-full px-4 py-2 rounded-lg text-left transition-colors ${
+            isNestedActive ? "text-indigo-700" : "text-gray-900 hover:text-indigo-700"
+          }`}
+        >
+          <div className="flex items-center space-x-2">
+            <span>{link.icon}</span>
+            <span>{link.label}</span>
+          </div>
+          {isOpen ? <CaretUp size={20} /> : <CaretDown size={20} />}
+        </button>
+
+        {isOpen && (
+          <div className="pl-10 flex flex-col space-y-1 mt-1">
+            {link.nested.map((nestedLink, nestedIndex) => (
+              <NavLink
+                key={nestedIndex}
+                to={nestedLink.to}
+                className={({ isActive }) =>
+                  `flex items-center space-x-2 text-sm py-1 hover:text-indigo-700 ${
+                    isActive ? "text-indigo-700 font-semibold" : "text-gray-800"
+                  }`
+                }
+                onClick={() => setOpenMenu(null)} // optional: auto close after click
+              >
+                {nestedLink.icon && <span>{nestedLink.icon}</span>}
+                <span>{nestedLink.label}</span>
+              </NavLink>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <NavLink
+      key={index}
+      to={link.to}
+      end={link.to === "/admin" || link.to === "/user"}
+      className={({ isActive }) =>
+        `flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
+          isActive ? "bg-indigo-700 text-white" : "text-gray-900 hover:text-indigo-700"
+        }`
+      }
+    >
+      {link.icon}
+      <span>{link.label}</span>
+    </NavLink>
+  );
+})}
+
       </nav>
     </div>
   );

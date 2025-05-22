@@ -15,8 +15,26 @@ const UserDetailsModal = ({ formData = {}, onClose }) => {
         {url ? (
           <img
             src={`${import.meta.env.VITE_BACKEND_URL}${url}`}
+            // src={`https://gateway.dhanushop.com${url}`}
             alt={label}
             className="max-h-20 rounded shadow"
+          />
+        ) : (
+          "—"
+        )}
+      </div>
+    </div>
+  );
+
+  const renderVideoField = (label, url) => (
+    <div key={label} className="grid grid-cols-2 gap-1 py-1 text-sm border-b items-center">
+      <div className="font-medium text-gray-600">{label}</div>
+      <div>
+        {url ? (
+          <video
+            controls
+            className="max-h-32 rounded shadow"
+            src={`${import.meta.env.VITE_BACKEND_URL}${url}`}
           />
         ) : (
           "—"
@@ -34,16 +52,13 @@ const UserDetailsModal = ({ formData = {}, onClose }) => {
     </div>
   );
 
-  // Bank Details placeholder - you can add when data available
-   
-
-  useEffect(() => {
-    console.log("Form Data", formData.UserType);
-  }, []);
+  // useEffect(() => {
+  //   console.log("Form Data", formData.UserType);
+  // }, []);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-      <div className="bg-white w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded shadow-lg p-6">
+      <div className="bg-white w-full max-w-4xl max-h-[90vh] overflow-y-scroll hide-scrollbar rounded shadow-lg p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold">User Details</h2>
           <button
@@ -71,15 +86,15 @@ const UserDetailsModal = ({ formData = {}, onClose }) => {
           renderField("Pincode", formData.PersonalPincode),
         ])}
 
-     {formData.UserType !== "1" && renderSection("Shop Details", [
-  renderField("Shop Address Line 1", formData.ShopAddressLine1),
-  renderField("Shop Address Line 2", formData.ShopAddressLine2),
-  renderField("Shop City", formData.shopcityname),
-  renderField("Shop State", formData.shopsatename),
-  renderField("Shop Pincode", formData.ShopPincode),
-  renderImageField("Shop Image", formData.ShopImage),
-])}
-
+        {formData.UserType !== "1" &&
+          renderSection("Shop Details", [
+            renderField("Shop Address Line 1", formData.ShopAddressLine1),
+            renderField("Shop Address Line 2", formData.ShopAddressLine2),
+            renderField("Shop City", formData.shopcityname),
+            renderField("Shop State", formData.shopsatename),
+            renderField("Shop Pincode", formData.ShopPincode),
+            renderImageField("Shop Image", formData.ShopImage),
+          ])}
 
         {renderSection("Document Details", [
           renderField("Aadhaar Number", formData.AadhaarNumber),
@@ -87,7 +102,7 @@ const UserDetailsModal = ({ formData = {}, onClose }) => {
           renderImageField("Aadhaar Back", formData.AadhaarBack),
           renderField("PAN Number", formData.PanNumber),
           renderImageField("PAN Front", formData.PanFront),
-          renderImageField("Video", formData.Video),
+          renderVideoField("Video", formData.Video), // ✅ Replaced image logic with video
           renderImageField("Profile Image", formData.ProfileImage),
         ])}
 
@@ -96,8 +111,6 @@ const UserDetailsModal = ({ formData = {}, onClose }) => {
           renderField("eSign Status", formData.EsignStatus),
           renderField("User Status", formData.UserStatus),
         ])}
-
-        
       </div>
     </div>
   );

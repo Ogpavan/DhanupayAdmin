@@ -507,7 +507,7 @@ const KycDetailsModal = ({ formData = {}, onClose }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex justify-center items-center bg-black bg-opacity-40">
-      <div className="bg-white w-full max-w-4xl rounded shadow-lg overflow-hidden">
+      <div className="bg-white w-full max-w-4xl h-[90vh] rounded shadow-lg overflow-y-scroll hide-scrollbar">
         <div className="p-4 border-b flex justify-between items-center">
           <h2 className="text-lg font-semibold">
             Upload KYC Documents for

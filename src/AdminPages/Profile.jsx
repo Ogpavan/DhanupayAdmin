@@ -29,7 +29,7 @@ export default function Profile() {
       try {
         const [profileRes, activityRes] = await Promise.all([
           axios.post(
-            "https://gateway.dhanushop.com/api/users/ProfileDetails",
+            `${import.meta.env.VITE_BACKEND_URL}/api/users/ProfileDetails`,
             { UserID: userId },
             {
               headers: {
@@ -39,7 +39,7 @@ export default function Profile() {
             }
           ),
           axios.post(
-            "https://gateway.dhanushop.com/api/User/ActivityLog",
+            `${import.meta.env.VITE_BACKEND_URL}/api/User/ActivityLog`,
             { UserID: userId },
             {
               headers: {
