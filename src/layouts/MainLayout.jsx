@@ -18,7 +18,7 @@ export default function MainLayout() {
         <Sidebar />
 
         {/* Dynamic page content */}
-        <main className="flex-1 px-6 py-3 marker:overflow-scroll hide-scrollbar">
+        <main className="flex-1 px-6 py-3 marker:overflow-scroll  hide-scrollbar">
           <Outlet />
         </main>
       </div>

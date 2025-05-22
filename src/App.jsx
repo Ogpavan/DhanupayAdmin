@@ -9,9 +9,7 @@ import ForgotPasswordPage from "./auth/ForgotPasswordPage";
 import BasicSettings from "./AdminPages/BasicSettings";
 import Profile from "./AdminPages/Profile";
 import Commision from "./AdminPages/Commision";
-
 import Registration from "./AdminPages/Registration";
-
 import UserProfile from "./UserPages/UserProfile";
 import UserBasicSettings from "./UserPages/UserBasicSettings";
 import UserCommission from "./UserPages/UserCommision";
@@ -38,7 +36,9 @@ import AdminForgotPasswordPage from "./auth/AdminForgotPasswordPage.jsx";
 import ServiceMaster from "./AdminPages/ServiceMaster.jsx";
 import LoadWallet from "./AdminPages/LoadWallet.jsx";
 import RegistrationForm from "./AdminPages/RegistrationSteps/RegistrationForm.jsx";
+import RegistrationuserForm from "./UserPages/RegistrationSteps/RegistrationForm.jsx";
 import RegistrationModal from "./AdminPages/RegistrationSteps/RegistrationModal.jsx";
+import RegistrationuserModal from "./UserPages/RegistrationSteps/RegistrationModal.jsx";
 import BBPSComplaint from "./UserPages/ServicesOnDashboard/BBPSComplaint.jsx";
 import Services from "./UserPages/Services.jsx";
 import OtherServices from "./UserPages/OtherServices.jsx";
@@ -132,7 +132,9 @@ function App() {
             <Route path="rechargecomplaint" element={<BBPSComplaint />} />
             <Route path="users" element={<UserUsers />} />
             {/* <Route path="services" element={<Services />} /> */}
-
+            <Route path="registration" element={<RegistrationuserForm />} />
+             
+<Route path="userRegistration" element={<RegistrationuserModal />} />
             <Route path="services" element={<Services />}>
               <Route path="recharges" element={<RechargesAndBillPay />} />
               <Route path="aeps" element={<Financials />} />
@@ -144,7 +146,7 @@ function App() {
             <Route path="settings" element={<UserBasicSettings />} />
             <Route path="profile" element={<UserProfile />} />
             <Route path="commission" element={<UserCommission />} />
-            <Route path="registration" element={<UserRegistration />} />
+            {/* <Route path="registration" element={<UserRegistration />} /> */}
             <Route path="reports" element={<UserReports />} />
             <Route path="financials" element={<Financials />} />
             <Route path="wallet" element={<Wallet />} />
