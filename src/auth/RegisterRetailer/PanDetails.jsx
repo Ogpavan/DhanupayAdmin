@@ -135,7 +135,7 @@ const PanDetails = () => {
       localStorage.setItem("registrationData", JSON.stringify(updatedData));
 
       setbtnLoading(false);
-      navigate("/video-kyc");
+      navigate("/bank-detail");
     } catch (error) {
       console.error("API Error:", error);
       Swal.fire("Error", "Failed to submit PAN details.", "error");

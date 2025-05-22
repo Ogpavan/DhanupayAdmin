@@ -289,10 +289,7 @@ export default function AdminLoginPage() {
                     setError("Only numeric characters are allowed.");
                   }
                 }}
-                onPaste={(e) => {
-                  e.preventDefault();
-                  setError("Pasting is not allowed.");
-                }}
+                
                 onKeyDown={(e) => {
                   const invalidChars = ["e", "E", "+", "-", ".", " "];
                   if (invalidChars.includes(e.key)) {

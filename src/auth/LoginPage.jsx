@@ -376,10 +376,7 @@ export default function LoginPage() {
                     setPhoneError(false);
                   }
                 }}
-                onPaste={(e) => {
-                  e.preventDefault();
-                  setError("Pasting is not allowed.");
-                }}
+                
                 onKeyDown={(e) => {
                   const invalidChars = ["e", "E", "+", "-", ".", " "];
                   if (invalidChars.includes(e.key)) e.preventDefault();
