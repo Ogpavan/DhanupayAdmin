@@ -41,7 +41,7 @@ export default function Navbar() {
   // }, [token]);
   const UserName = decodeURIComponent(Cookies.get("UserName") || "");
   const AgentId = Cookies.get("AgentId") || "";
-
+console.log(AgentId)
   const handleLogout = async () => {
     const userId = Cookies.get("UserId");
     const token = Cookies.get("token");
