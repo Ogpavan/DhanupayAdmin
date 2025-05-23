@@ -10,8 +10,7 @@ export default function OTPForm() {
   const {
   message = "Please enter the OTP and MPIN sent to your registered number.",
   userId = "",
-  usertypename = ""
-} = location.state || {};
+ } = location.state || {};
 
   const BASE_URL =
     import.meta.env.VITE_BACKEND_URL || "https://gateway.dhanushop.com"; // API base URL
@@ -30,6 +29,7 @@ export default function OTPForm() {
   const token = Cookies.get("token");
   const loginid = Cookies.get("loginid");
   const UserId = Cookies.get("UserId");
+  const usertypename = Cookies.get("UserTypeName");
   // const role = Cookies.get("role");
 
   // Resend OTP countdown timer
