@@ -180,6 +180,11 @@ export default function LoginPage() {
           sameSite: "Strict",
           expires: 1,
         });
+        Cookies.set("RoleID", data.RoleID, {
+          secure: true,
+          sameSite: "Strict",
+          expires: 1,
+        });
         Cookies.set("UserId", data.UserId, {
           secure: true,
           sameSite: "Strict",
@@ -237,6 +242,7 @@ export default function LoginPage() {
                 );
 
                 const seconddata = await res.json();
+                console.log("login when already logged in",seconddata);
                 if (res.ok && seconddata?.Token) {
                   Cookies.set("token", seconddata.Token, {
                     secure: true,
@@ -259,6 +265,11 @@ export default function LoginPage() {
                     expires: 1,
                   });
                   Cookies.set("role", seconddata.role, {
+                    secure: true,
+                    sameSite: "Strict",
+                    expires: 1,
+                  });
+                  Cookies.set("RoleID", seconddata.RoleID, {
                     secure: true,
                     sameSite: "Strict",
                     expires: 1,

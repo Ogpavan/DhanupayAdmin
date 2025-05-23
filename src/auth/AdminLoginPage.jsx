@@ -58,7 +58,7 @@ export default function AdminLoginPage() {
       const device = browser.getPlatformType();
 
       const response = await fetch(
-         `${import.meta.env.VITE_BACKEND_URL}/api/users/login`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/users/login`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -104,6 +104,12 @@ export default function AdminLoginPage() {
           sameSite: "Strict",
           expires: 1,
         });
+
+        Cookies.set("RoleID", data.RoleID, {
+          secure: true,
+          sameSite: "Strict",
+          expires: 1,
+        });
         Cookies.set("UserId", data.UserId, {
           secure: true,
           sameSite: "Strict",
@@ -125,7 +131,7 @@ export default function AdminLoginPage() {
           });
         } else {
           navigate("/otp", {
-            state: { message: data.Message, userId: data.UserId,usertypename:data.UserTypeName },
+            state: { message: data.Message, userId: data.UserId, usertypename: data.UserTypeName },
           });
         }
       } else {
@@ -178,6 +184,12 @@ export default function AdminLoginPage() {
                     expires: 1,
                   });
                   Cookies.set("role", seconddata.role, {
+                    secure: true,
+                    sameSite: "Strict",
+                    expires: 1,
+                  });
+
+                  Cookies.set("RoleID", data.RoleID, {
                     secure: true,
                     sameSite: "Strict",
                     expires: 1,
@@ -289,7 +301,7 @@ export default function AdminLoginPage() {
                     setError("Only numeric characters are allowed.");
                   }
                 }}
-                
+
                 onKeyDown={(e) => {
                   const invalidChars = ["e", "E", "+", "-", ".", " "];
                   if (invalidChars.includes(e.key)) {

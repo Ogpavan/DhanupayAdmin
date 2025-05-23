@@ -772,7 +772,6 @@ const KycDetailsModal = ({ formData = {}, onClose }) => {
                 {activeVerification === "CancelCheque" && (
                   <>
                     <h3 className="text-xl font-bold mb-6 text-center">Cancel Cheque</h3>
-
                     <div className="flex flex-col lg:flex-row gap-6 items-start justify-center w-full">
 
                       {/* Bank Details Box */}

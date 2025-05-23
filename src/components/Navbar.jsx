@@ -5,10 +5,11 @@ import { Bell, X, ArrowClockwise } from "phosphor-react";
 import { useWallet } from '../context/WalletContext';
 
 export default function Navbar() {
-   const { wallets, fetchWallets } = useWallet();
+  const { wallets, fetchWallets } = useWallet();
   const userType = Cookies.get("UserTypeName");
   const token = Cookies.get("token");
   const UserId = Cookies.get("UserId");
+  const role = Cookies.get("role");
 
   const [notifications, setNotifications] = useState([
     "New transaction request received",
@@ -47,7 +48,7 @@ export default function Navbar() {
   const AgentId = Cookies.get("AgentId") || "";
   console.log(AgentId)
 
-   useEffect(() => {
+  useEffect(() => {
     // const token = localStorage.getItem('auth_token');
     // const userId = localStorage.getItem('user_id');
     if (token && UserId) {
@@ -55,13 +56,13 @@ export default function Navbar() {
     }
   }, []);
 
-   const primaryWallet = wallets.find(w => w.WalletType === 'Primary');
+  const primaryWallet = wallets.find(w => w.WalletType === 'Primary');
   const incentiveWallet = wallets.find(w => w.WalletType === 'Incentive');
 
   // Function to refresh wallet balances
   const refreshWallets = async () => {
     if (!token || !UserId) return;
-    
+
     setIsRefreshing(true);
     try {
       await fetchWallets(UserId, token);
@@ -176,14 +177,15 @@ export default function Navbar() {
       <h1 className="text-xl flex items-center gap-2">
         <img src="/logo-DhanuPayy.png" alt="DhanuPay Logo" className="h-10 object-contain" />
         <div className="flex font-bold flex-col"  >
-        <span>DHANUPAY</span>
-        <span className="text-xs">
-          {userType}
-            {/* {UserTypeName === "Employee"
-              ? {userType}
-              : ``} */}
+          <span>DHANUPAY</span>
+          <span className="text-xs">
+
+            {UserTypeName === "Employee"
+              ? `${userType} (${role})`
+              : `${userType}`}
+
           </span>
-          </div>  
+        </div>
       </h1>
 
       <div className="flex items-center gap-6">
@@ -208,7 +210,7 @@ export default function Navbar() {
           <div className="flex flex-row gap-2 text-sm items-center">
             <div className="flex justify-between items-center border-white hover:border-green-500 border-2 bg-indigo-800 text-white px-4 py-2 rounded-lg shadow">
               <span className="font-medium">Primary Wallet: </span>
-              <span>{adminBalance !== null ? ` ₹ ${ primaryWallet ? primaryWallet.Balance : "---"}` : "Loading..."}</span>
+              <span>{adminBalance !== null ? ` ₹ ${primaryWallet ? primaryWallet.Balance : "---"}` : "Loading..."}</span>
             </div>
 
             <div className="flex justify-between items-center bg-indigo-800 border-white border-2 hover:border-green-500 text-white px-4 py-2 rounded-lg shadow">
@@ -220,15 +222,14 @@ export default function Navbar() {
             <button
               onClick={refreshWallets}
               disabled={isRefreshing}
-              className={` text-white p-2 rounded-full hover:border-white hover:border-2 transition-all duration-100 ${
-                isRefreshing ? 'cursor-not-allowed opacity-50' : 'hover:scale-102'
-              }`}
+              className={` text-white p-2 rounded-full hover:border-white hover:border-2 transition-all duration-100 ${isRefreshing ? 'cursor-not-allowed opacity-50' : 'hover:scale-102'
+                }`}
               title="Refresh wallet balances"
             >
-              <ArrowClockwise 
-                size={18} 
-                weight="bold" 
-                className={isRefreshing ? 'animate-spin' : ''} 
+              <ArrowClockwise
+                size={18}
+                weight="bold"
+                className={isRefreshing ? 'animate-spin' : ''}
               />
             </button>
           </div>
