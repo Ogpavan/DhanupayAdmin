@@ -463,20 +463,20 @@ import { usePermissions } from "../context/PermissionsContext";
 // User Sidebar Data (unchanged)
 const usersidebarLinks = [
   { to: "/user", label: "Dashboard", icon: <House size={24} weight="fill" /> },
-  {
-    label: "Services",
-    icon: <Gear size={24} weight="fill" />,
-    nested: [
-      {
-        to: "/user/services/recharges",
-        icon: <img src={billpayments} alt="Bill Payments" className="w-4 h-4" />,
-        label: "Bill Payments",
-      },
-      { to: "/user/services/aeps", label: "AEPS" },
-      { to: "/user/services/aadhaar-pay", label: "Aadhaar Pay" },
-      { to: "/user/services/dmt", label: "DMT" },
-    ],
-  },
+  // {
+  //   label: "Services",
+  //   icon: <Gear size={24} weight="fill" />,
+  //   nested: [
+  //     {
+  //       to: "/user/services/recharges",
+  //       icon: <img src={billpayments} alt="Bill Payments" className="w-4 h-4" />,
+  //       label: "Bill Payments",
+  //     },
+  //     { to: "/user/services/aeps", label: "AEPS" },
+  //     { to: "/user/services/aadhaar-pay", label: "Aadhaar Pay" },
+  //     { to: "/user/services/dmt", label: "DMT" },
+  //   ],
+  // },
   { to: "/user/profile", label: "My Profile", icon: <UserCircleGear size={24} weight="fill" /> },
   { to: "/user/registration", label: "Manage Users", icon: <Users size={24} weight="fill" /> },
   { to: "/user/users", label: "Users & Account", icon: <Users size={24} weight="fill" /> },
