@@ -592,6 +592,20 @@ const KycDetailsModal = ({ formData = {}, onClose }) => {
               {renderRow("Shop Photo", "shopPhoto")}
               {renderRow("Video", "video")}
               {renderUploadButton("KYC", "KYC")}
+              {/* Bank Details Row (conditionally rendered) */}
+              {existingDocs?.CancelCheque?.[0]?.BankDetails && (
+                <tr>
+                  <td className="p-2 font-semibold border">Bank Details</td>
+                  <td className="p-2 border text-sm leading-relaxed">
+                    <p><strong>Account Holder Name:</strong> {existingDocs.CancelCheque[0].BankDetails.AccountHolderName}</p>
+                    <p><strong>Account Number:</strong> {existingDocs.CancelCheque[0].BankDetails.AccountNumber}</p>
+                    <p><strong>Bank Name:</strong> {existingDocs.CancelCheque[0].BankDetails.BankName}</p>
+                    <p><strong>Branch Name:</strong> {existingDocs.CancelCheque[0].BankDetails.BranchName}</p>
+                    <p><strong>IFSC Code:</strong> {existingDocs.CancelCheque[0].BankDetails.IFSCCode}</p>
+                  </td>
+                </tr>
+              )}
+
               {renderRow("Cancel Cheque", "CancelCheque")}
               {renderUploadButton("CancelCheque", "Cancel Cheque")}
             </tbody>
@@ -720,20 +734,40 @@ const KycDetailsModal = ({ formData = {}, onClose }) => {
                   </>
                 )}
 
-                {activeVerification === "CancelCheque" && (
+               {activeVerification === "CancelCheque" && (
                   <>
-                    <h3 className="text-xl font-bold mb-4">Cancel Cheque</h3>
-                    {documents.CancelCheque && (
-                      <img
-                        src={documents.CancelCheque}
-                        alt="Cancel Cheque"
-                        className="w-[40vh] h-auto rounded border cursor-pointer"
-                        onClick={() => handleViewImage(documents.CancelCheque)}
-                      />
-                      
-                    )}
+                    <h3 className="text-xl font-bold mb-6 text-center">Cancel Cheque</h3>
+                    <div className="flex flex-col lg:flex-row gap-6 items-start justify-center w-full">
+
+                      {/* Bank Details Box */}
+                      {existingDocs?.CancelCheque?.[0]?.BankDetails && (
+                        <div className="w-full lg:w-1/2 p-6 bg-gray-100 rounded-lg border shadow-sm">
+                          <h4 className="text-lg font-semibold mb-4 text-indigo-700">Bank Details</h4>
+                          <div className="space-y-2 text-sm text-gray-800">
+                            <p><strong>Account Holder Name:</strong> {existingDocs.CancelCheque[0].BankDetails.AccountHolderName}</p>
+                            <p><strong>Account Number:</strong> {existingDocs.CancelCheque[0].BankDetails.AccountNumber}</p>
+                            <p><strong>Bank Name:</strong> {existingDocs.CancelCheque[0].BankDetails.BankName}</p>
+                            <p><strong>Branch Name:</strong> {existingDocs.CancelCheque[0].BankDetails.BranchName}</p>
+                            <p><strong>IFSC Code:</strong> {existingDocs.CancelCheque[0].BankDetails.IFSCCode}</p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Cancel Cheque Image */}
+                      {documents.CancelCheque && (
+                        <div className="w-full lg:w-1/2 flex justify-center">
+                          <img
+                            src={documents.CancelCheque}
+                            alt="Cancel Cheque"
+                            className="w-full max-w-md max-h-[50vh] rounded-lg border shadow cursor-pointer"
+                            onClick={() => handleViewImage(documents.CancelCheque)}
+                          />
+                        </div>
+                      )}
+                    </div>
                   </>
                 )}
+
               </div>
             </div>
           )}
