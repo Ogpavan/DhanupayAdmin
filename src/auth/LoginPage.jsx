@@ -244,6 +244,7 @@ export default function LoginPage() {
                 const seconddata = await res.json();
                 console.log("login when already logged in",seconddata);
                 if (res.ok && seconddata?.Token) {
+                  
                   Cookies.set("token", seconddata.Token, {
                     secure: true,
                     sameSite: "Strict",

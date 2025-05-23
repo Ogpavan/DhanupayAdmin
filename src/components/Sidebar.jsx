@@ -522,7 +522,7 @@ useEffect(() => {
     axios
       .post(
         `${import.meta.env.VITE_BACKEND_URL}/api/RolePermission/GetRolesPermission`,
-        { RoleId },
+        { RoleId: RoleId },
         {
           headers: {
             Authorization: `Bearer ${token}`,
