@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
 import Cookies from "js-cookie";
@@ -13,27 +13,40 @@ export default function SetupMpinPage() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const [resending, setResending] = useState(false);
+  const [resendTimer, setResendTimer] = useState(30);
+
 
   const UserId = location.state?.UserId || Cookies.get("UserId");
   const loginid = Cookies.get("loginid");
 
+
+  useEffect(() => {
+    let timer = null;
+    if (resendTimer > 0) {
+      timer = setTimeout(() => setResendTimer((prev) => prev - 1), 1000);
+    }
+    return () => clearTimeout(timer);
+  }, [resendTimer]);
+
+
   // Handle OTP submission
   const handleOtpSubmit = async (e) => {
     e.preventDefault();
-  
+
     if (otp.length !== 4 || isNaN(otp)) {
       setError("OTP must be a 4-digit number.");
       return;
     }
-  
+
     setLoading(true);
     setError("");
-  
+
     try {
       // Get token and other required details from cookies
       const token = Cookies.get("token");
       // const loginid = Cookies.get("loginid");
-  
+
       const response = await fetch("https://gateway.dhanushop.com/api/users/OTPValidator", {
         method: "POST",
         headers: {
@@ -46,10 +59,10 @@ export default function SetupMpinPage() {
           OTP: otp,
         }),
       });
-  
+
       const data = await response.json();
       console.log(data);
-  
+
       if (response.ok && data.success) {
         Swal.fire({
           title: "OTP Verified",
@@ -66,29 +79,81 @@ export default function SetupMpinPage() {
       setLoading(false);
     }
   };
+
+
+
+  const handleResendOtp = async () => {
+      if (resending || resendTimer > 0) return;
   
+      setResending(true);
+      setError("");
+  
+      try {
+        const response = await fetch(`${BASE_URL}/api/users/OTP_Resend`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ UserId: UserId, LoginId: loginid }),
+        });
+  
+        const data = await response.json();
+  
+        if (response.ok && data?.success) {
+          setResendTimer(30);
+          Swal.fire({
+            icon: "success",
+            title: "OTP Sent",
+            text: "A new OTP has been sent to your registered contact.",
+            timer: 3000,
+            showConfirmButton: false,
+          });
+        } else {
+          setError(data?.message || "Failed to resend OTP. Please try again.");
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: data?.message || "Failed to resend OTP. Please try again.",
+          });
+        }
+      } catch {
+        const errorMsg =
+          "Failed to resend OTP. Please check your connection and try again.";
+        setError(errorMsg);
+        Swal.fire({
+          icon: "error",
+          title: "Network Error",
+          text: errorMsg,
+        });
+      } finally {
+        setResending(false);
+      }
+    };
+
+
 
   // Handle MPIN submission
   const handleMpinSubmit = async (e) => {
     e.preventDefault();
-  
+
     if (mpin.length !== 4 || isNaN(mpin)) {
       setError("MPIN must be a 4-digit number.");
       return;
     }
-  
+
     if (mpin !== confirmMpin) {
       setError("MPIN and confirmation MPIN do not match.");
       return;
     }
-  
+
     setLoading(true);
     setError("");
-  
+
     try {
       // Get token from cookies
       const token = Cookies.get("token");
-  
+
       if (!token) {
         setError("Authentication token is missing. Please log in again.");
         Swal.fire({
@@ -99,19 +164,19 @@ export default function SetupMpinPage() {
         navigate("/login");
         return;
       }
-  
+
       const response = await fetch("https://gateway.dhanushop.com/api/users/set-mpin", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ UserId: UserId,LoginId: loginid, MPin: mpin }),
+        body: JSON.stringify({ UserId: UserId, LoginId: loginid, MPin: mpin }),
       });
-  
+
       const data = await response.json();
       console.log(data);
-  
+
       if (response.ok && data.success) {
         Swal.fire({
           title: "Success!",
@@ -131,7 +196,7 @@ export default function SetupMpinPage() {
       setLoading(false);
     }
   };
-  
+
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row">
@@ -164,6 +229,8 @@ export default function SetupMpinPage() {
                 value={otp}
                 onChange={(e) => setOtp(e.target.value)}
               />
+
+               
               <button
                 type="submit"
                 className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-md font-semibold transition"
@@ -171,39 +238,60 @@ export default function SetupMpinPage() {
               >
                 {loading ? "Verifying OTP..." : "Verify OTP"}
               </button>
+
+<div className="flex justify-center mt-4">
+              <button
+                onClick={handleResendOtp}
+                disabled={resending || resendTimer > 0}
+                className={`${resending || resendTimer > 0
+                    ? "text-gray-400 cursor-not-allowed test-center"
+                    : "text-indigo-600 hover:underline text-center"
+                  }`}
+              >
+                {resending
+                  ? "Resending..."
+                  : resendTimer > 0
+                    ? `Resend OTP in ${resendTimer}s`
+                    : "Resend OTP"}
+              </button>
+              </div>
             </form>
           )}
 
           {step === 2 && (
             <form onSubmit={handleMpinSubmit} className="space-y-5">
               <div>
-              <input
-  type="password"
-  placeholder="Enter 4-digit MPIN"
-  className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500 outline-none mb-2"
-  value={mpin}
-  onChange={(e) => {
-    const value = e.target.value;
-    if (/^\d{0,4}$/.test(value)) { // Allow only 4-digit numbers
-      setMpin(value);
-    }
-  }}
-/>
+                <input
+                  type="password"
+                  placeholder="Enter 4-digit MPIN"
+                  className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500 outline-none mb-2"
+                  value={mpin}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (/^\d{0,4}$/.test(value)) { // Allow only 4-digit numbers
+                      setMpin(value);
+                    }
+                  }}
+                />
 
-<input
-  type="password"
-  placeholder="Confirm MPIN"
-  className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500 outline-none"
-  value={confirmMpin}
-  onChange={(e) => {
-    const value = e.target.value;
-    if (/^\d{0,4}$/.test(value)) { // Allow only 4-digit numbers
-      setConfirmMpin(value);
-    }
-  }}
-/>
+                <input
+                  type="password"
+                  placeholder="Confirm MPIN"
+                  className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500 outline-none"
+                  value={confirmMpin}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (/^\d{0,4}$/.test(value)) { // Allow only 4-digit numbers
+                      setConfirmMpin(value);
+                    }
+                  }}
+                />
 
               </div>
+
+
+             
+
               <button
                 type="submit"
                 className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-md font-semibold transition"

@@ -128,9 +128,17 @@ export default function Navbar() {
 
   return (
     <nav className="bg-indigo-700 text-white px-8 py-4 h-[10vh] flex items-center justify-between shadow-md relative">
-      <h1 className="text-3xl flex items-center gap-2">
-        <img src="/logo-DhanuPayy.png" alt="DhanuPay Logo" className="h-7 object-contain" />
+      <h1 className="text-xl flex items-center gap-2">
+        <img src="/logo-DhanuPayy.png" alt="DhanuPay Logo" className="h-10 object-contain" />
+        <div className="flex font-bold flex-col"  >
         <span>DHANUPAY</span>
+        <span className="text-xs">
+          {userType}
+            {/* {UserTypeName === "Employee"
+              ? {userType}
+              : ``} */}
+          </span>
+          </div>  
       </h1>
 
       <div className="flex items-center gap-6">
@@ -144,14 +152,12 @@ export default function Navbar() {
               : `Agent ID: ${AgentId} `}
           </span>
         </div>
-        <div className="flex flex-col items-end text-white">
+        {/* <div className="flex flex-col items-end text-white">
           <span className="font-semibold">designation </span>
-          <span className="text-xs capitalize">
-            
-             ${userType}
-            
+          <span className="text-xs  uppercase">
+             {userType}
           </span>
-        </div>
+        </div> */}
 
 
         {/* //wallets */}
