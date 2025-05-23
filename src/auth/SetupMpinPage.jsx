@@ -19,6 +19,7 @@ export default function SetupMpinPage() {
 
   const UserId = location.state?.UserId || Cookies.get("UserId");
   const loginid = Cookies.get("loginid");
+          const userType = Cookies.get("UserTypeName");
 
 
   useEffect(() => {
@@ -184,7 +185,12 @@ export default function SetupMpinPage() {
           icon: "success",
           confirmButtonText: "OK",
         }).then(() => {
-          navigate("/"); // Redirect to home or login
+if (userType === "Employee") {
+  navigate("/administrator");
+} else {
+  navigate("/login");
+}
+ // Redirect to home or login
         });
       } else {
         setError(data?.message || "Failed to set up MPIN. Please try again.");
