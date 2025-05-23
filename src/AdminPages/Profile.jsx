@@ -51,16 +51,17 @@ export default function Profile() {
         ]);
 
         if (profileRes.data.success) {
-          const { FirstName, LastName, Email, MobileNumber, Role } = profileRes.data;
+          const { AgentId, FirstName, LastName, Email, MobileNumber, Role } = profileRes.data;
           setProfile({
-            name: `${FirstName} ${LastName}`,
+            AgentId:`${AgentId}`,
+            FullName: `${FirstName} ${LastName}`,
             email: Email,
             phone: MobileNumber,
             role: Role,
-            lastLogin: profileRes.data.LastLogin, // Assuming this is available, else remove
+              
           });
         }
-
+        console.log(activityRes.data);
         setActivityLog(Array.isArray(activityRes.data) ? activityRes.data : []);
       } catch (error) {
         console.error("Error fetching profile or activity:", error);
@@ -186,15 +187,7 @@ export default function Profile() {
       {/* Security Tab */}
       {activeTab === "security" && (
         <div className="space-y-6">
-          <div className="flex flex-col">
-            <label className="font-medium text-gray-700">Last Login</label>
-            <input
-              type="text"
-              className="w-full mt-1 p-2 border border-gray-300 rounded-lg bg-gray-100 focus:outline-none"
-              value={profile.lastLogin || "N/A"}
-              disabled
-            />
-          </div>
+         
           <div className="flex gap-4 mt-4">
             <button
               onClick={() => setModalVisible("password")}
