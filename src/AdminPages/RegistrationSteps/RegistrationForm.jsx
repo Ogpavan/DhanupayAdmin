@@ -4,7 +4,7 @@ import RegistrationModal from './RegistrationModal'
 
 function RegistrationForm() {
   return (
-    <div className='h-[80vh] overflow-y-scroll hide-scrollbar'>
+    <div className='h-[calc(100vh-15vh)] overflow-y-scroll hide-scrollbar'>
  
 <UserSummaryTable />
 </div>   
