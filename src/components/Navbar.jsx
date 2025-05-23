@@ -41,11 +41,12 @@ export default function Navbar() {
   // }, [token]);
   const UserName = decodeURIComponent(Cookies.get("UserName") || "");
   const AgentId = Cookies.get("AgentId") || "";
-console.log(AgentId)
+  console.log(AgentId)
   const handleLogout = async () => {
     const userId = Cookies.get("UserId");
     const token = Cookies.get("token");
-
+    const userType = Cookies.get("UserTypeName");
+    console.log(userType)
     if (!userId || !token) {
       Swal.fire({
         title: "Error",
@@ -127,9 +128,17 @@ console.log(AgentId)
 
   return (
     <nav className="bg-indigo-700 text-white px-8 py-4 h-[10vh] flex items-center justify-between shadow-md relative">
-      <h1 className="text-3xl flex items-center gap-2">
-        <img src="/logo-DhanuPayy.png" alt="DhanuPay Logo" className="h-7 object-contain" />
+      <h1 className="text-xl flex items-center gap-2">
+        <img src="/logo-DhanuPayy.png" alt="DhanuPay Logo" className="h-10 object-contain" />
+        <div className="flex font-bold flex-col"  >
         <span>DHANUPAY</span>
+        <span className="text-xs">
+          {userType}
+            {/* {UserTypeName === "Employee"
+              ? {userType}
+              : ``} */}
+          </span>
+          </div>  
       </h1>
 
       <div className="flex items-center gap-6">
@@ -143,18 +152,29 @@ console.log(AgentId)
               : `Agent ID: ${AgentId} `}
           </span>
         </div>
+        {/* <div className="flex flex-col items-end text-white">
+          <span className="font-semibold">designation </span>
+          <span className="text-xs  uppercase">
+             {userType}
+          </span>
+        </div> */}
 
-        <div className="flex flex-row gap-2 text-sm">
-          <div className="flex justify-between items-center border-white hover:border-green-500 border-2 bg-indigo-800 text-white px-4 py-2 rounded-lg shadow">
-            <span className="font-medium">Primary Wallet: </span>
-            <span>{adminBalance !== null ? ` ₹ ${adminBalance}` : "Loading..."}</span>
-          </div>
 
-          <div className="flex justify-between items-center bg-indigo-800 border-white border-2 hover:border-green-500 text-white px-4 py-2 rounded-lg shadow">
-            <span className="font-medium">Incentive Wallet: </span>
-            <span>{adminBalance !== null ? ` ₹ ${adminBalance}` : "Loading..."}</span>
+        {/* //wallets */}
+        {userType !== "Admin" && userType !== "Employee" && (
+          <div className="flex flex-row gap-2 text-sm">
+            <div className="flex justify-between items-center border-white hover:border-green-500 border-2 bg-indigo-800 text-white px-4 py-2 rounded-lg shadow">
+              <span className="font-medium">Primary Wallet: </span>
+              <span>{adminBalance !== null ? ` ₹ ${adminBalance}` : "Loading..."}</span>
+            </div>
+
+            <div className="flex justify-between items-center bg-indigo-800 border-white border-2 hover:border-green-500 text-white px-4 py-2 rounded-lg shadow">
+              <span className="font-medium">Incentive Wallet: </span>
+              <span>{adminBalance !== null ? ` ₹ ${adminBalance}` : "Loading..."}</span>
+            </div>
           </div>
-        </div>
+        )}
+
         {/* Notifications */}
         <div className="relative">
           <div
