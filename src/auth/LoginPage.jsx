@@ -152,6 +152,7 @@ export default function LoginPage() {
       console.log(data);
       settempToken(data.Token);
       settempUserId(data.UserId);
+      console.log("data after login",data);
 
       if (response.ok && data?.Token) {
         Cookies.set("token", data.Token, {
