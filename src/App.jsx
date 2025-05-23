@@ -65,6 +65,8 @@ import ManageDesignation from "./AdminPages/BasicSetting/ManageDesignation.jsx";
 import ManageUsertype from "./AdminPages/BasicSetting/ManageUsertype.jsx";
 import ManageDepartment from "./AdminPages/BasicSetting/ManageDepartment.jsx";
 import EmployeePermission from "./AdminPages/EmployeePermission.jsx";
+import Commission from "./AdminPages/Commision";
+import Commissionmaster from "./AdminPages/Commission/Commissionmaster.jsx";
 
 
 function App() {
@@ -109,6 +111,7 @@ function App() {
             <Route path="transactions" element={<Transactions />} />
             <Route path="settings" element={<BasicSettings />} />
 
+            <Route path="commissionmaster" element={<Commissionmaster />} />
             <Route path="/admin/settings" element={<BasicSettings />}>
               <Route path="city" element={<ManageCity />} />
               <Route path="state" element={<ManageState />} />
