@@ -3,9 +3,9 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import Swal from "sweetalert2";
 
-const token = Cookies.get("token");
 
 export default function PageMasterManager() {
+  const token = Cookies.get("token");
   const [pages, setPages] = useState([]);
   const [form, setForm] = useState({
     PageName: "",
@@ -19,6 +19,10 @@ export default function PageMasterManager() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
+
+
+
+ 
   const fetchPages = async () => {
     try {
       const res = await axios.post(
