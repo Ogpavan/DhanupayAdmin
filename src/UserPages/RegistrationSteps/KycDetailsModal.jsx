@@ -79,7 +79,7 @@ const KycDetailsModal = ({ formData = {}, onClose }) => {
         });
 
         setExistingDocs(groupedDocs);
-       
+
         setDocuments((prev) => ({
           ...prev,
           aadhaarFront: groupedDocs.Aadhaar[0]?.FrontImageURL
@@ -123,7 +123,7 @@ const KycDetailsModal = ({ formData = {}, onClose }) => {
 
         setAadhaarNumber(groupedDocs.Aadhaar[0]?.DocumentNumber || "");
         setPanNumber(groupedDocs.PAN[0]?.DocumentNumber || "");
-         console.warn("data after kyc updated",groupedDocs);
+        console.warn("data after kyc updated", groupedDocs);
       }
     } catch (error) {
       console.error("[ERROR] Failed to fetch existing documents:", error);
@@ -137,11 +137,18 @@ const KycDetailsModal = ({ formData = {}, onClose }) => {
   // }, [formData.NewUserID]);
 
 
+  // useEffect(() => {
+  //   if (formData.NewUserID) {
+  //     fetchExistingDocs();
+  //   }
+  // }, []);
+
   useEffect(() => {
     if (formData.NewUserID) {
       fetchExistingDocs();
     }
-  }, []);
+  }, [formData.NewUserID]); // Correct dependency to ensure refetching
+
 
   const handleUploadClick = (key) => {
     fileRefs.current[key]?.click();
@@ -448,6 +455,9 @@ const KycDetailsModal = ({ formData = {}, onClose }) => {
   };
 
 
+  console.log("existingDocs.CancelCheque[0].BankDetails", existingDocs?.CancelCheque?.[0]?.BankDetails);
+
+
   const handleChange = (e) => {
     let value = e.target.value;
 
@@ -478,49 +488,47 @@ const KycDetailsModal = ({ formData = {}, onClose }) => {
 
     return (
       <tr key={`${type}-upload`}>
-  <td colSpan={2} className="text-right p-2 space-x-2">
-    {formData.KycStatus === "Approved" ? (
-      <span className="text-green-600 font-semibold text-sm pr-10">
-        ✅ KYC Verified Successfully
-      </span>
-    ) : (
-      <>
-        <button
-          className={`px-4 py-1 rounded text-white ${
-            uploading === type ? "bg-gray-400" : "bg-blue-500"
-          }`}
-          onClick={() => uploadDocuments(type)}
-          disabled={
-            uploading !== "" ||
-            (type === "Aadhaar" && !isAadhaarValid()) ||
-            (type === "PAN" && !isPanValid())
-          }
-        >
-          {uploading === type ? "Uploading..." : `Upload ${label}`}
-        </button>
+        <td colSpan={2} className="text-right p-2 space-x-2">
+          {formData.KycStatus === "Approved" ? (
+            <span className="text-green-600 font-semibold text-sm pr-10">
+              ✅ KYC Verified Successfully
+            </span>
+          ) : (
+            <>
+              <button
+                className={`px-4 py-1 rounded text-white ${uploading === type ? "bg-gray-400" : "bg-blue-500"
+                  }`}
+                onClick={() => uploadDocuments(type)}
+                disabled={
+                  uploading !== "" ||
+                  (type === "Aadhaar" && !isAadhaarValid()) ||
+                  (type === "PAN" && !isPanValid())
+                }
+              >
+                {uploading === type ? "Uploading..." : `Upload ${label}`}
+              </button>
 
-        <button
-          className="px-4 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600"
-          onClick={() => setActiveVerification(isActive ? null : type)}
-        >
-          {isActive ? "Hide Details" : "Verify"}
-        </button>
+              <button
+                className="px-4 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+                onClick={() => setActiveVerification(isActive ? null : type)}
+              >
+                {isActive ? "Hide Details" : "Verify"}
+              </button>
 
-        <span
-          className={`ml-4 font-semibold ${
-            status === "Approved"
-              ? "text-green-600"
-              : status === "Rejected"
-              ? "text-red-600"
-              : "text-yellow-600"
-          }`}
-        >
-          {status}
-        </span>
-      </>
-    )}
-  </td>
-</tr>
+              <span
+                className={`ml-4 font-semibold ${status === "Approved"
+                  ? "text-green-600"
+                  : status === "Rejected"
+                    ? "text-red-600"
+                    : "text-yellow-600"
+                  }`}
+              >
+                {status}
+              </span>
+            </>
+          )}
+        </td>
+      </tr>
 
     );
   };
@@ -617,6 +625,22 @@ const KycDetailsModal = ({ formData = {}, onClose }) => {
               {renderRow("Shop Photo", "shopPhoto")}
               {renderRow("Video", "video")}
               {renderUploadButton("KYC", "KYC")}
+
+
+              {/* Bank Details Row (conditionally rendered) */}
+              {existingDocs?.CancelCheque?.[0]?.BankDetails && (
+                <tr>
+                  <td className="p-2 font-semibold border">Bank Details</td>
+                  <td className="p-2 border text-sm leading-relaxed">
+                    <p><strong>Account Holder Name:</strong> {existingDocs.CancelCheque[0].BankDetails.AccountHolderName}</p>
+                    <p><strong>Account Number:</strong> {existingDocs.CancelCheque[0].BankDetails.AccountNumber}</p>
+                    <p><strong>Bank Name:</strong> {existingDocs.CancelCheque[0].BankDetails.BankName}</p>
+                    <p><strong>Branch Name:</strong> {existingDocs.CancelCheque[0].BankDetails.BranchName}</p>
+                    <p><strong>IFSC Code:</strong> {existingDocs.CancelCheque[0].BankDetails.IFSCCode}</p>
+                  </td>
+                </tr>
+              )}
+
               {renderRow("Cancel Cheque", "CancelCheque")}
               {renderUploadButton("CancelCheque", "Cancel Cheque")}
             </tbody>
@@ -747,18 +771,40 @@ const KycDetailsModal = ({ formData = {}, onClose }) => {
 
                 {activeVerification === "CancelCheque" && (
                   <>
-                    <h3 className="text-xl font-bold mb-4">Cancel Cheque</h3>
-                    {documents.CancelCheque && (
-                      <img
-                        src={documents.CancelCheque}
-                        alt="Cancel Cheque"
-                        className="w-[40vh] h-auto rounded border cursor-pointer"
-                        onClick={() => handleViewImage(documents.CancelCheque)}
-                      />
+                    <h3 className="text-xl font-bold mb-6 text-center">Cancel Cheque</h3>
 
-                    )}
+                    <div className="flex flex-col lg:flex-row gap-6 items-start justify-center w-full">
+
+                      {/* Bank Details Box */}
+                      {existingDocs?.CancelCheque?.[0]?.BankDetails && (
+                        <div className="w-full lg:w-1/2 p-6 bg-gray-100 rounded-lg border shadow-sm">
+                          <h4 className="text-lg font-semibold mb-4 text-indigo-700">Bank Details</h4>
+                          <div className="space-y-2 text-sm text-gray-800">
+                            <p><strong>Account Holder Name:</strong> {existingDocs.CancelCheque[0].BankDetails.AccountHolderName}</p>
+                            <p><strong>Account Number:</strong> {existingDocs.CancelCheque[0].BankDetails.AccountNumber}</p>
+                            <p><strong>Bank Name:</strong> {existingDocs.CancelCheque[0].BankDetails.BankName}</p>
+                            <p><strong>Branch Name:</strong> {existingDocs.CancelCheque[0].BankDetails.BranchName}</p>
+                            <p><strong>IFSC Code:</strong> {existingDocs.CancelCheque[0].BankDetails.IFSCCode}</p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Cancel Cheque Image */}
+                      {documents.CancelCheque && (
+                        <div className="w-full lg:w-1/2 flex justify-center">
+                          <img
+                            src={documents.CancelCheque}
+                            alt="Cancel Cheque"
+                            className="w-full max-w-md max-h-[50vh] rounded-lg border shadow cursor-pointer"
+                            onClick={() => handleViewImage(documents.CancelCheque)}
+                          />
+                        </div>
+                      )}
+                    </div>
                   </>
                 )}
+
+
               </div>
             </div>
           )}

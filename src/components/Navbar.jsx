@@ -1,11 +1,14 @@
 import Cookies from "js-cookie";
 import Swal from "sweetalert2";
-import React, { useState } from "react";
-import { Bell, X } from "phosphor-react";
+import React, { useEffect, useState } from "react";
+import { Bell, X, ArrowClockwise } from "phosphor-react";
+import { useWallet } from '../context/WalletContext';
 
 export default function Navbar() {
+   const { wallets, fetchWallets } = useWallet();
   const userType = Cookies.get("UserTypeName");
   const token = Cookies.get("token");
+  const UserId = Cookies.get("UserId");
 
   const [notifications, setNotifications] = useState([
     "New transaction request received",
@@ -14,6 +17,7 @@ export default function Navbar() {
   ]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [adminBalance, setAdminBalance] = useState(3000);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const UserTypeName = Cookies.get("UserTypeName");
   // const fetchAdminBalance = async () => {
   //   if (!token) return;
@@ -42,6 +46,47 @@ export default function Navbar() {
   const UserName = decodeURIComponent(Cookies.get("UserName") || "");
   const AgentId = Cookies.get("AgentId") || "";
   console.log(AgentId)
+
+   useEffect(() => {
+    // const token = localStorage.getItem('auth_token');
+    // const userId = localStorage.getItem('user_id');
+    if (token && UserId) {
+      fetchWallets(UserId, token);
+    }
+  }, []);
+
+   const primaryWallet = wallets.find(w => w.WalletType === 'Primary');
+  const incentiveWallet = wallets.find(w => w.WalletType === 'Incentive');
+
+  // Function to refresh wallet balances
+  const refreshWallets = async () => {
+    if (!token || !UserId) return;
+    
+    setIsRefreshing(true);
+    try {
+      await fetchWallets(UserId, token);
+      // Optional: Show success message
+      // Swal.fire({
+      //   title: "Success",
+      //   text: "Wallet balances refreshed successfully",
+      //   icon: "success",
+      //   timer: 1500,
+      //   showConfirmButton: false,
+      // });
+    } catch (error) {
+      console.error("Error refreshing wallets:", error);
+      Swal.fire({
+        title: "Error",
+        text: "Failed to refresh wallet balances",
+        icon: "error",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
   const handleLogout = async () => {
     const userId = Cookies.get("UserId");
     const token = Cookies.get("token");
@@ -142,8 +187,6 @@ export default function Navbar() {
       </h1>
 
       <div className="flex items-center gap-6">
-
-
         <div className="flex flex-col items-end text-white">
           <span className="font-semibold">{UserName}</span>
           <span className="text-xs">
@@ -162,16 +205,32 @@ export default function Navbar() {
 
         {/* //wallets */}
         {userType !== "Admin" && userType !== "Employee" && (
-          <div className="flex flex-row gap-2 text-sm">
+          <div className="flex flex-row gap-2 text-sm items-center">
             <div className="flex justify-between items-center border-white hover:border-green-500 border-2 bg-indigo-800 text-white px-4 py-2 rounded-lg shadow">
               <span className="font-medium">Primary Wallet: </span>
-              <span>{adminBalance !== null ? ` ₹ ${adminBalance}` : "Loading..."}</span>
+              <span>{adminBalance !== null ? ` ₹ ${ primaryWallet ? primaryWallet.Balance : "---"}` : "Loading..."}</span>
             </div>
 
             <div className="flex justify-between items-center bg-indigo-800 border-white border-2 hover:border-green-500 text-white px-4 py-2 rounded-lg shadow">
               <span className="font-medium">Incentive Wallet: </span>
-              <span>{adminBalance !== null ? ` ₹ ${adminBalance}` : "Loading..."}</span>
+              <span>{adminBalance !== null ? ` ₹ ${incentiveWallet ? incentiveWallet.Balance : '--'}` : "Loading..."}</span>
             </div>
+
+            {/* Refresh Wallet Button */}
+            <button
+              onClick={refreshWallets}
+              disabled={isRefreshing}
+              className={` text-white p-2 rounded-full hover:border-white hover:border-2 transition-all duration-100 ${
+                isRefreshing ? 'cursor-not-allowed opacity-50' : 'hover:scale-102'
+              }`}
+              title="Refresh wallet balances"
+            >
+              <ArrowClockwise 
+                size={18} 
+                weight="bold" 
+                className={isRefreshing ? 'animate-spin' : ''} 
+              />
+            </button>
           </div>
         )}
 
