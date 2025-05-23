@@ -85,104 +85,104 @@ const ServicesPage = () => {
 
 
   //*********************for CRUD oeration on HOLD*********************************************************
-  // const handleChange = (e) => {
-  //   setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  // };
+  const handleChange = (e) => {
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   if (!formData.ServiceName || !formData.CategoryID) {
-  //     return Swal.fire("Error", "Please fill all required fields.", "error");
-  //   }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!formData.ServiceName || !formData.CategoryID) {
+      return Swal.fire("Error", "Please fill all required fields.", "error");
+    }
 
-  //   try {
-  //     const { data } = await axios.post(
-  //       "https://gateway.dhanushop.com/api/Service/Services",
-  //       {
-  //         ...formData,
-  //         Action: modalType === "add" ? "insert" : "update",
-  //         CreatedBy: userid,
-  //       },
-  //       {
-  //         headers: {
-  //           Authorization: `Bearer ${token}`,
-  //         },
-  //       }
-  //     );
-  //     Swal.fire("Success", data.message || "Operation successful", "success");
-  //     fetchServices();
-  //     closeModal();
-  //   } catch (error) {
-  //     console.error("Submit error:", error);
-  //     Swal.fire("Error", "Operation failed.", "error");
-  //   }
-  // };
+    try {
+      const { data } = await axios.post(
+        "https://gateway.dhanushop.com/api/Service/Services",
+        {
+          ...formData,
+          Action: modalType === "add" ? "insert" : "update",
+          CreatedBy: userid,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      Swal.fire("Success", data.message || "Operation successful", "success");
+      fetchServices();
+      closeModal();
+    } catch (error) {
+      console.error("Submit error:", error);
+      Swal.fire("Error", "Operation failed.", "error");
+    }
+  };
 
-  // const handleDelete = async (service) => {
-  //   const result = await Swal.fire({
-  //     title: `Delete "${service.ServiceName}"?`,
-  //     text: "This action cannot be undone.",
-  //     icon: "warning",
-  //     showCancelButton: true,
-  //     confirmButtonColor: "#d33",
-  //     cancelButtonColor: "#3085d6",
-  //     confirmButtonText: "Yes, delete it!",
-  //   });
+  const handleDelete = async (service) => {
+    const result = await Swal.fire({
+      title: `Delete "${service.ServiceName}"?`,
+      text: "This action cannot be undone.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    });
 
-  //   if (result.isConfirmed) {
-  //     try {
-  //       const { data } = await axios.post(
-  //         "https://gateway.dhanushop.com/api/Service/Services",
-  //         {
-  //           Action: "delete",
-  //           ServiceID: service.ServiceID,
-  //           CategoryID: service.CategoryID,
-  //           StatusChangeRemark: "Deleted",
-  //           CreatedBy: userid,
-  //         },
-  //         {
-  //           headers: {
-  //             Authorization: `Bearer ${token}`,
-  //           },
-  //         }
-  //       );
-  //       Swal.fire("Deleted!", data.message || "Service deleted.", "success");
-  //       fetchServices();
-  //     } catch (error) {
-  //       console.error("Delete error:", error);
-  //       Swal.fire("Error", "Failed to delete service.", "error");
-  //     }
-  //   }
-  // };
+    if (result.isConfirmed) {
+      try {
+        const { data } = await axios.post(
+          "https://gateway.dhanushop.com/api/Service/Services",
+          {
+            Action: "delete",
+            ServiceID: service.ServiceID,
+            CategoryID: service.CategoryID,
+            StatusChangeRemark: "Deleted",
+            CreatedBy: userid,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        Swal.fire("Deleted!", data.message || "Service deleted.", "success");
+        fetchServices();
+      } catch (error) {
+        console.error("Delete error:", error);
+        Swal.fire("Error", "Failed to delete service.", "error");
+      }
+    }
+  };
 
-  // const openModal = (type, service = null) => {
-  //   if (type === "update" && service) {
-  //     setFormData({
-  //       Action: "update",
-  //       ServiceID: service.ServiceID,
-  //       CategoryID: service.CategoryID,
-  //       ServiceName: service.ServiceName,
-  //       StatusChangeRemark: "",
-  //       CreatedBy: userid,
-  //     });
-  //   } else {
-  //     setFormData({
-  //       Action: "insert",
-  //       ServiceID: "",
-  //       CategoryID: "",
-  //       ServiceName: "",
-  //       StatusChangeRemark: "",
-  //       CreatedBy: userid,
-  //     });
-  //   }
-  //   setModalType(type);
-  //   setShowModal(true);
-  // };
+  const openModal = (type, service = null) => {
+    if (type === "update" && service) {
+      setFormData({
+        Action: "update",
+        ServiceID: service.ServiceID,
+        CategoryID: service.CategoryID,
+        ServiceName: service.ServiceName,
+        StatusChangeRemark: "",
+        CreatedBy: userid,
+      });
+    } else {
+      setFormData({
+        Action: "insert",
+        ServiceID: "",
+        CategoryID: "",
+        ServiceName: "",
+        StatusChangeRemark: "",
+        CreatedBy: userid,
+      });
+    }
+    setModalType(type);
+    setShowModal(true);
+  };
 
-  // const closeModal = () => {
-  //   setShowModal(false);
-  //   setModalType(null);
-  // };
+  const closeModal = () => {
+    setShowModal(false);
+    setModalType(null);
+  };
   //*********************for CRUD oeration on HOLD*********************************************************
  
  
@@ -197,12 +197,12 @@ const ServicesPage = () => {
           >
             View all Categories
           </button>
-          {/* <button
+          <button
             onClick={() => openModal("add")}
             className="bg-green-600 text-white px-4 py-2 rounded"
           >
             Add Service
-          </button> */}
+          </button>
         </div>
       </div>
 
@@ -213,7 +213,7 @@ const ServicesPage = () => {
               <th className="border border-gray-800 p-2">S.No</th>
               <th className="border border-gray-800 p-2">Service Name</th>
               <th className="border border-gray-800 p-2">Category</th>
-              {/* <th className="border p-2">Action</th> */}
+              <th className="border p-2">Action</th>
             </tr>
           </thead>
           <tbody>
@@ -228,7 +228,7 @@ const ServicesPage = () => {
           categories.find((cat) => cat.CategoryID === srv.CategoryID)?.CategoryName || "-"
         }
       </td>
-      {/* <td className="border p-2 space-x-2">
+      <td className="border p-2 space-x-2">
         <button
           onClick={() => openModal("update", srv)}
           className="bg-yellow-500 text-white px-3 py-1 rounded"
@@ -241,7 +241,7 @@ const ServicesPage = () => {
         >
           Delete
         </button>
-      </td> */}
+      </td>
     </tr>
 ))}
 
@@ -249,7 +249,7 @@ const ServicesPage = () => {
         </table>
       </div>
 
-      {/* {showModal && (
+      {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white p-6 rounded shadow w-full max-w-md">
             <h2 className="text-xl font-bold mb-4">
@@ -302,7 +302,7 @@ const ServicesPage = () => {
             </form>
           </div>
         </div>
-      )} */}
+      )}
     </div>
   );
 };
