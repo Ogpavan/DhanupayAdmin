@@ -367,7 +367,7 @@ const ManageRole = () => {
                     <button
                       type="submit"
                       disabled={isSubmitting || !selectedUserType || !roleName.trim()}
-                      className="w-full   disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200 flex items-center justify-center text-sm"
+                      className="w-full bg-green-400   disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200 flex items-center justify-center text-sm"
                     >
                       {isSubmitting ? (
                         <>

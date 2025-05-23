@@ -59,6 +59,7 @@ const EmployeeMaster = () => {
     fetchUsers();
   }, [token, userId]);
 
+
   const handleViewDetails = (user) => {
     setSelectedUser(user);
     setShowDetailsModal(true);
@@ -175,13 +176,12 @@ const EmployeeMaster = () => {
       <table className="min-w-full border border-gray-300 text-sm text-center">
         <thead className="bg-gray-100">
           <tr>
-            <th className="px-4 py-2 border">User Type</th>
-            <th className="px-4 py-2 border">First Name</th>
-            <th className="px-4 py-2 border">Last Name</th>
+            {/* <th className="px-4 py-2 border">User Type</th> */}
+            <th className="px-4 py-2 border">Role</th>
+            <th className="px-4  py-2 border">Full Name</th>
             <th className="px-4 py-2 border">Mobile</th>
             <th className="px-4 py-2 border">Email</th>
             <th className="px-4 py-2 border">KYC</th>
-            
             <th className="px-4 py-2 border">User Status</th>
             <th className="px-4 py-2 border">Login Status</th>
             <th className="px-4 py-2 border">Actions</th>
@@ -195,9 +195,9 @@ const EmployeeMaster = () => {
 
             return (
               <tr key={user.NewUserID}>
-                <td className="px-4 py-2 border">{user.usertypename}</td>
-                <td className="px-4 py-2 border">{user.FirstName}</td>
-                <td className="px-4 py-2 border">{user.LastName}</td>
+                {/* <td className="px-4 py-2 border">{user.usertypename}</td> */}
+                <td className="px-4 py-2 border">{user.rolename}</td>
+                <td className="px-4 text-nowrap py-2 border">{user.FirstName} {user.LastName}</td>
                 <td className="px-4 py-2 border">{user.MobileNumber}</td>
                 <td className="px-4 py-2 border">{user.Email}</td>
                 <td className="px-4 py-2 border">
