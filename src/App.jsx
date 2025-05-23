@@ -64,6 +64,7 @@ import ManageRole from "./AdminPages/BasicSetting/ManageRole.jsx";
 import ManageDesignation from "./AdminPages/BasicSetting/ManageDesignation.jsx";
 import ManageUsertype from "./AdminPages/BasicSetting/ManageUsertype.jsx";
 import ManageDepartment from "./AdminPages/BasicSetting/ManageDepartment.jsx";
+import EmployeePermission from "./AdminPages/EmployeePermission.jsx";
 
 
 function App() {
@@ -136,7 +137,9 @@ function App() {
               element={<EmployeeRegistration />}
             />
             <Route path="pagemastermanager" element={<PageMasterManager />} />
+            <Route path="employeepermission" element={<EmployeePermission />} />
           </Route>
+
 
           <Route
             path="/user"

@@ -125,7 +125,7 @@ export default function AdminLoginPage() {
           });
         } else {
           navigate("/otp", {
-            state: { message: data.Message, userId: data.UserId,role:data.role },
+            state: { message: data.Message, userId: data.UserId,usertypename:data.UserTypeName },
           });
         }
       } else {

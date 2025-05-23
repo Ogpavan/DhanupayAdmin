@@ -10,7 +10,7 @@ export default function OTPForm() {
   const {
   message = "Please enter the OTP and MPIN sent to your registered number.",
   userId = "",
-  role = ""
+  usertypename = ""
 } = location.state || {};
 
   const BASE_URL =
@@ -116,8 +116,8 @@ export default function OTPForm() {
 
     if (response.ok && data?.success) {
   
-console.log("Role:", role);
-  if (role === "Admin") {
+console.log("usertypename:", usertypename);
+  if (usertypename === "Employee" || usertypename === "employee") {
     navigate("/admin");
   
   } else {
