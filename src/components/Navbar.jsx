@@ -145,7 +145,7 @@ export default function Navbar() {
           </span>
         </div>
         <div className="flex flex-col items-end text-white">
-          <span className="font-semibold">designation</span>
+          <span className="font-semibold">designation </span>
           <span className="text-xs capitalize">
             
              ${userType}
