@@ -38,15 +38,16 @@ const ManageRole = () => {
       setUserTypes(userTypesData || []);
     } catch (error) {
       console.error("Failed to fetch data:", error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Failed to load data. Please try again.',
-        toast: true,
-        position: 'center',
-        showConfirmButton: false,
-        timer: 3000
-      });
+      // Swal.fire({
+      //   icon: 'error',
+      //   title: 'Error',
+      //   text: 'Failed to load data. Please try again.',
+      //   toast: true,
+      //   position: 'center',
+      //   showConfirmButton: false,
+      //   timer: 3000
+      // });
+      Swal.fire("error",  'Failed to load data. Please try again.', "error");
     } finally {
       setIsLoading(false);
     }
@@ -88,15 +89,16 @@ const ManageRole = () => {
       const result = await response.json();
       
       if (result.success) {
-        Swal.fire({
-          icon: 'success',
-          title: 'Success!',
-          text: result.message || 'Role created successfully',
-          toast: true,
-          position: 'center',
-          showConfirmButton: false,
-          timer: 3000
-        });
+        // Swal.fire({
+        //   icon: 'success',
+        //   title: 'Success!',
+        //   text: result.message || 'Role created successfully',
+        //   toast: true,
+        //   position: 'center',
+        //   showConfirmButton: false,
+        //   timer: 3000
+        // });
+        Swal.fire("success", result.message || 'Role created successfully', "success");
         setRoleName('');
         setRoleDesc('');
         setSelectedUserType('');
@@ -168,15 +170,16 @@ const ManageRole = () => {
       const result = await response.json();
       
       if (result.success) {
-        Swal.fire({
-          icon: 'success',
-          title: 'Updated!',
-          text: result.message || 'Role updated successfully',
-          toast: true,
-          position: 'center',
-          showConfirmButton: false,
-          timer: 3000
-        });
+        // Swal.fire({
+        //   icon: 'success',
+        //   title: 'Updated!',
+        //   text: result.message || 'Role updated successfully',
+        //   toast: true,
+        //   position: 'center',
+        //   showConfirmButton: false,
+        //   timer: 3000
+        // });
+        Swal.fire("success", result.message || 'Role updated successfully', "success");
         await loadRoles();
       } else {
         throw new Error(result.message || 'Update failed');
@@ -220,15 +223,16 @@ const ManageRole = () => {
       const apiResult = await response.json();
       
       if (apiResult?.success !== false) {
-        Swal.fire({
-          icon: 'success',
-          title: 'Deleted!',
-          text: 'Role deleted successfully',
-          toast: true,
-          position: 'center',
-          showConfirmButton: false,
-          timer: 3000
-        });
+        // Swal.fire({
+        //   icon: 'success',
+        //   title: 'Deleted!',
+        //   text: 'Role deleted successfully',
+        //   toast: true,
+        //   position: 'center',
+        //   showConfirmButton: false,
+        //   timer: 3000
+        // });
+        Swal.fire("success", 'Role deleted successfully', "success");
         await loadRoles();
       } else {
         throw new Error(apiResult.message || 'Delete failed');
@@ -258,12 +262,13 @@ const ManageRole = () => {
 
   // Get selected user type name
   const getSelectedUserTypeName = () => {
-    const userType = userTypes.find(ut => ut.UserTypeID === parseInt(selectedUserType));
+    const userType = userTypes.find(ut => parseInt(ut.UserTypeID) === parseInt(selectedUserType));
+   
     return userType?.UserTypeName || '';
   };
 
   return (
-    <div className="h-screen max-h-screen bg-gray-50 p-4 overflow-hidden">
+    <div className="h-screen max-h-screen bg-gray-50 p-4 overflow-y-scroll">
       <div className="max-w-full mx-auto h-full flex flex-col">
         
         {/* Compact Header - Fixed height */}
@@ -275,7 +280,7 @@ const ManageRole = () => {
             </div>
             <div className="text-right">
               <div className="text-sm text-gray-500">Total Roles</div>
-              <div className="text-lg font-semibold text-green-600">
+              <div className="text-lg font-semibold text-blue-600">
                 {isLoading ? '...' : roles.length}
               </div>
             </div>
@@ -287,7 +292,7 @@ const ManageRole = () => {
           <div className="h-full flex flex-col lg:flex-row">
             
             {/* Left Panel - Add Role Form - Fixed width on desktop */}
-            <div className="flex-shrink-0 lg:w-96 border-b lg:border-b-0 lg:border-r border-gray-200 p-4">
+            <div className="flex-shrink-0 lg:w-96 border-b lg:border-b-0 lg:border-r overflow-y-scroll hide-scrollbar border-gray-200 p-4">
               <div className="h-full flex flex-col">
                 
                 {/* Form Header */}
@@ -306,7 +311,7 @@ const ManageRole = () => {
                       <select
                         value={selectedUserType}
                         onChange={(e) => setSelectedUserType(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 text-sm bg-white"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2  focus:border-transparent transition-all duration-200 text-sm bg-white"
                         disabled={isSubmitting || isLoading}
                       >
                         <option value="">Select User Type</option>
@@ -332,7 +337,7 @@ const ManageRole = () => {
                         value={roleName}
                         onChange={(e) => setRoleName(e.target.value)}
                         placeholder="e.g., Content Manager, System Admin"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 text-sm"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2  focus:border-transparent transition-all duration-200 text-sm"
                         disabled={isSubmitting}
                         maxLength={100}
                       />
@@ -347,7 +352,7 @@ const ManageRole = () => {
                         onChange={(e) => setRoleDesc(e.target.value)}
                         placeholder="Describe the role responsibilities and permissions..."
                         rows={4}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 text-sm resize-none"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2  focus:border-transparent transition-all duration-200 text-sm resize-none"
                         disabled={isSubmitting}
                         maxLength={500}
                       />
@@ -362,7 +367,7 @@ const ManageRole = () => {
                     <button
                       type="submit"
                       disabled={isSubmitting || !selectedUserType || !roleName.trim()}
-                      className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200 flex items-center justify-center text-sm"
+                      className="w-full   disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200 flex items-center justify-center text-sm"
                     >
                       {isSubmitting ? (
                         <>

@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import Swal from 'sweetalert2';
 import Cookies from 'js-cookie';
 import { fetchUserTypeList } from '../../api/FetchUserTypeList.jsx';
 import UserTypeTable from '../Tables/UserTypeTable';
@@ -31,15 +30,8 @@ const ManageUsertype = () => {
       setUserTypeList(data || []);
     } catch (error) {
       console.error("Failed to fetch user types:", error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Failed to load user types. Please try again.',
-        toast: true,
-        position: 'center',
-        showConfirmButton: false,
-        timer: 3000
-      });
+      // Simple alert for now - can be replaced with SweetAlert2 if needed
+      alert('Failed to load user types. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -56,12 +48,7 @@ const ManageUsertype = () => {
     const trimmedDesc = userTypeDesc.trim();
     
     if (!trimmedName) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Validation Error',
-        text: 'User type name is required.',
-        confirmButtonColor: '#3B82F6'
-      });
+      alert('User type name is required.');
       return;
     }
 
@@ -80,15 +67,7 @@ const ManageUsertype = () => {
       const result = await response.json();
       
       if (result.success) {
-        Swal.fire({
-          icon: 'success',
-          title: 'Success!',
-          text: result.message || 'User type created successfully',
-          toast: true,
-          position: 'center',
-          showConfirmButton: false,
-          timer: 3000
-        });
+        alert(result.message || 'User type created successfully');
         setUserTypeName('');
         setUserTypeDesc('');
         await loadUserTypes();
@@ -96,12 +75,7 @@ const ManageUsertype = () => {
         throw new Error(result.message || 'Failed to create user type');
       }
     } catch (error) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: error.message || 'Failed to create user type. Please try again.',
-        confirmButtonColor: '#3B82F6'
-      });
+      alert(error.message || 'Failed to create user type. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -109,68 +83,20 @@ const ManageUsertype = () => {
 
   // Edit user type
   const handleEdit = async (item) => {
-    const { value: formValues } = await Swal.fire({
-      title: 'Edit User Type',
-      html: `
-        <div class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">User Type Name</label>
-            <input id="swal-input1" class="swal2-input" placeholder="User Type Name" value="${item.UserTypeName || ''}" style="margin: 0;">
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-            <textarea id="swal-input2" class="swal2-textarea" placeholder="Description" style="margin: 0;">${item.UserTypeDescription || ''}</textarea>
-          </div>
-        </div>
-      `,
-      focusConfirm: false,
-      showCancelButton: true,
-      confirmButtonText: 'Update',
-      cancelButtonText: 'Cancel',
-      confirmButtonColor: '#10B981',
-      cancelButtonColor: '#6B7280',
-      preConfirm: () => {
-        const name = document.getElementById('swal-input1').value;
-        const desc = document.getElementById('swal-input2').value;
-        if (!name.trim()) {
-          Swal.showValidationMessage('User type name is required');
-          return false;
-        }
-        return { name: name.trim(), description: desc.trim() };
-      }
-    });
-
-    if (formValues) {
-      Swal.fire({
-        icon: 'info',
-        title: 'Coming Soon',
-        text: 'Update API is not yet implemented. This feature will be available soon.',
-        confirmButtonColor: '#3B82F6'
-      });
+    const newName = prompt('Edit User Type Name:', item.UserTypeName || '');
+    if (newName && newName.trim()) {
+      const newDesc = prompt('Edit Description:', item.UserTypeDescription || '');
+      // For now just show coming soon - replace with actual API call when ready
+      alert('Update API is not yet implemented. This feature will be available soon.');
     }
   };
 
   // Delete user type
   const handleDelete = async (id) => {
-    const result = await Swal.fire({
-      title: 'Delete User Type',
-      text: 'Are you sure you want to delete this user type? This action cannot be undone.',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Yes, Delete',
-      cancelButtonText: 'Cancel',
-      confirmButtonColor: '#EF4444',
-      cancelButtonColor: '#6B7280',
-      reverseButtons: true
-    });
-
-    if (result.isConfirmed) {
-      Swal.fire({
-        icon: 'info',
-        title: 'Coming Soon',
-        text: 'Delete API is not yet implemented. This feature will be available soon.',
-        confirmButtonColor: '#3B82F6'
-      });
+    const confirmed = window.confirm('Are you sure you want to delete this user type? This action cannot be undone.');
+    if (confirmed) {
+      // For now just show coming soon - replace with actual API call when ready
+      alert('Delete API is not yet implemented. This feature will be available soon.');
     }
   };
 
@@ -199,7 +125,7 @@ const ManageUsertype = () => {
             </div>
             <div className="text-right">
               <div className="text-sm text-gray-500">Total Types</div>
-              <div className="text-lg font-semibold text-purple-600">
+              <div className="text-lg font-semibold text-blue-600">
                 {isLoading ? '...' : userTypeList.length}
               </div>
             </div>
@@ -379,11 +305,6 @@ const ManageUsertype = () => {
             width: 100%;
             max-height: 300px;
           }
-        }
-
-        /* SweetAlert2 custom styles */
-        .swal2-html-container .space-y-4 > div + div {
-          margin-top: 1rem;
         }
       `}</style>
     </div>

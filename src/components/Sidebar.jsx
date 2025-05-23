@@ -149,7 +149,7 @@ const location = useLocation();
   const sidebarLinks = role === "Admin" ? AdminsidebarLinks : usersidebarLinks;
 
   return (
-    <div className="w-60 bg-gray-200 text-gray-900 p-4 h-[calc(100vh-16.5vh)] hide-scrollbar overflow-y-scroll">
+    <div className="w-60 bg-gray-200 text-gray-900 p-4 h-[calc(100vh-10vh)] hide-scrollbar overflow-y-scroll">
       <nav className="flex flex-col space-y-2">
        {sidebarLinks.map((link, index) => {
   if (link.nested) {

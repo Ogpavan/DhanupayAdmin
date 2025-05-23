@@ -30,15 +30,16 @@ const ManageStates = () => {
       setStates(data || []);
     } catch (error) {
       console.error("Failed to fetch states:", error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Failed to load states. Please try again.',
-        toast: true,
-        position: 'center',
-        showConfirmButton: false,
-        timer: 3000
-      });
+      // Swal.fire({
+      //   icon: 'error',
+      //   title: 'Error',
+      //   text: 'Failed to load states. Please try again.',
+      //   toast: true,
+      //   position: 'center',
+      //   showConfirmButton: false,
+      //   timer: 3000
+      // });
+      Swal.fire("error",  'Failed to load states. Please try again.', "error");
     } finally {
       setIsLoading(false);
     }
@@ -64,13 +65,7 @@ const ManageStates = () => {
     }
 
 
-    const handleStateNameChange = (e) => {
-  const value = e.target.value;
-  // Allow only alphabets (no spaces, no numbers, no special chars)
-  if (/^[a-zA-Z]*$/.test(value)) {
-    setNewStateName(value);
-  }
-};
+  
 
 
     setIsSubmitting(true);
@@ -87,15 +82,16 @@ const ManageStates = () => {
       const result = await response.json();
 
       if (result.success) {
-        Swal.fire({
-          icon: 'success',
-          title: 'Success!',
-          text: result.message || 'State created successfully',
-          toast: true,
-          position: 'center',
-          showConfirmButton: false,
-          timer: 3000
-        });
+        // Swal.fire({
+        //   icon: 'success',
+        //   title: 'Success!',
+        //   text: result.message || 'State created successfully',
+        //   toast: true,
+        //   position: 'center',
+        //   showConfirmButton: false,
+        //   timer: 3000
+        // });
+        Swal.fire("success", result.message || 'State created successfully', "success");
         setNewStateName('');
         await loadStates();
       } else {
@@ -113,6 +109,14 @@ const ManageStates = () => {
     }
   };
 
+
+    const handleStateNameChange = (e) => {
+  const value = e.target.value;
+  // Allow only alphabets (no spaces, no numbers, no special chars)
+  if (/^[a-zA-Z]*$/.test(value)) {
+    setNewStateName(value);
+  }
+};
   // Edit existing state
   const handleEditState = async (state) => {
     const { value: newName } = await Swal.fire({
@@ -165,15 +169,16 @@ const ManageStates = () => {
       const result = await response.json();
 
       if (result.success) {
-        Swal.fire({
-          icon: 'success',
-          title: 'Updated!',
-          text: result.message || 'State updated successfully',
-          toast: true,
-          position: 'center',
-          showConfirmButton: false,
-          timer: 3000
-        });
+        // Swal.fire({
+        //   icon: 'success',
+        //   title: 'Updated!',
+        //   text: result.message || 'State updated successfully',
+        //   toast: true,
+        //   position: 'center',
+        //   showConfirmButton: false,
+        //   timer: 3000
+        // });
+        Swal.fire("success", result.message || 'State updated successfully', "success");
         await loadStates();
       } else {
         throw new Error(result.message || 'Update failed');
@@ -217,15 +222,16 @@ const ManageStates = () => {
       const apiResult = await response.json();
 
       if (apiResult.success) {
-        Swal.fire({
-          icon: 'success',
-          title: 'Deleted!',
-          text: apiResult.message || 'State deleted successfully',
-          toast: true,
-          position: 'center',
-          showConfirmButton: false,
-          timer: 3000
-        });
+        // Swal.fire({
+        //   icon: 'success',
+        //   title: 'Deleted!',
+        //   text: apiResult.message || 'State deleted successfully',
+        //   toast: true,
+        //   position: 'center',
+        //   showConfirmButton: false,
+        //   timer: 3000
+        // });
+        Swal.fire("success", apiResult.message || 'State deleted successfully', "success");
         await loadStates();
       } else {
         throw new Error(apiResult.message || 'Delete failed');

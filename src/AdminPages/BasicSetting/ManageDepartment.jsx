@@ -31,15 +31,16 @@ const ManageDepartment = () => {
       setDepartmentList(data || []);
     } catch (error) {
       console.error("Failed to fetch departments:", error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Failed to load departments. Please try again.',
-        toast: true,
-        position: 'center',
-        showConfirmButton: false,
-        timer: 3000
-      });
+      // Swal.fire({
+      //   icon: 'error',
+      //   title: 'Error',
+      //   text: ,
+      //   toast: true,
+      //   position: 'center',
+      //   showConfirmButton: false,
+      //   timer: 3000
+      // });
+      Swal.fire("Success",  'Failed to load departments. Please try again.', "success");
     } finally {
       setIsLoading(false);
     }
@@ -80,15 +81,17 @@ const ManageDepartment = () => {
       const result = await response.json();
 
       if (result.success) {
-        Swal.fire({
-          icon: 'success',
-          title: 'Success!',
-          text: result.message || 'Department created successfully',
-          toast: true,
-          position: 'center',
-          showConfirmButton: false,
-          timer: 3000
-        });
+        // Swal.fire({
+        //   icon: 'success',
+        //   title: 'Success!',
+        //   text: result.message || 'Department created successfully',
+        //   toast: true,
+        //   position: 'center',
+        //   showConfirmButton: false,
+        //   timer: 3000
+        // });
+
+        Swal.fire("Success",  result?.message ||'Department created successfully', "success");
         setDepartmentName('');
         setDepartmentDesc('');
         await loadDepartments();
@@ -166,15 +169,19 @@ const ManageDepartment = () => {
       const result = await response.json();
 
       if (result?.success !== false) {
-        Swal.fire({
-          icon: 'success',
-          title: 'Updated!',
-          text: result?.message || 'Department updated successfully',
-          toast: true,
-          position: 'center',
-          showConfirmButton: false,
-          timer: 3000
-        });
+        // Swal.fire({
+        //   icon: 'success',
+        //   title: 'Updated!',
+        //   text: result?.message || 'Department updated successfully',
+        //   toast: true,
+        //   position: 'center',
+        //   showConfirmButton: false,
+        //   timer: 3000
+        // });
+
+         Swal.fire("Success",  result?.message || 'Department updated successfully', "success");
+
+      
         await loadDepartments();
       } else {
         throw new Error(result?.message || 'Update failed');
@@ -218,15 +225,16 @@ const ManageDepartment = () => {
       const apiResult = await response.json();
 
       if (apiResult?.success !== false) {
-        Swal.fire({
-          icon: 'success',
-          title: 'Deleted!',
-          text: 'Department deleted successfully',
-          toast: true,
-          position: 'center',
-          showConfirmButton: false,
-          timer: 3000
-        });
+        // Swal.fire({
+        //   icon: 'success',
+        //   title: 'Deleted!',
+        //   text: 'Department deleted successfully',
+        //   toast: true,
+        //   position: 'center',
+        //   showConfirmButton: false,
+        //   timer: 3000
+        // });
+        Swal.fire("Success",  'Department deleted successfully', "success");
         await loadDepartments();
       } else {
         throw new Error(apiResult?.message || 'Delete failed');
@@ -266,7 +274,7 @@ const ManageDepartment = () => {
             </div>
             <div className="text-right">
               <div className="text-sm text-gray-500">Total Departments</div>
-              <div className="text-lg font-semibold text-orange-600">
+              <div className="text-lg font-semibold text-blue-600">
                 {isLoading ? '...' : departmentList.length}
               </div>
             </div>
