@@ -41,11 +41,12 @@ export default function Navbar() {
   // }, [token]);
   const UserName = decodeURIComponent(Cookies.get("UserName") || "");
   const AgentId = Cookies.get("AgentId") || "";
-console.log(AgentId)
+  console.log(AgentId)
   const handleLogout = async () => {
     const userId = Cookies.get("UserId");
     const token = Cookies.get("token");
-
+    const userType = Cookies.get("UserTypeName");
+    console.log(userType)
     if (!userId || !token) {
       Swal.fire({
         title: "Error",
@@ -143,18 +144,31 @@ console.log(AgentId)
               : `Agent ID: ${AgentId} `}
           </span>
         </div>
-
-        <div className="flex flex-row gap-2 text-sm">
-          <div className="flex justify-between items-center border-white hover:border-green-500 border-2 bg-indigo-800 text-white px-4 py-2 rounded-lg shadow">
-            <span className="font-medium">Primary Wallet: </span>
-            <span>{adminBalance !== null ? ` ₹ ${adminBalance}` : "Loading..."}</span>
-          </div>
-
-          <div className="flex justify-between items-center bg-indigo-800 border-white border-2 hover:border-green-500 text-white px-4 py-2 rounded-lg shadow">
-            <span className="font-medium">Incentive Wallet: </span>
-            <span>{adminBalance !== null ? ` ₹ ${adminBalance}` : "Loading..."}</span>
-          </div>
+        <div className="flex flex-col items-end text-white">
+          <span className="font-semibold">designation</span>
+          <span className="text-xs capitalize">
+            
+             ${userType}
+            
+          </span>
         </div>
+
+
+        {/* //wallets */}
+        {userType !== "Admin" && userType !== "Employee" && (
+          <div className="flex flex-row gap-2 text-sm">
+            <div className="flex justify-between items-center border-white hover:border-green-500 border-2 bg-indigo-800 text-white px-4 py-2 rounded-lg shadow">
+              <span className="font-medium">Primary Wallet: </span>
+              <span>{adminBalance !== null ? ` ₹ ${adminBalance}` : "Loading..."}</span>
+            </div>
+
+            <div className="flex justify-between items-center bg-indigo-800 border-white border-2 hover:border-green-500 text-white px-4 py-2 rounded-lg shadow">
+              <span className="font-medium">Incentive Wallet: </span>
+              <span>{adminBalance !== null ? ` ₹ ${adminBalance}` : "Loading..."}</span>
+            </div>
+          </div>
+        )}
+
         {/* Notifications */}
         <div className="relative">
           <div
