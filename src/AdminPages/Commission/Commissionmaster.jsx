@@ -5,6 +5,8 @@ import CommissionTable from './CommissionTable'; // Adjust path as needed
 
 const CommissionMaster = () => {
   const [services, setServices] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedService, setSelectedService] = useState('');
   const token = Cookies.get('token');
   const userid = Cookies.get('UserId');
@@ -52,7 +54,18 @@ const CommissionMaster = () => {
           },
         }
       );
-      setServices(Array.isArray(data) ? data : []);
+
+      const validServices = Array.isArray(data) ? data : [];
+      setServices(validServices);
+
+      // Extract unique categories
+      const uniqueCategories = Array.from(
+        new Map(
+          validServices.map((item) => [item.CategoryID, item.CategoryName])
+        ).entries()
+      ).map(([CategoryID, CategoryName]) => ({ CategoryID, CategoryName }));
+
+      setCategories(uniqueCategories);
     } catch (error) {
       console.error("Fetch services error:", error);
     }
@@ -64,25 +77,60 @@ const CommissionMaster = () => {
     }
   }, [token, userid]);
 
-  return (
-    <div className="p-4  mx-auto">
-      <h2 className="text-xl font-bold mb-4">Select a Service</h2>
-      <select
-        className="w-full border p-2 rounded shadow-sm max-w-sm"
-        value={selectedService}
-        onChange={(e) => setSelectedService(e.target.value)}
-      >
-        <option value="">-- Select Service --</option>
-        {services.map((service, index) => (
-          <option key={index} value={service.ServiceID}>
-            {service.ServiceName}
-          </option>
-        ))}
-      </select>
+  // Filter services by selected category
+  const filteredServices = selectedCategory
+    ? services.filter((s) => s.CategoryID === selectedCategory)
+    : [];
 
+  return (
+    <div className="p-4 mx-auto">
+      <h2 className="text-xl font-bold mb-4">Commission Management</h2>
+
+      {/* Category Dropdown */}
+      <div className='flex gap-x-10'>
+      <div className="mb-4 max-w-sm">
+        <label className="block mb-1 font-medium">Select Category</label>
+        <select
+          className="w-full border p-2 rounded shadow-sm"
+          value={selectedCategory}
+          onChange={(e) => {
+            setSelectedCategory(e.target.value);
+            setSelectedService('');
+          }}
+        >
+          <option value="">-- Select Category --</option>
+          {categories.map((cat) => (
+            <option key={cat.CategoryID} value={cat.CategoryID}>
+              {cat.CategoryName}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Service Dropdown */}
+      {selectedCategory && (
+        <div className="mb-4 ">
+          <label className="block mb-1 font-medium">Select Service</label>
+          <select
+            className="w-full border p-2 rounded shadow-sm"
+            value={selectedService}
+            onChange={(e) => setSelectedService(e.target.value)}
+          >
+            <option value="">-- Select Service --</option>
+            {filteredServices.map((service, index) => (
+              <option key={index} value={service.ServiceID}>
+                {service.ServiceName}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+</div>
+      {/* Show Commission Table only when service is selected */}
       {selectedService && (
         <CommissionTable data={dummyCommissionData} />
       )}
+      
     </div>
   );
 };
