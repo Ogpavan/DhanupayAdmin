@@ -67,6 +67,8 @@ import ManageDepartment from "./AdminPages/BasicSetting/ManageDepartment.jsx";
 import EmployeePermission from "./AdminPages/EmployeePermission.jsx";
 import Commission from "./AdminPages/Commision";
 import Commissionmaster from "./AdminPages/Commission/Commissionmaster.jsx";
+import BankMaster from "./AdminPages/BankMaster.jsx";
+
 
 
 function App() {
@@ -99,49 +101,59 @@ function App() {
 
 
           <Route
-            path="/admin"
-            element={
-              <PrivateRoute>
-                <MainLayout />
-              </PrivateRoute>
-            }
-          >
-            <Route index element={<Dashboard />} />
-            <Route path="users" element={<Users />} />
-            <Route path="transactions" element={<Transactions />} />
-            <Route path="settings" element={<BasicSettings />} />
-
-            <Route path="commissionmaster" element={<Commissionmaster />} />
-            <Route path="/admin/settings" element={<BasicSettings />}>
-              <Route path="city" element={<ManageCity />} />
-              <Route path="state" element={<ManageState />} />
-              <Route path="department" element={<ManageDepartment />} />
-              <Route path="designation" element={<ManageDesignation />} />
-              <Route path="usertype" element={<ManageUsertype />} />
-              <Route path="role" element={<ManageRole />} />
+              path="/admin"
+              element={
+                <PrivateRoute>
+                  <MainLayout />
+                </PrivateRoute>
+              }
+            >
+              <Route index element={<Dashboard />} />
+              <Route path="users" element={<Users />} />
+              <Route path="transactions" element={<Transactions />} />
+              <Route path="settings" element={<BasicSettings />} />
+              <Route path="commissionmaster" element={<Commissionmaster />} />
+              <Route path="/admin/settings" element={<BasicSettings />}>
+                <Route path="city" element={<ManageCity />} />
+                <Route path="state" element={<ManageState />} />
+                <Route path="department" element={<ManageDepartment />} />
+                <Route path="designation" element={<ManageDesignation />} />
+                <Route path="usertype" element={<ManageUsertype />} />
+                <Route path="role" element={<ManageRole />} />
+              </Route>
+              <Route path="profile" element={<Profile />} />
+              <Route path="commission" element={<Commision />} />
+              <Route path="registration" element={<RegistrationForm />} />
+              <Route path="financial" element={<Financial />} />
+              <Route path="employeemaster" element={<EmployeeMaster />} />
+              <Route path="bankmaster" element={<BankMaster />} />
+              <Route path="fundtransfer" element={<FundTransfer />} />
+              <Route
+                path="UserTypeAndRoleManager"
+                element={<UserTypeAndRoleManager />}
+              />
+              <Route path="ServiceMaster" element={<ServiceMaster />} />
+              <Route path="servicepage" element={<ServicesPage />} />
+              <Route path="loadwallet" element={<LoadWallet />} />
+              <Route path="registrationmodal" element={<RegistrationModal />} />
+              {/* <Route path="assignservices" element={<AssignServices />} /> */}
+          <Route
+                path="employeeregistration"
+                element={<EmployeeRegistration />}
+              />
+              <Route path="pagemastermanager" element={<PageMasterManager />} />
+              <Route path="employeepermission" element={<EmployeePermission />} />
             </Route>
-            <Route path="profile" element={<Profile />} />
-            <Route path="commission" element={<Commision />} />
-            <Route path="registration" element={<RegistrationForm />} />
-            <Route path="financial" element={<Financial />} />
-            <Route path="employeemaster" element={<EmployeeMaster />} />
-            <Route path="fundtransfer" element={<FundTransfer />} />
-            <Route
-              path="UserTypeAndRoleManager"
-              element={<UserTypeAndRoleManager />}
-            />
-            <Route path="ServiceMaster" element={<ServiceMaster />} />
-            <Route path="servicepage" element={<ServicesPage />} />
-            <Route path="loadwallet" element={<LoadWallet />} />
-            <Route path="registrationmodal" element={<RegistrationModal />} />
-            {/* <Route path="assignservices" element={<AssignServices />} /> */}
-            <Route
-              path="employeeregistration"
-              element={<EmployeeRegistration />}
-            />
-            <Route path="pagemastermanager" element={<PageMasterManager />} />
-            <Route path="employeepermission" element={<EmployeePermission />} />
-          </Route>
+
+
+
+
+
+          
+
+
+
+
 
 
           <Route

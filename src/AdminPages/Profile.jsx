@@ -14,6 +14,7 @@ export default function Profile() {
   const [loading, setLoading] = useState(true);
   const [activityLog, setActivityLog] = useState([]);
 
+
   // Pagination & sorting/filter states for Activity Log
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -49,17 +50,18 @@ export default function Profile() {
             }
           ),
         ]);
-
+          console.log(profileRes.data);
         if (profileRes.data.success) {
+          setProfile(profileRes.data);
           const { AgentId, FirstName, LastName, Email, MobileNumber, Role } = profileRes.data;
-          setProfile({
-            AgentId:`${AgentId}`,
-            FullName: `${FirstName} ${LastName}`,
-            email: Email,
-            phone: MobileNumber,
-            role: Role,
+          // setProfile({
+          //   AgentId:`${AgentId}`,
+          //   FullName: `${FirstName} ${LastName}`,
+          //   email: Email,
+          //   phone: MobileNumber,
+          //   role: Role,
               
-          });
+          // });
         }
         console.log(activityRes.data);
         setActivityLog(Array.isArray(activityRes.data) ? activityRes.data : []);
@@ -144,7 +146,7 @@ export default function Profile() {
   }
 
   return (
-    <div className="rounded-lg max-w-4xl mx-auto p-4">
+    <div className="rounded-lg h-[calc(100vh-15vh)] overflow-hidden max-w-4xl mx-auto p-4">
       {/* Tabs */}
       <div className="flex gap-8 mb-6 border-b pb-2">
         {["profile", "security", "activity"].map((tab) => (
@@ -167,20 +169,81 @@ export default function Profile() {
 
       {/* Profile Tab */}
       {activeTab === "profile" && (
-        <div className="space-y-6">
-          {Object.entries(profile).map(([key, value]) => (
-            <div key={key} className="flex flex-col">
-              <label className="font-medium text-gray-700 capitalize">
-                {key.replace(/([A-Z])/g, " $1")}
-              </label>
-              <input
-                type="text"
-                className="w-full mt-1 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                value={value}
-                disabled
-              />
-            </div>
-          ))}
+        <div className="space-y-6 h-[70vh] overflow-y-scroll hide-scrollbar">
+          <div className="space-y-10 p-6 bg-white rounded-xl shadow-md">
+      {/* Personal Details */}
+      <section>
+        <h2 className="text-xl font-semibold text-gray-800 border-b pb-2 mb-4">Personal Details</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <ProfileField label="First Name" value={profile.FirstName} />
+          <ProfileField label="Last Name" value={profile.LastName} />
+          <ProfileField label="Email" value={profile.Email} />
+          <ProfileField label="Mobile Number" value={profile.MobileNumber} />
+          <ProfileField label="Aadhaar Number" value={profile.AadhaarNumber} />
+          <ProfileField label="Pan Number" value={profile.PanNumber} />
+        </div>
+      </section>
+
+      {/* Address Info */}
+      <section>
+        <h2 className="text-xl font-semibold text-gray-800 border-b pb-2 mb-4">Personal Address</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <ProfileField label="Address Line 1" value={profile.PersonalAddressLine1} />
+          <ProfileField label="Address Line 2" value={profile.PersonalAddressLine2} />
+          <ProfileField label="City" value={profile.personalcityname} />
+          <ProfileField label="State" value={profile.personalsatename} />
+          <ProfileField label="Pincode" value={profile.PersonalPincode} />
+        </div>
+      </section>
+
+      <section>
+        <h2 className="text-xl font-semibold text-gray-800 border-b pb-2 mb-4">Shop Address</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <ProfileField label="Address Line 1" value={profile.ShopAddressLine1} />
+          <ProfileField label="Address Line 2" value={profile.ShopAddressLine2} />
+          <ProfileField label="City" value={profile.shopcityname} />
+          <ProfileField label="State" value={profile.shopsatename} />
+          <ProfileField label="Pincode" value={profile.ShopPincode} />
+        </div>
+      </section>
+
+      {/* Documents */}
+      {/* <section>
+        <h2 className="text-xl font-semibold text-gray-800 border-b pb-2 mb-4">Documents</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <ImageField label="Aadhaar Front" src={profile.AadhaarFront} />
+          <ImageField label="Aadhaar Back" src={profile.AadhaarBack} />
+          <ImageField label="PAN Card" src={profile.PanFront} />
+          <ImageField label="Profile Image" src={profile.ProfileImage} />
+          <ImageField label="Shop Image" src={profile.ShopImage} />
+        </div>
+      </section> */}
+
+      {/* Video */}
+      {/* {profile.Video && (
+        <section>
+          <h2 className="text-xl font-semibold text-gray-800 border-b pb-2 mb-4">Video Verification</h2>
+          <video
+            controls
+            className="w-full max-w-md rounded-lg shadow border"
+            src={profile.Video}
+          />
+        </section>
+      )} */}
+
+      {/* Status Section */}
+      <section>
+        <h2 className="text-xl font-semibold text-gray-800 border-b pb-2 mb-4">Status</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <ProfileField label="KYC Status" value={profile.KycStatus} />
+          <ProfileField label="User Status" value={profile.UserStatus} />
+          <ProfileField label="Login Status" value={profile.LoginStatus} />
+          <ProfileField label="Esign Status" value={profile.EsignStatus} />
+          <ProfileField label="Role" value={profile.rolename} />
+          <ProfileField label="User Type" value={profile.usertypename} />
+        </div>
+      </section>
+    </div>
         </div>
       )}
 
@@ -196,7 +259,7 @@ export default function Profile() {
               <ShieldCheck size={25} weight="bold" />
               Change Password
             </button>
-            <button
+            <button               
               onClick={() => setModalVisible("mpin")}
               className="w-full flex items-center justify-center gap-2 border py-4 rounded-xl shadow-sm bg-gray-200"
             >
@@ -205,6 +268,9 @@ export default function Profile() {
             </button>
           </div>
         </div>
+
+
+
       )}
 
       {/* Activity Tab */}
@@ -334,6 +400,36 @@ export default function Profile() {
       {/* Modals */}
       {modalVisible === "password" && <ChangePasswordModal onClose={() => setModalVisible(null)} />}
       {modalVisible === "mpin" && <ChangeMpinModal onClose={() => setModalVisible(null)} />}
+
+
+
+
+        
     </div>
   );
 }
+
+
+
+const ProfileField = ({ label, value }) => (
+  <div className="flex flex-col">
+    <label className="text-sm font-medium text-gray-700">{label}</label>
+    <input
+      type="text"
+      value={value || ""}
+      disabled
+      className="mt-1 px-2 py-1 border border-gray-300 rounded-lg bg-gray-100 text-gray-800"
+    />
+  </div>
+);
+
+const ImageField = ({ label, src }) => (
+  <div className="flex flex-col items-start">
+    <label className="text-sm font-medium text-gray-700 mb-1">{label}</label>
+    <img
+      src={src}
+      alt={label}
+      className="w-40 h-40 object-cover border rounded-lg shadow"
+    />
+  </div>
+);

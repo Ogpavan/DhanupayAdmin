@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 
 const UserDetailsModal = ({ formData = {}, onClose }) => {
+  console.log("Form Data user detail", formData);
   const renderField = (label, value) => (
     <div key={label} className="grid grid-cols-2 gap-1 py-1 text-sm border-b">
       <div className="font-medium text-gray-600">{label}</div>
