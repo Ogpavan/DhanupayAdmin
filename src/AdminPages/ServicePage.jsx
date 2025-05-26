@@ -263,17 +263,7 @@ const ServicesPage = () => {
               {modalType === "add" ? "Add Service" : "Update Service"}
             </h2>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block font-medium">Service Name *</label>
-                <input
-                  type="text"
-                  name="ServiceName"
-                  value={formData.ServiceName}
-                  onChange={handleChange}
-                  className="w-full border p-2 rounded"
-                  required
-                />
-              </div>
+             
               <div>
                 <label className="block font-medium">Category *</label>
                 <select
@@ -290,6 +280,17 @@ const ServicesPage = () => {
                     </option>
                   ))}
                 </select>
+              </div>
+               <div>
+                <label className="block font-medium">Service Name *</label>
+                <input
+                  type="text"
+                  name="ServiceName"
+                  value={formData.ServiceName}
+                  onChange={handleChange}
+                  className="w-full border p-2 rounded"
+                  required
+                />
               </div>
               <div className="flex justify-end space-x-2">
                 <button
