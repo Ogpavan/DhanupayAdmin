@@ -33,7 +33,7 @@ const ServicesPage = () => {
   const fetchServices = async () => {
     try {
       const { data } = await axios.post(
-        "https://gateway.dhanushop.com/api/Service/Services",
+        `${import.meta.env.VITE_BACKEND_URL}/api/Service/Services`,
         {
           Action: "select",
           ServiceID: "N/A ",
@@ -58,7 +58,7 @@ const ServicesPage = () => {
   const fetchCategories = async () => {
     try {
       const { data } = await axios.post(
-        "https://gateway.dhanushop.com/api/Service/Servicecategory",
+        `${import.meta.env.VITE_BACKEND_URL}/api/Service/Servicecategory`,
         {
           Action: "select",
           CategoryID: "N/A",
@@ -97,7 +97,7 @@ const ServicesPage = () => {
 
     try {
       const { data } = await axios.post(
-        "https://gateway.dhanushop.com/api/Service/Services",
+        `${import.meta.env.VITE_BACKEND_URL}/api/Service/Services`,
         {
           ...formData,
           Action: modalType === "add" ? "insert" : "update",
@@ -132,7 +132,7 @@ const ServicesPage = () => {
     if (result.isConfirmed) {
       try {
         const { data } = await axios.post(
-          "https://gateway.dhanushop.com/api/Service/Services",
+          `${import.meta.env.VITE_BACKEND_URL}/api/Service/Services`,
           {
             Action: "delete",
             ServiceID: service.ServiceID,
@@ -192,11 +192,18 @@ const ServicesPage = () => {
         <h1 className="text-2xl font-bold">Services</h1>
         <div className="space-x-2">
           <button
+            onClick={() => navigate("/admin/ServiceSlabMaster")}
+            className="bg-blue-600 text-white px-4 py-2 rounded"
+          >
+            View all Slabs
+          </button>
+          <button
             onClick={() => navigate("/admin/ServiceMaster")}
             className="bg-blue-600 text-white px-4 py-2 rounded"
           >
             View all Categories
           </button>
+          
           <button
             onClick={() => openModal("add")}
             className="bg-green-600 text-white px-4 py-2 rounded"

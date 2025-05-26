@@ -26,7 +26,7 @@ export default function PageMasterManager() {
   const fetchPages = async () => {
     try {
       const res = await axios.post(
-        "https://gateway.dhanushop.com/api/pages/list",
+        `${import.meta.env.VITE_BACKEND_URL}/api/pages/list`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setPages(res.data || []);
@@ -64,8 +64,8 @@ export default function PageMasterManager() {
 
   const handleSubmit = async () => {
     const url = editing
-      ? "https://gateway.dhanushop.com/api/PageMaster/UpdatePages"
-      : "https://gateway.dhanushop.com/api/PageMaster/InsertPages";
+      ? `${import.meta.env.VITE_BACKEND_URL}/api/PageMaster/UpdatePages`
+      : `${import.meta.env.VITE_BACKEND_URL}/api/PageMaster/InsertPages`;
 
     const payload = { ...form };
     if (editing) payload.PageId = pageId;
@@ -111,7 +111,7 @@ export default function PageMasterManager() {
     if (confirm.isConfirmed) {
       try {
         await axios.post(
-          "https://gateway.dhanushop.com/api/PageMaster/DeletePages",
+          `${import.meta.env.VITE_BACKEND_URL}/api/PageMaster/DeletePages`,
           { PageId: id },
           { headers: { Authorization: `Bearer ${token}` } }
         );

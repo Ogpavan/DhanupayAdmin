@@ -64,7 +64,7 @@ export default function Registration() {
       try {
         const userId = Cookies.get("userId");
         const response = await axios.post(
-          "https://gateway.dhanushop.com/api/TypeMaster/list",
+          `${import.meta.env.VITE_BACKEND_URL}/api/TypeMaster/list`,
           { userid: userId }
         );
         setUserTypes(response.data);
@@ -174,7 +174,7 @@ export default function Registration() {
       // Step 1: Register the user
       
       const response = await axios.post(
-        "https://gateway.dhanushop.com/api/users/register",
+        `${import.meta.env.VITE_BACKEND_URL}/api/users/register`,
         payload
       );
   
@@ -196,7 +196,7 @@ export default function Registration() {
       formData.append("VideoFile", formData.videoFile);
   
       const uploadRes = await axios.post(
-        "https://gateway.dhanushop.com/api/users/uploadDocuments",
+        `${import.meta.env.VITE_BACKEND_URL}/api/users/uploadDocuments`,
         formData,
         {
           headers: {
@@ -262,7 +262,7 @@ export default function Registration() {
           aadhaarForm.append("BackImage", formData.aadhaarBack);
   
           await axios.post(
-            "https://gateway.dhanushop.com/api/users/uploadDocuments",
+            `${import.meta.env.VITE_BACKEND_URL}/api/users/uploadDocuments`,
             aadhaarForm,
             { headers: { "Content-Type": "multipart/form-data" } }
           );
@@ -276,7 +276,7 @@ export default function Registration() {
           panForm.append("FrontImage", formData.PAN);
   
           await axios.post(
-            "https://gateway.dhanushop.com/api/users/uploadDocuments",
+            `${import.meta.env.VITE_BACKEND_URL}/api/users/uploadDocuments`,
             panForm,
             { headers: { "Content-Type": "multipart/form-data" } }
           );
@@ -291,7 +291,7 @@ export default function Registration() {
           kycForm.append("VideoFile", formData.video);
   
           await axios.post(
-            "https://gateway.dhanushop.com/api/users/uploadDocuments",
+            `${import.meta.env.VITE_BACKEND_URL}/api/users/uploadDocuments`,
             kycForm,
             { headers: { "Content-Type": "multipart/form-data" } }
           );
@@ -304,7 +304,7 @@ export default function Registration() {
       // POST for all steps except file uploads
       if (step < 3) {
         await axios.post(
-          "https://gateway.dhanushop.com/api/users/register",
+          `${import.meta.env.VITE_BACKEND_URL}/api/users/register`,
           payload
         );
       }

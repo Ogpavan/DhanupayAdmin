@@ -34,7 +34,7 @@ const EmployeeMaster = () => {
         }
 
         const response = await axios.post(
-          "https://gateway.dhanushop.com/api/users/AllUserDetails",
+          `${import.meta.env.VITE_BACKEND_URL}/api/users/AllUserDetails`,
           { UserID: userId },
           {
             headers: {
@@ -82,7 +82,7 @@ const EmployeeMaster = () => {
 
     try {
       const response = await axios.post(
-        "https://gateway.dhanushop.com/api/users/ChangeUserStatus",
+        `${import.meta.env.VITE_BACKEND_URL}/api/users/ChangeUserStatus`,
         {
           UserID: userId,
           NewUserId: newUserId,

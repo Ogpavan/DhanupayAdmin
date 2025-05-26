@@ -27,7 +27,7 @@ const ServiceCategory = () => {
 
  const fetchCategories = async () => {
   try {
-    const response = await fetch('https://gateway.dhanushop.com/api/Service/Servicecategory', {
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/Service/Servicecategory`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -81,7 +81,7 @@ useEffect(() => {
     const actionType = isEditMode ? 'update' : 'insert';
 
     try {
-      const response = await fetch('https://gateway.dhanushop.com/api/Service/Servicecategory', {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/Service/Servicecategory`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -134,7 +134,7 @@ useEffect(() => {
 
     if (confirm.isConfirmed) {
       try {
-        const response = await fetch('https://gateway.dhanushop.com/api/Service/Servicecategory', {
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/Service/Servicecategory`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -168,6 +168,12 @@ useEffect(() => {
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">Service Categories</h1>
         <div className='space-x-2'>
+          <button
+            onClick={() => navigate("/admin/ServiceSlabMaster")}
+            className="bg-blue-600 text-white px-4 py-2 rounded"
+          >
+            View all Slabs
+          </button>
           <button onClick={() => navigate('/admin/servicepage')} className="bg-blue-600 text-white px-4 py-2 rounded">
             View all Services
           </button>

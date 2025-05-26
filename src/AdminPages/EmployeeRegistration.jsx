@@ -129,7 +129,7 @@ export default function EmployeeRegistration() {
       try {
         const userId = Cookies.get("userId");
         const response = await axios.post(
-          "https://gateway.dhanushop.com/api/TypeMaster/list",
+          `${import.meta.env.VITE_BACKEND_URL}/api/TypeMaster/list`,
           { userid: userId }
         );
         setUserTypes(response.data);
@@ -188,7 +188,7 @@ export default function EmployeeRegistration() {
   //   const fetchRoles = async () => {
   //     try {
   //       const response = await axios.post(
-  //         "https://gateway.dhanushop.com/api/role/list",
+  //         `${import.meta.env.VITE_BACKEND_URL}/api/role/list`,
   //         { userId: userId },
   //         {
   //           headers: {
@@ -266,7 +266,7 @@ export default function EmployeeRegistration() {
 
         console.log("Payload:", payload);
         const response = await axios.post(
-          "https://gateway.dhanushop.com/api/users/register",
+          `${import.meta.env.VITE_BACKEND_URL}/api/users/register`,
           payload
         );
         console.log("Response:", response.data);
@@ -372,7 +372,7 @@ export default function EmployeeRegistration() {
     if (selectedUserType) {
       try {
         const response = await axios.post(
-          "https://gateway.dhanushop.com/api/role/listByUserTypeID",
+          `${import.meta.env.VITE_BACKEND_URL}/api/role/listByUserTypeID`,
           {
             userId: userId,
             UserTypeID: selectedUserType,

@@ -68,6 +68,7 @@ import EmployeePermission from "./AdminPages/EmployeePermission.jsx";
 import Commission from "./AdminPages/Commision";
 import Commissionmaster from "./AdminPages/Commission/Commissionmaster.jsx";
 import BankMaster from "./AdminPages/BankMaster.jsx";
+import ServiceSlabMaster from "./AdminPages/ServiceSlabMaster.jsx";
 
 
 
@@ -132,7 +133,9 @@ function App() {
                 path="UserTypeAndRoleManager"
                 element={<UserTypeAndRoleManager />}
               />
-              <Route path="ServiceMaster" element={<ServiceMaster />} />
+              <Route path="ServiceMaster" element={<ServiceMaster />} /> 
+               <Route path="ServiceSlabMaster" element={<ServiceSlabMaster />} />
+              
               <Route path="servicepage" element={<ServicesPage />} />
               <Route path="loadwallet" element={<LoadWallet />} />
               <Route path="registrationmodal" element={<RegistrationModal />} />

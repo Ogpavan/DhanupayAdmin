@@ -15,7 +15,7 @@ const EmployeePermission = () => {
     useEffect(() => {
         const fetchRoles = async () => {
             try {
-                const response = await fetch("https://gateway.dhanushop.com/api/role/list", {
+                const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/role/list`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({}),
@@ -36,7 +36,7 @@ const EmployeePermission = () => {
         console.log("Fetching permissions for role:", roleId);
         try {
             const response = await axios.post(
-                "https://gateway.dhanushop.com/api/RolePermission/GetRolesPermission",
+                `${import.meta.env.VITE_BACKEND_URL}/api/RolePermission/GetRolesPermission`,
                 { RoleId: roleId },
                 {
                     headers: {
@@ -48,33 +48,33 @@ const EmployeePermission = () => {
 
             const pagesData = response.data || [];
             console.log("API response for permissions:", pagesData);
-            
+
             setPages(pagesData);
-            
+
             // Create permissions map - only track if page has access (all permissions are "1")
             const permissionMap = {};
-            
+
             const processPages = (pagesList) => {
                 pagesList.forEach((page) => {
                     // Only consider pages with URLs as selectable
                     if (page.to) {
-                        permissionMap[page.PageId] = page.CanView === "1" && 
-                                                   page.CanCreate === "1" && 
-                                                   page.CanUpdate === "1" && 
-                                                   page.CanDelete === "1";
+                        permissionMap[page.PageId] = page.CanView === "1" &&
+                            page.CanCreate === "1" &&
+                            page.CanUpdate === "1" &&
+                            page.CanDelete === "1";
                     }
-                    
+
                     // Process nested pages if they exist
                     if (page.nested && page.nested.length > 0) {
                         processPages(page.nested);
                     }
                 });
             };
-            
+
             processPages(pagesData);
             console.log("Processed permissions:", permissionMap);
             setPermissions(permissionMap);
-            
+
         } catch (error) {
             console.error("Error fetching role permissions:", error);
             Swal.fire("Error", "Failed to load role permissions", "error");
@@ -115,7 +115,7 @@ const EmployeePermission = () => {
         };
 
         const allSelectablePages = getAllSelectablePages(pages);
-        
+
         try {
             // Show loading
             Swal.fire({
@@ -131,9 +131,9 @@ const EmployeePermission = () => {
             // Update permissions for all selectable pages
             for (const pageId of allSelectablePages) {
                 const isSelected = permissions[pageId] || false;
-                
+
                 await axios.post(
-                    "https://gateway.dhanushop.com/api/RolePermission/InsertRolePermission",
+                    `${import.meta.env.VITE_BACKEND_URL}/api/RolePermission/InsertRolePermission`,
                     {
                         RoleId: selectedRoleId,
                         PageID: pageId.toString(),
@@ -261,7 +261,7 @@ const EmployeePermission = () => {
                         </label>
                         <div className="bg-gray-50 p-4 rounded-lg border">
                             <div className="mb-4 text-sm text-gray-600 bg-blue-50 p-3 rounded">
-                                <strong>Note:</strong> Select pages to grant all permissions (View, Create, Update, Delete). 
+                                <strong>Note:</strong> Select pages to grant all permissions (View, Create, Update, Delete).
                                 Click "Update Permissions" button to save all changes at once.
                             </div>
                             <div className="space-y-1 max-h-96 overflow-y-auto">
